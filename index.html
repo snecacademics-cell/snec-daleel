@@ -9,10 +9,10 @@
     * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
     body { background-color: #f1f5f9; margin: 0; padding: 0; color: #1e293b; }
 
-    /* Navbar */
+    /* Navbar Responsive */
     .navbar {
       background-color: #ffffff;
-      padding: 15px 30px;
+      padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -20,51 +20,62 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      flex-wrap: wrap;
+      gap: 10px;
     }
-    .navbar .logo { font-weight: 700; font-size: 18px; color: #2563eb; }
-    .nav-tabs { display: flex; gap: 8px; align-items: center; }
+    .navbar .logo { font-weight: 700; font-size: 17px; color: #2563eb; }
+    .nav-tabs { 
+      display: flex; 
+      gap: 6px; 
+      align-items: center; 
+      overflow-x: auto; 
+      max-width: 100%;
+      padding-bottom: 2px;
+    }
     .nav-btn {
-      padding: 8px 16px;
+      padding: 7px 12px;
       border: none;
-      background: none;
-      font-size: 14px;
+      background: #f1f5f9;
+      font-size: 13px;
       font-weight: 600;
       color: #64748b;
       cursor: pointer;
       border-radius: 6px;
+      white-space: nowrap;
       transition: all 0.2s;
     }
-    .nav-btn:hover { background-color: #f8fafc; color: #2563eb; }
+    .nav-btn:hover { background-color: #e2e8f0; color: #2563eb; }
     .nav-btn.active { background-color: #2563eb; color: white; }
     .btn-logout {
-      padding: 6px 14px;
+      padding: 6px 12px;
       border: 1px solid #fee2e2;
       background: #fef2f2;
       color: #dc2626;
       border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 13px;
+      font-size: 12px;
+      white-space: nowrap;
     }
 
-    /* Layout Containers */
-    .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+    /* Container */
+    .container { max-width: 1200px; margin: 15px auto; padding: 0 12px; }
     .card {
       background: #ffffff;
-      padding: 30px;
+      padding: 20px 15px;
       border-radius: 12px;
       box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
     }
     .form-card { max-width: 550px; margin: auto; }
-    h2 { margin-top: 0; color: #1e293b; }
-    .subtitle { color: #64748b; margin-bottom: 25px; font-size: 14px; }
+    h2 { margin-top: 0; color: #1e293b; font-size: 20px; }
+    .subtitle { color: #64748b; margin-bottom: 20px; font-size: 13px; }
 
-    /* Inputs & Form */
-    .form-group { margin-bottom: 16px; }
-    label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; color: #334155; }
+    /* Inputs */
+    .form-group { margin-bottom: 14px; }
+    label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 13px; color: #334155; }
     input, textarea, select {
       width: 100%;
-      padding: 12px 14px;
+      padding: 10px 12px;
       border: 1.5px solid #cbd5e1;
       border-radius: 8px;
       font-size: 14px;
@@ -77,78 +88,104 @@
     }
     .btn-primary {
       width: 100%;
-      padding: 13px;
+      padding: 12px;
       background-color: #2563eb;
       color: white;
       border: none;
       border-radius: 8px;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
     }
-    .btn-primary:hover { background-color: #1d4ed8; }
 
-    /* Table & Controls */
+    /* Header Bar & Actions */
     .header-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 20px;
+      gap: 10px;
+      margin-bottom: 15px;
     }
-    .search-box { width: auto; min-width: 250px; }
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .search-box {
+      flex: 1;
+      min-width: 180px;
+      padding: 8px 12px;
+    }
     .btn-action {
-      padding: 10px 18px;
+      padding: 8px 14px;
       border: none;
       border-radius: 6px;
       font-weight: 500;
       cursor: pointer;
       color: white;
+      font-size: 13px;
+      white-space: nowrap;
     }
     .btn-export { background-color: #16a34a; }
     .btn-refresh { background-color: #2563eb; }
 
-    .table-responsive { overflow-x: auto; margin-top: 15px; }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-    th, td { padding: 12px 14px; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+    /* Responsive Table */
+    .table-responsive {
+      overflow-x: auto;
+      margin-top: 10px;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
     th { background-color: #f8fafc; color: #475569; font-weight: 600; }
     tr:hover { background-color: #f8fafc; }
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #dcfce7; color: #15803d; }
+    .badge { padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; background: #dcfce7; color: #15803d; }
 
-    /* Status switch in Attendance */
-    .status-switch { display: flex; gap: 15px; }
-    .status-switch label { margin: 0; cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: 600; }
+    .status-switch { display: flex; gap: 10px; }
+    .status-switch label { margin: 0; cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: 600; font-size: 12px; }
     .text-present { color: #16a34a; }
     .text-absent { color: #dc2626; }
 
-    /* Login Box */
+    /* Login */
     .login-container {
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 80vh;
+      min-height: 75vh;
     }
     .login-card {
       width: 100%;
-      max-width: 400px;
+      max-width: 380px;
       background: white;
-      padding: 35px 30px;
+      padding: 25px 20px;
       border-radius: 12px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.05);
       text-align: center;
+    }
+
+    /* Mobile specific adjustments */
+    @media (max-width: 600px) {
+      .navbar { flex-direction: column; align-items: stretch; }
+      .nav-tabs { justify-content: space-between; }
+      .header-bar { flex-direction: column; align-items: stretch; }
+      .header-actions { flex-direction: row; }
+      .btn-action { flex: 1; }
     }
   </style>
 </head>
 <body>
 
-  <!-- App Header (Hidden on Login Screen) -->
+  <!-- App Header -->
   <div class="navbar" id="appNavbar" style="display: none;">
-    <div class="logo">SNEC DALEEL</div>
-    <div class="nav-tabs" id="navTabsContainer">
-      <!-- Tabs dynamically injected based on role -->
+    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+      <div class="logo">SNEC DALEEL</div>
+      <button class="btn-logout" onclick="logout()">Logout</button>
     </div>
-    <button class="btn-logout" onclick="logout()">Logout</button>
+    <div class="nav-tabs" id="navTabsContainer"></div>
   </div>
 
   <div class="container">
@@ -156,102 +193,69 @@
     <!-- 1. LOGIN SCREEN -->
     <div id="loginSection" class="login-container">
       <div class="login-card">
-        <h2 style="margin-bottom: 5px;">SNEC DALEEL</h2>
+        <h2 style="margin-bottom: 4px;">SNEC DALEEL</h2>
         <p class="subtitle">Enter Mobile Number or Staff PIN</p>
         
         <form id="loginForm">
           <div class="form-group">
-            <input type="password" id="loginKey" required placeholder="PIN or Registered Mobile No">
+            <input type="password" id="loginKey" required placeholder="PIN or Mobile Number">
           </div>
           <button type="submit" class="btn-primary" id="loginSubmitBtn">Login</button>
         </form>
 
-        <div style="margin-top: 20px; font-size: 13px; color: #64748b;">
+        <div style="margin-top: 15px; font-size: 13px; color: #64748b;">
           New student? <a href="javascript:void(0)" onclick="showAdmissionFormDirectly()" style="color:#2563eb; font-weight:600;">Register Here</a>
         </div>
-        <div id="loginMsg" style="margin-top: 12px; font-size: 13px; font-weight: 500;"></div>
+        <div id="loginMsg" style="margin-top: 10px; font-size: 13px; font-weight: 500;"></div>
       </div>
     </div>
 
     <!-- 2. STUDENT DASHBOARD -->
     <div id="studentDashboardSection" style="display: none;">
-      <div class="card form-card" id="studentProfileCard">
+      <div class="card form-card">
         <h2>Student Profile</h2>
         <p class="subtitle">Welcome to your learning portal</p>
         <div id="studentProfileDetails"></div>
       </div>
     </div>
 
-    <!-- 3. ADMISSION FORM (Accessible via Register link or Admin tab) -->
+    <!-- 3. ADMISSION FORM -->
     <div id="admissionSection" style="display: none;">
       <div class="card form-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
           <h2 style="margin: 0;">Course Admission</h2>
-          <button onclick="backToLogin()" style="background:none; border:none; color:#2563eb; cursor:pointer; font-size:13px; font-weight:600;">← Back to Login</button>
+          <button onclick="backToLogin()" style="background:none; border:none; color:#2563eb; cursor:pointer; font-size:13px; font-weight:600;">← Back</button>
         </div>
         <p class="subtitle">Fill out the student registration details</p>
         <form id="admissionForm">
-          <div class="form-group">
-            <label for="fullName">1. Full Name</label>
-            <input type="text" id="fullName" required placeholder="Full Name">
-          </div>
-          <div class="form-group">
-            <label for="email">2. E-Mail</label>
-            <input type="email" id="email" required placeholder="email@example.com">
-          </div>
-          <div class="form-group">
-            <label for="mobile">3. Mobile Number (WhatsApp)</label>
-            <input type="tel" id="mobile" required placeholder="10-digit number">
-          </div>
-          <div class="form-group">
-            <label for="place">4. Place</label>
-            <input type="text" id="place" required placeholder="City / Town">
-          </div>
-          <div class="form-group">
-            <label for="address">5. Address</label>
-            <textarea id="address" rows="2" required placeholder="Full Address"></textarea>
-          </div>
-          <div class="form-group">
-            <label for="dob">6. Date of Birth</label>
-            <input type="date" id="dob" required>
-          </div>
-          <div class="form-group">
-            <label for="religiousDegree">7. Religious Degree</label>
-            <input type="text" id="religiousDegree" required placeholder="Degree / Sanad">
-          </div>
-          <div class="form-group">
-            <label for="religiousInstitution">8. Institution</label>
-            <input type="text" id="religiousInstitution" required placeholder="Institution Name">
-          </div>
-          <div class="form-group">
-            <label for="secularEducation">9. Secular Education</label>
-            <input type="text" id="secularEducation" required placeholder="SSLC, +2, Degree...">
-          </div>
-          <div class="form-group">
-            <label for="currentJob">10. Current Profession</label>
-            <input type="text" id="currentJob" required placeholder="Job title">
-          </div>
-          <div class="form-group">
-            <label for="paymentDetails">11. Payment Details</label>
-            <input type="text" id="paymentDetails" required placeholder="Transaction ID / Paid Info">
-          </div>
+          <div class="form-group"><label for="fullName">1. Full Name</label><input type="text" id="fullName" required placeholder="Full Name"></div>
+          <div class="form-group"><label for="email">2. E-Mail</label><input type="email" id="email" required placeholder="email@example.com"></div>
+          <div class="form-group"><label for="mobile">3. Mobile (WhatsApp)</label><input type="tel" id="mobile" required placeholder="10-digit number"></div>
+          <div class="form-group"><label for="place">4. Place</label><input type="text" id="place" required placeholder="City / Town"></div>
+          <div class="form-group"><label for="address">5. Address</label><textarea id="address" rows="2" required placeholder="Full Address"></textarea></div>
+          <div class="form-group"><label for="dob">6. Date of Birth</label><input type="date" id="dob" required></div>
+          <div class="form-group"><label for="religiousDegree">7. Religious Degree</label><input type="text" id="religiousDegree" required placeholder="Degree / Sanad"></div>
+          <div class="form-group"><label for="religiousInstitution">8. Institution</label><input type="text" id="religiousInstitution" required placeholder="Institution Name"></div>
+          <div class="form-group"><label for="secularEducation">9. Secular Education</label><input type="text" id="secularEducation" required placeholder="SSLC, +2, Degree..."></div>
+          <div class="form-group"><label for="currentJob">10. Current Profession</label><input type="text" id="currentJob" required placeholder="Job title"></div>
+          <div class="form-group"><label for="paymentDetails">11. Payment Details</label><input type="text" id="paymentDetails" required placeholder="Transaction ID / Paid Info"></div>
           <button type="submit" class="btn-primary" id="regBtn">Submit Registration</button>
         </form>
-        <div id="admissionMsg" style="margin-top: 15px; text-align: center; font-weight: 500;"></div>
+        <div id="admissionMsg" style="margin-top: 12px; text-align: center; font-weight: 500;"></div>
       </div>
     </div>
 
-    <!-- 4. ATTENDANCE SECTION (Teacher & Admin) -->
+    <!-- 4. ATTENDANCE SECTION -->
     <div id="attendanceSection" style="display: none;">
       <div class="card">
         <div class="header-bar">
           <div>
-            <h2 style="margin:0;">Daily Attendance Tracker</h2>
+            <h2 style="margin:0;">Daily Attendance</h2>
             <p class="subtitle" style="margin:0;">Mark student presence</p>
           </div>
-          <div style="display:flex; gap:10px; align-items:center;">
-            <input type="date" id="attendanceDate" style="width: auto; padding: 8px 12px;">
-            <button class="btn-action btn-refresh" id="loadAttendanceBtn">Load Date</button>
+          <div style="display:flex; gap:6px; align-items:center; width:100%; margin-top:5px;">
+            <input type="date" id="attendanceDate" style="flex:1; padding: 8px 10px;">
+            <button class="btn-action btn-refresh" id="loadAttendanceBtn">Load</button>
           </div>
         </div>
 
@@ -260,34 +264,34 @@
             <table>
               <thead>
                 <tr>
-                  <th>Sl No</th>
+                  <th>Sl</th>
                   <th>Student Name</th>
-                  <th>Mobile Number</th>
+                  <th>Mobile</th>
                   <th>Place</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody id="attendanceTableBody">
-                <tr><td colspan="5" style="text-align:center; padding: 20px;">Loading list...</td></tr>
+                <tr><td colspan="5" style="text-align:center; padding: 15px;">Loading...</td></tr>
               </tbody>
             </table>
           </div>
-          <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
-            <button type="submit" class="btn-action btn-refresh" id="saveAttendanceBtn" style="padding: 12px 25px;">Save Attendance</button>
+          <div style="margin-top: 15px;">
+            <button type="submit" class="btn-primary" id="saveAttendanceBtn">Save Attendance</button>
           </div>
         </form>
-        <div id="attendanceMsg" style="margin-top: 15px; text-align: center; font-weight: 500;"></div>
+        <div id="attendanceMsg" style="margin-top: 12px; text-align: center; font-weight: 500;"></div>
       </div>
     </div>
 
-    <!-- 5. DIRECTORY SECTION (Admin Only) -->
+    <!-- 5. DIRECTORY SECTION -->
     <div id="directorySection" style="display: none;">
       <div class="card">
         <div class="header-bar">
-          <h2 style="margin:0;">Registered Students Directory</h2>
-          <div style="display:flex; gap:10px;">
-            <input type="text" id="searchInput" class="search-box" placeholder="Search...">
-            <button class="btn-action btn-export" id="exportBtn">Export CSV</button>
+          <h2 style="margin:0;">Students Directory</h2>
+          <div class="header-actions">
+            <input type="text" id="searchInput" class="search-box" placeholder="Search name, phone...">
+            <button class="btn-action btn-export" id="exportBtn">CSV</button>
             <button class="btn-action btn-refresh" id="refreshDirBtn">Refresh</button>
           </div>
         </div>
@@ -295,20 +299,20 @@
           <table>
             <thead>
               <tr>
-                <th>Sl No</th>
-                <th>Full Name</th>
+                <th>Sl</th>
+                <th>Name</th>
                 <th>Mobile</th>
                 <th>Email</th>
                 <th>Place</th>
-                <th>Religious Degree</th>
-                <th>Secular Edu</th>
-                <th>Profession</th>
-                <th>Payment Info</th>
+                <th>Degree</th>
+                <th>Education</th>
+                <th>Job</th>
+                <th>Payment</th>
                 <th>Status</th>
               </tr>
             </thead>
             <tbody id="directoryTableBody">
-              <tr><td colspan="10" style="text-align:center; padding: 20px;">Loading records...</td></tr>
+              <tr><td colspan="10" style="text-align:center; padding: 15px;">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -335,7 +339,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // PIN Configurations
     const ADMIN_PIN = "1234";
     const TEACHER_PIN = "5678";
 
@@ -343,7 +346,6 @@
     let loggedStudentData = null;
     let allStudents = [];
 
-    // --- LOGIN LOGIC ---
     document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const key = document.getElementById("loginKey").value.trim();
@@ -362,7 +364,6 @@
         setupNavForRole('teacher');
         showSection('attendanceSection');
       } else {
-        // Check if student exists with this mobile number
         try {
           const docSnap = await getDoc(doc(db, "students", key));
           if (docSnap.exists()) {
@@ -373,7 +374,7 @@
             showSection('studentDashboardSection');
           } else {
             loginMsg.style.color = "#dc2626";
-            loginMsg.innerText = "Invalid PIN or Unregistered Mobile Number!";
+            loginMsg.innerText = "Invalid PIN or Mobile Number!";
           }
         } catch (err) {
           loginMsg.style.color = "#dc2626";
@@ -391,9 +392,9 @@
 
       if (role === 'admin') {
         tabs.innerHTML = `
-          <button class="nav-btn active" onclick="showSection('directorySection')">Students Directory</button>
+          <button class="nav-btn active" onclick="showSection('directorySection')">Directory</button>
           <button class="nav-btn" onclick="showSection('attendanceSection')">Attendance</button>
-          <button class="nav-btn" onclick="showSection('admissionSection')">New Admission</button>
+          <button class="nav-btn" onclick="showSection('admissionSection')">Admission</button>
         `;
       } else if (role === 'teacher') {
         tabs.innerHTML = `
@@ -401,7 +402,7 @@
         `;
       } else if (role === 'student') {
         tabs.innerHTML = `
-          <button class="nav-btn active" onclick="showSection('studentDashboardSection')">My Profile</button>
+          <button class="nav-btn active" onclick="showSection('studentDashboardSection')">Profile</button>
         `;
       }
     }
@@ -415,7 +416,6 @@
 
       document.getElementById(sectionId).style.display = "block";
 
-      // Highlight matching active button
       document.querySelectorAll(".nav-btn").forEach(btn => {
         btn.classList.toggle("active", btn.getAttribute("onclick").includes(sectionId));
       });
@@ -452,19 +452,18 @@
 
     function renderStudentProfile(data) {
       document.getElementById("studentProfileDetails").innerHTML = `
-        <div style="background:#f8fafc; padding:20px; border-radius:8px; line-height:1.8; font-size:14px;">
+        <div style="background:#f8fafc; padding:15px; border-radius:8px; line-height:1.7; font-size:13px;">
           <p><strong>Name:</strong> ${data.fullName}</p>
           <p><strong>Mobile:</strong> ${data.mobileNumber}</p>
           <p><strong>Email:</strong> ${data.email}</p>
           <p><strong>Place:</strong> ${data.place}</p>
-          <p><strong>Religious Degree:</strong> ${data.religiousDegree} (${data.religiousInstitution})</p>
-          <p><strong>Payment Status:</strong> ${data.paymentDetails}</p>
+          <p><strong>Degree:</strong> ${data.religiousDegree} (${data.religiousInstitution})</p>
+          <p><strong>Payment:</strong> ${data.paymentDetails}</p>
           <p><strong>Status:</strong> <span class="badge">${data.status || 'Active'}</span></p>
         </div>
       `;
     }
 
-    // --- ADMISSION FORM ---
     document.getElementById("admissionForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const mobile = document.getElementById("mobile").value.trim();
@@ -495,14 +494,13 @@
       }
     });
 
-    // --- DIRECTORY LOGIC ---
     async function fetchDirectory() {
       const tb = document.getElementById("directoryTableBody");
-      tb.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 20px;">Loading records...</td></tr>';
+      tb.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 15px;">Loading...</td></tr>';
       try {
-        const querySnapshot = await getDocs(collection(db, "students"));
+        const snap = await getDocs(collection(db, "students"));
         allStudents = [];
-        querySnapshot.forEach(doc => allStudents.push({ id: doc.id, ...doc.data() }));
+        snap.forEach(d => allStudents.push({ id: d.id, ...d.data() }));
         renderDirectory(allStudents);
       } catch (err) {
         tb.innerHTML = `<tr><td colspan="10" style="text-align:center; color:red;">${err.message}</td></tr>`;
@@ -511,7 +509,7 @@
 
     function renderDirectory(data) {
       const tb = document.getElementById("directoryTableBody");
-      if (!data.length) { tb.innerHTML = '<tr><td colspan="10" style="text-align:center;">No students found</td></tr>'; return; }
+      if (!data.length) { tb.innerHTML = '<tr><td colspan="10" style="text-align:center;">No records</td></tr>'; return; }
       tb.innerHTML = data.map((s, i) => `
         <tr>
           <td>${i+1}</td>
@@ -550,7 +548,6 @@
 
     document.getElementById("refreshDirBtn").addEventListener("click", fetchDirectory);
 
-    // --- ATTENDANCE LOGIC ---
     const dateInput = document.getElementById("attendanceDate");
     async function initAttendance() {
       if (!dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
@@ -560,13 +557,13 @@
     async function loadAttendance() {
       const selectedDate = dateInput.value;
       const tb = document.getElementById("attendanceTableBody");
-      tb.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Fetching...</td></tr>';
+      tb.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 15px;">Fetching...</td></tr>';
       
       try {
         if (!allStudents.length) {
           const snap = await getDocs(collection(db, "students"));
           allStudents = [];
-          snap.forEach(doc => allStudents.push({ id: doc.id, ...doc.data() }));
+          snap.forEach(d => allStudents.push({ id: d.id, ...d.data() }));
         }
 
         const attSnap = await getDoc(doc(db, "attendance", selectedDate));
@@ -583,8 +580,8 @@
               <td>${s.place || '-'}</td>
               <td>
                 <div class="status-switch">
-                  <label class="text-present"><input type="radio" name="att_${sid}" value="Present" ${status==="Present"?"checked":""}> Present</label>
-                  <label class="text-absent"><input type="radio" name="att_${sid}" value="Absent" ${status==="Absent"?"checked":""}> Absent</label>
+                  <label class="text-present"><input type="radio" name="att_${sid}" value="Present" ${status==="Present"?"checked":""}> P</label>
+                  <label class="text-absent"><input type="radio" name="att_${sid}" value="Absent" ${status==="Absent"?"checked":""}> A</label>
                 </div>
               </td>
             </tr>
@@ -610,7 +607,7 @@
       try {
         await setDoc(doc(db, "attendance", selectedDate), { date: selectedDate, records, updatedAt: new Date().toISOString() });
         document.getElementById("attendanceMsg").style.color = "#16a34a";
-        document.getElementById("attendanceMsg").innerText = `Attendance for ${selectedDate} saved!`;
+        document.getElementById("attendanceMsg").innerText = `Saved successfully!`;
       } catch (err) {
         document.getElementById("attendanceMsg").style.color = "#dc2626";
         document.getElementById("attendanceMsg").innerText = "Error: " + err.message;
