@@ -3,19 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SNEC Daleel - Unified Portal</title>
+  <title>SNEC Daleel Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
-    body {
-      background-color: #f1f5f9;
-      margin: 0;
-      padding: 0;
-      color: #1e293b;
-    }
+    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    body { background-color: #f1f5f9; margin: 0; padding: 0; color: #1e293b; }
 
     /* Navbar */
     .navbar {
@@ -29,29 +21,8 @@
       top: 0;
       z-index: 100;
     }
-    .navbar .logo-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .navbar .logo {
-      font-weight: 700;
-      font-size: 18px;
-      color: #2563eb;
-    }
-    .role-badge {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 20px;
-      background: #e2e8f0;
-      color: #475569;
-    }
-    .nav-tabs {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+    .navbar .logo { font-weight: 700; font-size: 18px; color: #2563eb; }
+    .nav-tabs { display: flex; gap: 8px; align-items: center; }
     .nav-btn {
       padding: 8px 16px;
       border: none;
@@ -61,78 +32,36 @@
       color: #64748b;
       cursor: pointer;
       border-radius: 6px;
-      transition: all 0.2s ease;
+      transition: all 0.2s;
     }
-    .nav-btn:hover {
-      background-color: #f8fafc;
-      color: #2563eb;
-    }
-    .nav-btn.active {
-      background-color: #2563eb;
-      color: white;
-    }
-    .btn-lock {
-      padding: 6px 12px;
-      border: 1px solid #cbd5e1;
-      background: white;
+    .nav-btn:hover { background-color: #f8fafc; color: #2563eb; }
+    .nav-btn.active { background-color: #2563eb; color: white; }
+    .btn-logout {
+      padding: 6px 14px;
+      border: 1px solid #fee2e2;
+      background: #fef2f2;
+      color: #dc2626;
       border-radius: 6px;
       cursor: pointer;
+      font-weight: 600;
       font-size: 13px;
-      font-weight: 500;
-      color: #475569;
-    }
-    .btn-lock:hover {
-      background: #fee2e2;
-      color: #dc2626;
-      border-color: #fca5a5;
     }
 
-    /* Container */
-    .container {
-      max-width: 1200px;
-      margin: 30px auto;
-      padding: 0 20px;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-
-    /* Cards */
+    /* Layout Containers */
+    .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
     .card {
       background: #ffffff;
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
     }
-    .form-card {
-      max-width: 600px;
-      margin: auto;
-    }
-    h2 {
-      margin-top: 0;
-      margin-bottom: 6px;
-      color: #1e293b;
-    }
-    .subtitle {
-      color: #64748b;
-      margin-bottom: 25px;
-      font-size: 14px;
-    }
+    .form-card { max-width: 550px; margin: auto; }
+    h2 { margin-top: 0; color: #1e293b; }
+    .subtitle { color: #64748b; margin-bottom: 25px; font-size: 14px; }
 
-    /* Forms */
-    .form-group {
-      margin-bottom: 18px;
-    }
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 500;
-      color: #334155;
-      font-size: 14px;
-    }
+    /* Inputs & Form */
+    .form-group { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; color: #334155; }
     input, textarea, select {
       width: 100%;
       padding: 12px 14px;
@@ -144,36 +73,22 @@
     input:focus, textarea:focus, select:focus {
       outline: none;
       border-color: #2563eb;
-      background-color: #ffffff;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      background: #fff;
     }
-    textarea {
-      resize: vertical;
-      min-height: 70px;
-    }
-    .btn-submit {
+    .btn-primary {
       width: 100%;
-      padding: 14px;
+      padding: 13px;
       background-color: #2563eb;
       color: white;
       border: none;
       border-radius: 8px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      margin-top: 10px;
     }
-    .btn-submit:hover {
-      background-color: #1d4ed8;
-    }
-    .status-msg {
-      margin-top: 15px;
-      text-align: center;
-      font-weight: 500;
-      font-size: 15px;
-    }
+    .btn-primary:hover { background-color: #1d4ed8; }
 
-    /* Tables */
+    /* Table & Controls */
     .header-bar {
       display: flex;
       justify-content: space-between;
@@ -182,13 +97,7 @@
       gap: 15px;
       margin-bottom: 20px;
     }
-    .search-box {
-      padding: 10px 14px;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 6px;
-      font-size: 14px;
-      min-width: 250px;
-    }
+    .search-box { width: auto; min-width: 250px; }
     .btn-action {
       padding: 10px 18px;
       border: none;
@@ -200,139 +109,147 @@
     .btn-export { background-color: #16a34a; }
     .btn-refresh { background-color: #2563eb; }
 
-    .table-responsive {
-      overflow-x: auto;
-      margin-top: 15px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-      font-size: 13px;
-    }
-    th, td {
-      padding: 12px 14px;
-      border-bottom: 1px solid #e2e8f0;
-      white-space: nowrap;
-    }
-    th {
-      background-color: #f8fafc;
-      color: #475569;
-      font-weight: 600;
-    }
-    tr:hover {
-      background-color: #f8fafc;
-    }
-    .badge {
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 600;
-      background-color: #dcfce7;
-      color: #15803d;
-    }
+    .table-responsive { overflow-x: auto; margin-top: 15px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+    th { background-color: #f8fafc; color: #475569; font-weight: 600; }
+    tr:hover { background-color: #f8fafc; }
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: #dcfce7; color: #15803d; }
 
-    .status-switch {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-    }
-    .status-switch label {
-      margin-bottom: 0;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-weight: 600;
-    }
+    /* Status switch in Attendance */
+    .status-switch { display: flex; gap: 15px; }
+    .status-switch label { margin: 0; cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: 600; }
     .text-present { color: #16a34a; }
     .text-absent { color: #dc2626; }
+
+    /* Login Box */
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 80vh;
+    }
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      padding: 35px 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      text-align: center;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation Bar -->
-  <div class="navbar">
-    <div class="logo-group">
-      <div class="logo">SNEC DALEEL</div>
-      <span class="role-badge" id="currentRoleBadge">Public Mode</span>
+  <!-- App Header (Hidden on Login Screen) -->
+  <div class="navbar" id="appNavbar" style="display: none;">
+    <div class="logo">SNEC DALEEL</div>
+    <div class="nav-tabs" id="navTabsContainer">
+      <!-- Tabs dynamically injected based on role -->
     </div>
-    <div class="nav-tabs">
-      <button class="nav-btn active" id="tabBtn-admission" onclick="openTab('admissionTab')">Admission Form</button>
-      <button class="nav-btn" id="tabBtn-attendance" onclick="openTab('attendanceTab')">🔒 Daily Attendance</button>
-      <button class="nav-btn" id="tabBtn-admin" onclick="openTab('adminTab')">🔒 Students Directory</button>
-      <button class="btn-lock" id="logoutBtn" style="display:none;" onclick="logoutRole()">Lock / Logout</button>
-    </div>
+    <button class="btn-logout" onclick="logout()">Logout</button>
   </div>
 
   <div class="container">
-    
-    <!-- Tab 1: Admission Form (Public) -->
-    <div id="admissionTab" class="tab-content active">
+
+    <!-- 1. LOGIN SCREEN -->
+    <div id="loginSection" class="login-container">
+      <div class="login-card">
+        <h2 style="margin-bottom: 5px;">SNEC DALEEL</h2>
+        <p class="subtitle">Enter Mobile Number or Staff PIN</p>
+        
+        <form id="loginForm">
+          <div class="form-group">
+            <input type="password" id="loginKey" required placeholder="PIN or Registered Mobile No">
+          </div>
+          <button type="submit" class="btn-primary" id="loginSubmitBtn">Login</button>
+        </form>
+
+        <div style="margin-top: 20px; font-size: 13px; color: #64748b;">
+          New student? <a href="javascript:void(0)" onclick="showAdmissionFormDirectly()" style="color:#2563eb; font-weight:600;">Register Here</a>
+        </div>
+        <div id="loginMsg" style="margin-top: 12px; font-size: 13px; font-weight: 500;"></div>
+      </div>
+    </div>
+
+    <!-- 2. STUDENT DASHBOARD -->
+    <div id="studentDashboardSection" style="display: none;">
+      <div class="card form-card" id="studentProfileCard">
+        <h2>Student Profile</h2>
+        <p class="subtitle">Welcome to your learning portal</p>
+        <div id="studentProfileDetails"></div>
+      </div>
+    </div>
+
+    <!-- 3. ADMISSION FORM (Accessible via Register link or Admin tab) -->
+    <div id="admissionSection" style="display: none;">
       <div class="card form-card">
-        <h2 style="text-align: center;">Course Admission</h2>
-        <p class="subtitle" style="text-align: center;">Please fill out the registration form below</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h2 style="margin: 0;">Course Admission</h2>
+          <button onclick="backToLogin()" style="background:none; border:none; color:#2563eb; cursor:pointer; font-size:13px; font-weight:600;">← Back to Login</button>
+        </div>
+        <p class="subtitle">Fill out the student registration details</p>
         <form id="admissionForm">
           <div class="form-group">
             <label for="fullName">1. Full Name</label>
-            <input type="text" id="fullName" required placeholder="Enter full name">
+            <input type="text" id="fullName" required placeholder="Full Name">
           </div>
           <div class="form-group">
-            <label for="email">2. E-Mail Address</label>
-            <input type="email" id="email" required placeholder="name@example.com">
+            <label for="email">2. E-Mail</label>
+            <input type="email" id="email" required placeholder="email@example.com">
           </div>
           <div class="form-group">
             <label for="mobile">3. Mobile Number (WhatsApp)</label>
-            <input type="tel" id="mobile" required placeholder="10-digit mobile number">
+            <input type="tel" id="mobile" required placeholder="10-digit number">
           </div>
           <div class="form-group">
-            <label for="place">4. Place / City</label>
-            <input type="text" id="place" required placeholder="Your town or city">
+            <label for="place">4. Place</label>
+            <input type="text" id="place" required placeholder="City / Town">
           </div>
           <div class="form-group">
             <label for="address">5. Address</label>
-            <textarea id="address" rows="2" required placeholder="Full postal address"></textarea>
+            <textarea id="address" rows="2" required placeholder="Full Address"></textarea>
           </div>
           <div class="form-group">
             <label for="dob">6. Date of Birth</label>
             <input type="date" id="dob" required>
           </div>
           <div class="form-group">
-            <label for="religiousDegree">7. Religious Degree / Qualification (മത ബിരുദം)</label>
-            <input type="text" id="religiousDegree" required placeholder="e.g. Moulavi Fazil, Wafy, etc.">
+            <label for="religiousDegree">7. Religious Degree</label>
+            <input type="text" id="religiousDegree" required placeholder="Degree / Sanad">
           </div>
           <div class="form-group">
-            <label for="religiousInstitution">8. Institution of Religious Degree (ബിരുദം നേടിയ സ്ഥാപനം)</label>
-            <input type="text" id="religiousInstitution" required placeholder="Name of institution / university">
+            <label for="religiousInstitution">8. Institution</label>
+            <input type="text" id="religiousInstitution" required placeholder="Institution Name">
           </div>
           <div class="form-group">
-            <label for="secularEducation">9. Secular Education (ഭൗതിക വിദ്യാഭ്യാസം)</label>
-            <input type="text" id="secularEducation" required placeholder="e.g. Plus Two, BA, B.Com, etc.">
+            <label for="secularEducation">9. Secular Education</label>
+            <input type="text" id="secularEducation" required placeholder="SSLC, +2, Degree...">
           </div>
           <div class="form-group">
-            <label for="currentJob">10. Current Profession / Job (നിലവിലെ ജോലി)</label>
-            <input type="text" id="currentJob" required placeholder="e.g. Teacher, Imam, Student, Business">
+            <label for="currentJob">10. Current Profession</label>
+            <input type="text" id="currentJob" required placeholder="Job title">
           </div>
           <div class="form-group">
-            <label for="paymentDetails">11. Payment Details (പേയ്‌മെന്റ് വിവരങ്ങൾ)</label>
-            <input type="text" id="paymentDetails" required placeholder="Transaction ID / UPI Ref / Amount">
+            <label for="paymentDetails">11. Payment Details</label>
+            <input type="text" id="paymentDetails" required placeholder="Transaction ID / Paid Info">
           </div>
-          <button type="submit" id="submitBtn" class="btn-submit">Submit Registration</button>
+          <button type="submit" class="btn-primary" id="regBtn">Submit Registration</button>
         </form>
-        <div id="statusMessage" class="status-msg"></div>
+        <div id="admissionMsg" style="margin-top: 15px; text-align: center; font-weight: 500;"></div>
       </div>
     </div>
 
-    <!-- Tab 2: Daily Attendance System (Teacher / Admin) -->
-    <div id="attendanceTab" class="tab-content">
+    <!-- 4. ATTENDANCE SECTION (Teacher & Admin) -->
+    <div id="attendanceSection" style="display: none;">
       <div class="card">
         <div class="header-bar">
           <div>
-            <h2>Daily Attendance Tracker</h2>
-            <p class="subtitle" style="margin-bottom:0;">Mark and track daily student attendance</p>
+            <h2 style="margin:0;">Daily Attendance Tracker</h2>
+            <p class="subtitle" style="margin:0;">Mark student presence</p>
           </div>
           <div style="display:flex; gap:10px; align-items:center;">
-            <label for="attendanceDate" style="margin-bottom:0; font-weight:600;">Date:</label>
             <input type="date" id="attendanceDate" style="width: auto; padding: 8px 12px;">
             <button class="btn-action btn-refresh" id="loadAttendanceBtn">Load Date</button>
           </div>
@@ -347,60 +264,51 @@
                   <th>Student Name</th>
                   <th>Mobile Number</th>
                   <th>Place</th>
-                  <th>Attendance Status</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody id="attendanceTableBody">
-                <tr>
-                  <td colspan="5" style="text-align:center; padding: 20px;">Loading student list...</td>
-                </tr>
+                <tr><td colspan="5" style="text-align:center; padding: 20px;">Loading list...</td></tr>
               </tbody>
             </table>
           </div>
-          <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-            <button type="submit" class="btn-action" style="background-color:#2563eb; padding: 12px 25px; font-size:15px;" id="saveAttendanceBtn">Save Attendance</button>
+          <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn-action btn-refresh" id="saveAttendanceBtn" style="padding: 12px 25px;">Save Attendance</button>
           </div>
         </form>
-        <div id="attendanceStatusMsg" class="status-msg"></div>
+        <div id="attendanceMsg" style="margin-top: 15px; text-align: center; font-weight: 500;"></div>
       </div>
     </div>
 
-    <!-- Tab 3: Admin Dashboard (Admin Only) -->
-    <div id="adminTab" class="tab-content">
+    <!-- 5. DIRECTORY SECTION (Admin Only) -->
+    <div id="directorySection" style="display: none;">
       <div class="card">
         <div class="header-bar">
           <h2 style="margin:0;">Registered Students Directory</h2>
-          <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <input type="text" id="searchInput" class="search-box" placeholder="Search by name, phone, place...">
+          <div style="display:flex; gap:10px;">
+            <input type="text" id="searchInput" class="search-box" placeholder="Search...">
             <button class="btn-action btn-export" id="exportBtn">Export CSV</button>
-            <button class="btn-action btn-refresh" id="refreshBtn">Refresh</button>
+            <button class="btn-action btn-refresh" id="refreshDirBtn">Refresh</button>
           </div>
         </div>
-
         <div class="table-responsive">
           <table>
             <thead>
               <tr>
                 <th>Sl No</th>
                 <th>Full Name</th>
-                <th>Mobile (ID)</th>
+                <th>Mobile</th>
                 <th>Email</th>
                 <th>Place</th>
-                <th>Address</th>
-                <th>DOB</th>
                 <th>Religious Degree</th>
-                <th>Institution</th>
                 <th>Secular Edu</th>
                 <th>Profession</th>
-                <th>Payment Details</th>
-                <th>Reg. Date</th>
+                <th>Payment Info</th>
                 <th>Status</th>
               </tr>
             </thead>
-            <tbody id="studentTableBody">
-              <tr>
-                <td colspan="14" style="text-align:center; padding: 20px;">Loading data...</td>
-              </tr>
+            <tbody id="directoryTableBody">
+              <tr><td colspan="10" style="text-align:center; padding: 20px;">Loading records...</td></tr>
             </tbody>
           </table>
         </div>
@@ -431,102 +339,134 @@
     const ADMIN_PIN = "1234";
     const TEACHER_PIN = "5678";
 
-    let currentRole = null; // 'admin' | 'teacher' | null
+    let currentUserRole = null;
+    let loggedStudentData = null;
     let allStudents = [];
 
-    // Role verification logic
-    window.openTab = function(tabId) {
-      if (tabId === 'attendanceTab') {
-        if (currentRole !== 'admin' && currentRole !== 'teacher') {
-          const pin = prompt("Enter Teacher or Admin PIN to access Attendance:");
-          if (pin === ADMIN_PIN) {
-            setRole('admin');
-          } else if (pin === TEACHER_PIN) {
-            setRole('teacher');
-          } else if (pin !== null) {
-            alert("Invalid PIN!");
-            return;
-          } else {
-            return;
-          }
-        }
-      } else if (tabId === 'adminTab') {
-        if (currentRole !== 'admin') {
-          const pin = prompt("Enter Admin PIN to access Students Directory:");
-          if (pin === ADMIN_PIN) {
-            setRole('admin');
-          } else if (pin !== null) {
-            alert("Invalid Admin PIN!");
-            return;
-          } else {
-            return;
-          }
-        }
-      }
-
-      activateTab(tabId);
-    };
-
-    function setRole(role) {
-      currentRole = role;
-      const roleBadge = document.getElementById("currentRoleBadge");
-      const logoutBtn = document.getElementById("logoutBtn");
-      
-      if (role === 'admin') {
-        roleBadge.innerText = "Admin Logged In";
-        roleBadge.style.background = "#dcfce7";
-        roleBadge.style.color = "#15803d";
-        logoutBtn.style.display = "inline-block";
-        document.getElementById("tabBtn-attendance").innerText = "Daily Attendance";
-        document.getElementById("tabBtn-admin").innerText = "Students Directory";
-      } else if (role === 'teacher') {
-        roleBadge.innerText = "Teacher Logged In";
-        roleBadge.style.background = "#e0f2fe";
-        roleBadge.style.color = "#0369a1";
-        logoutBtn.style.display = "inline-block";
-        document.getElementById("tabBtn-attendance").innerText = "Daily Attendance";
-      }
-    }
-
-    window.logoutRole = function() {
-      currentRole = null;
-      document.getElementById("currentRoleBadge").innerText = "Public Mode";
-      document.getElementById("currentRoleBadge").style.background = "#e2e8f0";
-      document.getElementById("currentRoleBadge").style.color = "#475569";
-      document.getElementById("logoutBtn").style.display = "none";
-      document.getElementById("tabBtn-attendance").innerText = "🔒 Daily Attendance";
-      document.getElementById("tabBtn-admin").innerText = "🔒 Students Directory";
-      activateTab('admissionTab');
-    };
-
-    function activateTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-      
-      document.getElementById(tabId).classList.add('active');
-
-      if (tabId === 'admissionTab') {
-        document.getElementById('tabBtn-admission').classList.add('active');
-      } else if (tabId === 'attendanceTab') {
-        document.getElementById('tabBtn-attendance').classList.add('active');
-        initAttendance();
-      } else if (tabId === 'adminTab') {
-        document.getElementById('tabBtn-admin').classList.add('active');
-        fetchStudents();
-      }
-    }
-
-    // --- Admission Form Logic ---
-    const form = document.getElementById("admissionForm");
-    const statusMsg = document.getElementById("statusMessage");
-    const submitBtn = document.getElementById("submitBtn");
-
-    form.addEventListener("submit", async (e) => {
+    // --- LOGIN LOGIC ---
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
       e.preventDefault();
-      submitBtn.disabled = true;
-      submitBtn.innerText = "Submitting...";
-      statusMsg.innerText = "";
+      const key = document.getElementById("loginKey").value.trim();
+      const loginMsg = document.getElementById("loginMsg");
+      const submitBtn = document.getElementById("loginSubmitBtn");
 
+      loginMsg.innerText = "";
+      submitBtn.disabled = true;
+
+      if (key === ADMIN_PIN) {
+        currentUserRole = 'admin';
+        setupNavForRole('admin');
+        showSection('directorySection');
+      } else if (key === TEACHER_PIN) {
+        currentUserRole = 'teacher';
+        setupNavForRole('teacher');
+        showSection('attendanceSection');
+      } else {
+        // Check if student exists with this mobile number
+        try {
+          const docSnap = await getDoc(doc(db, "students", key));
+          if (docSnap.exists()) {
+            currentUserRole = 'student';
+            loggedStudentData = docSnap.data();
+            setupNavForRole('student');
+            renderStudentProfile(loggedStudentData);
+            showSection('studentDashboardSection');
+          } else {
+            loginMsg.style.color = "#dc2626";
+            loginMsg.innerText = "Invalid PIN or Unregistered Mobile Number!";
+          }
+        } catch (err) {
+          loginMsg.style.color = "#dc2626";
+          loginMsg.innerText = "Error: " + err.message;
+        }
+      }
+      submitBtn.disabled = false;
+    });
+
+    function setupNavForRole(role) {
+      document.getElementById("loginSection").style.display = "none";
+      document.getElementById("appNavbar").style.display = "flex";
+      const tabs = document.getElementById("navTabsContainer");
+      tabs.innerHTML = "";
+
+      if (role === 'admin') {
+        tabs.innerHTML = `
+          <button class="nav-btn active" onclick="showSection('directorySection')">Students Directory</button>
+          <button class="nav-btn" onclick="showSection('attendanceSection')">Attendance</button>
+          <button class="nav-btn" onclick="showSection('admissionSection')">New Admission</button>
+        `;
+      } else if (role === 'teacher') {
+        tabs.innerHTML = `
+          <button class="nav-btn active" onclick="showSection('attendanceSection')">Attendance</button>
+        `;
+      } else if (role === 'student') {
+        tabs.innerHTML = `
+          <button class="nav-btn active" onclick="showSection('studentDashboardSection')">My Profile</button>
+        `;
+      }
+    }
+
+    window.showSection = function(sectionId) {
+      document.getElementById("loginSection").style.display = "none";
+      document.getElementById("studentDashboardSection").style.display = "none";
+      document.getElementById("admissionSection").style.display = "none";
+      document.getElementById("attendanceSection").style.display = "none";
+      document.getElementById("directorySection").style.display = "none";
+
+      document.getElementById(sectionId).style.display = "block";
+
+      // Highlight matching active button
+      document.querySelectorAll(".nav-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("onclick").includes(sectionId));
+      });
+
+      if (sectionId === 'directorySection') fetchDirectory();
+      if (sectionId === 'attendanceSection') initAttendance();
+    };
+
+    window.showAdmissionFormDirectly = function() {
+      document.getElementById("loginSection").style.display = "none";
+      document.getElementById("admissionSection").style.display = "block";
+    };
+
+    window.backToLogin = function() {
+      if (!currentUserRole) {
+        document.getElementById("admissionSection").style.display = "none";
+        document.getElementById("loginSection").style.display = "flex";
+      } else {
+        showSection(currentUserRole === 'admin' ? 'directorySection' : 'attendanceSection');
+      }
+    };
+
+    window.logout = function() {
+      currentUserRole = null;
+      loggedStudentData = null;
+      document.getElementById("loginKey").value = "";
+      document.getElementById("appNavbar").style.display = "none";
+      document.getElementById("studentDashboardSection").style.display = "none";
+      document.getElementById("admissionSection").style.display = "none";
+      document.getElementById("attendanceSection").style.display = "none";
+      document.getElementById("directorySection").style.display = "none";
+      document.getElementById("loginSection").style.display = "flex";
+    };
+
+    function renderStudentProfile(data) {
+      document.getElementById("studentProfileDetails").innerHTML = `
+        <div style="background:#f8fafc; padding:20px; border-radius:8px; line-height:1.8; font-size:14px;">
+          <p><strong>Name:</strong> ${data.fullName}</p>
+          <p><strong>Mobile:</strong> ${data.mobileNumber}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
+          <p><strong>Place:</strong> ${data.place}</p>
+          <p><strong>Religious Degree:</strong> ${data.religiousDegree} (${data.religiousInstitution})</p>
+          <p><strong>Payment Status:</strong> ${data.paymentDetails}</p>
+          <p><strong>Status:</strong> <span class="badge">${data.status || 'Active'}</span></p>
+        </div>
+      `;
+    }
+
+    // --- ADMISSION FORM ---
+    document.getElementById("admissionForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
       const mobile = document.getElementById("mobile").value.trim();
       const studentData = {
         fullName: document.getElementById("fullName").value.trim(),
@@ -546,198 +486,134 @@
 
       try {
         await setDoc(doc(db, "students", mobile), studentData);
-        statusMsg.style.color = "#16a34a";
-        statusMsg.innerText = "Registration submitted successfully!";
-        form.reset();
-      } catch (error) {
-        console.error("Submission Error: ", error);
-        statusMsg.style.color = "#dc2626";
-        statusMsg.innerText = "Error: " + error.message;
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = "Submit Registration";
+        document.getElementById("admissionMsg").style.color = "#16a34a";
+        document.getElementById("admissionMsg").innerText = "Registration Completed Successfully!";
+        document.getElementById("admissionForm").reset();
+      } catch (err) {
+        document.getElementById("admissionMsg").style.color = "#dc2626";
+        document.getElementById("admissionMsg").innerText = "Error: " + err.message;
       }
     });
 
-    // --- Students Directory (Admin) Logic ---
-    const tableBody = document.getElementById("studentTableBody");
-    const searchInput = document.getElementById("searchInput");
-
-    async function fetchStudents() {
-      tableBody.innerHTML = '<tr><td colspan="14" style="text-align:center; padding: 20px;">Loading data...</td></tr>';
+    // --- DIRECTORY LOGIC ---
+    async function fetchDirectory() {
+      const tb = document.getElementById("directoryTableBody");
+      tb.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 20px;">Loading records...</td></tr>';
       try {
         const querySnapshot = await getDocs(collection(db, "students"));
         allStudents = [];
-        querySnapshot.forEach((doc) => {
-          allStudents.push({ id: doc.id, ...doc.data() });
-        });
-        renderTable(allStudents);
-      } catch (error) {
-        console.error("Error fetching: ", error);
-        tableBody.innerHTML = `<tr><td colspan="14" style="text-align:center; color:red;">Error: ${error.message}</td></tr>`;
+        querySnapshot.forEach(doc => allStudents.push({ id: doc.id, ...doc.data() }));
+        renderDirectory(allStudents);
+      } catch (err) {
+        tb.innerHTML = `<tr><td colspan="10" style="text-align:center; color:red;">${err.message}</td></tr>`;
       }
     }
 
-    function renderTable(data) {
-      if (data.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="14" style="text-align:center; padding: 20px;">No records found.</td></tr>';
-        return;
-      }
-
-      tableBody.innerHTML = data.map((s, index) => `
+    function renderDirectory(data) {
+      const tb = document.getElementById("directoryTableBody");
+      if (!data.length) { tb.innerHTML = '<tr><td colspan="10" style="text-align:center;">No students found</td></tr>'; return; }
+      tb.innerHTML = data.map((s, i) => `
         <tr>
-          <td>${index + 1}</td>
+          <td>${i+1}</td>
           <td><strong>${s.fullName || s.name || '-'}</strong></td>
           <td>${s.mobileNumber || s.phone || s.id}</td>
           <td>${s.email || '-'}</td>
           <td>${s.place || '-'}</td>
-          <td>${s.address || '-'}</td>
-          <td>${s.dateOfBirth || '-'}</td>
           <td>${s.religiousDegree || '-'}</td>
-          <td>${s.religiousInstitution || '-'}</td>
           <td>${s.secularEducation || '-'}</td>
           <td>${s.currentProfession || '-'}</td>
           <td>${s.paymentDetails || '-'}</td>
-          <td>${s.registeredAt ? s.registeredAt.split('T')[0] : (s.admissionDate || '-')}</td>
           <td><span class="badge">${s.status || 'Active'}</span></td>
         </tr>
       `).join('');
     }
 
-    searchInput.addEventListener("input", (e) => {
-      const term = e.target.value.toLowerCase();
-      const filtered = allStudents.filter(s => 
-        (s.fullName && s.fullName.toLowerCase().includes(term)) ||
-        (s.name && s.name.toLowerCase().includes(term)) ||
-        (s.mobileNumber && s.mobileNumber.includes(term)) ||
-        (s.place && s.place.toLowerCase().includes(term))
-      );
-      renderTable(filtered);
+    document.getElementById("searchInput").addEventListener("input", (e) => {
+      const q = e.target.value.toLowerCase();
+      renderDirectory(allStudents.filter(s => 
+        (s.fullName && s.fullName.toLowerCase().includes(q)) ||
+        (s.mobileNumber && s.mobileNumber.includes(q)) ||
+        (s.place && s.place.toLowerCase().includes(q))
+      ));
     });
 
     document.getElementById("exportBtn").addEventListener("click", () => {
-      if (allStudents.length === 0) return alert("No data to export!");
-      let csv = "Sl No,Full Name,Mobile,Email,Place,Address,DOB,Religious Degree,Institution,Secular Edu,Profession,Payment Details,Date,Status\n";
+      let csv = "Sl No,Full Name,Mobile,Email,Place,Address,DOB,Religious Degree,Secular Edu,Profession,Payment Details,Status\n";
       allStudents.forEach((s, i) => {
-        csv += `"${i+1}","${s.fullName || s.name || ''}","${s.mobileNumber || s.phone || s.id}","${s.email || ''}","${s.place || ''}","${s.address || ''}","${s.dateOfBirth || ''}","${s.religiousDegree || ''}","${s.religiousInstitution || ''}","${s.secularEducation || ''}","${s.currentProfession || ''}","${s.paymentDetails || ''}","${s.registeredAt || s.admissionDate || ''}","${s.status || ''}"\n`;
+        csv += `"${i+1}","${s.fullName||''}","${s.mobileNumber||s.id}","${s.email||''}","${s.place||''}","${s.address||''}","${s.dateOfBirth||''}","${s.religiousDegree||''}","${s.secularEducation||''}","${s.currentProfession||''}","${s.paymentDetails||''}","${s.status||''}"\n`;
       });
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
       const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `Students_List_${new Date().toISOString().split('T')[0]}.csv`;
+      link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+      link.download = `Students_${new Date().toISOString().split('T')[0]}.csv`;
       link.click();
     });
 
-    document.getElementById("refreshBtn").addEventListener("click", fetchStudents);
+    document.getElementById("refreshDirBtn").addEventListener("click", fetchDirectory);
 
-    // --- Daily Attendance Logic ---
+    // --- ATTENDANCE LOGIC ---
     const dateInput = document.getElementById("attendanceDate");
-    const attendanceTableBody = document.getElementById("attendanceTableBody");
-    const attendanceForm = document.getElementById("attendanceForm");
-    const attendanceStatusMsg = document.getElementById("attendanceStatusMsg");
-    const saveAttendanceBtn = document.getElementById("saveAttendanceBtn");
-
     async function initAttendance() {
-      if (!dateInput.value) {
-        dateInput.value = new Date().toISOString().split('T')[0];
-      }
-      loadAttendanceForDate();
+      if (!dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
+      loadAttendance();
     }
 
-    async function loadAttendanceForDate() {
+    async function loadAttendance() {
       const selectedDate = dateInput.value;
-      if (!selectedDate) return alert("Please select a date.");
-
-      attendanceTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Fetching records...</td></tr>';
-      attendanceStatusMsg.innerText = "";
-
+      const tb = document.getElementById("attendanceTableBody");
+      tb.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Fetching...</td></tr>';
+      
       try {
-        if (allStudents.length === 0) {
-          const querySnapshot = await getDocs(collection(db, "students"));
+        if (!allStudents.length) {
+          const snap = await getDocs(collection(db, "students"));
           allStudents = [];
-          querySnapshot.forEach((doc) => {
-            allStudents.push({ id: doc.id, ...doc.data() });
-          });
+          snap.forEach(doc => allStudents.push({ id: doc.id, ...doc.data() }));
         }
 
-        const attDocRef = doc(db, "attendance", selectedDate);
-        const attDocSnap = await getDoc(attDocRef);
-        const savedData = attDocSnap.exists() ? attDocSnap.data().records || {} : {};
+        const attSnap = await getDoc(doc(db, "attendance", selectedDate));
+        const saved = attSnap.exists() ? attSnap.data().records || {} : {};
 
-        if (allStudents.length === 0) {
-          attendanceTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">No registered students found.</td></tr>';
-          return;
-        }
-
-        attendanceTableBody.innerHTML = allStudents.map((s, idx) => {
-          const studentId = s.mobileNumber || s.phone || s.id;
-          const currentStatus = savedData[studentId] || "Present";
-
+        tb.innerHTML = allStudents.map((s, i) => {
+          const sid = s.mobileNumber || s.phone || s.id;
+          const status = saved[sid] || "Present";
           return `
             <tr>
-              <td>${idx + 1}</td>
+              <td>${i+1}</td>
               <td><strong>${s.fullName || s.name || '-'}</strong></td>
-              <td>${studentId}</td>
+              <td>${sid}</td>
               <td>${s.place || '-'}</td>
               <td>
                 <div class="status-switch">
-                  <label class="text-present">
-                    <input type="radio" name="att_${studentId}" value="Present" ${currentStatus === "Present" ? "checked" : ""}> Present
-                  </label>
-                  <label class="text-absent">
-                    <input type="radio" name="att_${studentId}" value="Absent" ${currentStatus === "Absent" ? "checked" : ""}> Absent
-                  </label>
+                  <label class="text-present"><input type="radio" name="att_${sid}" value="Present" ${status==="Present"?"checked":""}> Present</label>
+                  <label class="text-absent"><input type="radio" name="att_${sid}" value="Absent" ${status==="Absent"?"checked":""}> Absent</label>
                 </div>
               </td>
             </tr>
           `;
         }).join('');
-
       } catch (err) {
-        console.error("Attendance load error: ", err);
-        attendanceTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error loading: ${err.message}</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">${err.message}</td></tr>`;
       }
     }
 
-    document.getElementById("loadAttendanceBtn").addEventListener("click", (e) => {
-      e.preventDefault();
-      loadAttendanceForDate();
-    });
+    document.getElementById("loadAttendanceBtn").addEventListener("click", (e) => { e.preventDefault(); loadAttendance(); });
 
-    attendanceForm.addEventListener("submit", async (e) => {
+    document.getElementById("attendanceForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const selectedDate = dateInput.value;
-      if (!selectedDate) return alert("Please select a date.");
-
-      saveAttendanceBtn.disabled = true;
-      saveAttendanceBtn.innerText = "Saving...";
-      attendanceStatusMsg.innerText = "";
-
-      const attendanceRecords = {};
+      const records = {};
       allStudents.forEach(s => {
-        const studentId = s.mobileNumber || s.phone || s.id;
-        const selectedRadio = document.querySelector(`input[name="att_${studentId}"]:checked`);
-        if (selectedRadio) {
-          attendanceRecords[studentId] = selectedRadio.value;
-        }
+        const sid = s.mobileNumber || s.phone || s.id;
+        const checked = document.querySelector(`input[name="att_${sid}"]:checked`);
+        if (checked) records[sid] = checked.value;
       });
 
       try {
-        await setDoc(doc(db, "attendance", selectedDate), {
-          date: selectedDate,
-          records: attendanceRecords,
-          updatedAt: new Date().toISOString()
-        });
-
-        attendanceStatusMsg.style.color = "#16a34a";
-        attendanceStatusMsg.innerText = `Attendance for ${selectedDate} saved successfully!`;
+        await setDoc(doc(db, "attendance", selectedDate), { date: selectedDate, records, updatedAt: new Date().toISOString() });
+        document.getElementById("attendanceMsg").style.color = "#16a34a";
+        document.getElementById("attendanceMsg").innerText = `Attendance for ${selectedDate} saved!`;
       } catch (err) {
-        console.error("Attendance save error: ", err);
-        attendanceStatusMsg.style.color = "#dc2626";
-        attendanceStatusMsg.innerText = "Error saving attendance: " + err.message;
-      } finally {
-        saveAttendanceBtn.disabled = false;
-        saveAttendanceBtn.innerText = "Save Attendance";
+        document.getElementById("attendanceMsg").style.color = "#dc2626";
+        document.getElementById("attendanceMsg").innerText = "Error: " + err.message;
       }
     });
 
