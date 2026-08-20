@@ -29,15 +29,28 @@
       top: 0;
       z-index: 100;
     }
+    .navbar .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
     .navbar .logo {
       font-weight: 700;
       font-size: 18px;
       color: #2563eb;
     }
+    .role-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: #e2e8f0;
+      color: #475569;
+    }
     .nav-tabs {
       display: flex;
       gap: 8px;
-      flex-wrap: wrap;
+      align-items: center;
     }
     .nav-btn {
       padding: 8px 16px;
@@ -58,6 +71,21 @@
       background-color: #2563eb;
       color: white;
     }
+    .btn-lock {
+      padding: 6px 12px;
+      border: 1px solid #cbd5e1;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: #475569;
+    }
+    .btn-lock:hover {
+      background: #fee2e2;
+      color: #dc2626;
+      border-color: #fca5a5;
+    }
 
     /* Container */
     .container {
@@ -72,7 +100,7 @@
       display: block;
     }
 
-    /* Card Box */
+    /* Cards */
     .card {
       background: #ffffff;
       padding: 30px;
@@ -94,7 +122,7 @@
       font-size: 14px;
     }
 
-    /* Form Styles */
+    /* Forms */
     .form-group {
       margin-bottom: 18px;
     }
@@ -145,7 +173,7 @@
       font-size: 15px;
     }
 
-    /* Table & Controls */
+    /* Tables */
     .header-bar {
       display: flex;
       justify-content: space-between;
@@ -204,7 +232,6 @@
       color: #15803d;
     }
 
-    /* Attendance Specific Radio Styling */
     .status-switch {
       display: flex;
       gap: 15px;
@@ -226,17 +253,21 @@
 
   <!-- Top Navigation Bar -->
   <div class="navbar">
-    <div class="logo">SNEC DALEEL</div>
+    <div class="logo-group">
+      <div class="logo">SNEC DALEEL</div>
+      <span class="role-badge" id="currentRoleBadge">Public Mode</span>
+    </div>
     <div class="nav-tabs">
-      <button class="nav-btn active" onclick="switchTab('admissionTab')">Admission Form</button>
-      <button class="nav-btn" onclick="switchTab('attendanceTab')">Daily Attendance</button>
-      <button class="nav-btn" onclick="switchTab('adminTab')">Students Directory</button>
+      <button class="nav-btn active" id="tabBtn-admission" onclick="openTab('admissionTab')">Admission Form</button>
+      <button class="nav-btn" id="tabBtn-attendance" onclick="openTab('attendanceTab')">🔒 Daily Attendance</button>
+      <button class="nav-btn" id="tabBtn-admin" onclick="openTab('adminTab')">🔒 Students Directory</button>
+      <button class="btn-lock" id="logoutBtn" style="display:none;" onclick="logoutRole()">Lock / Logout</button>
     </div>
   </div>
 
   <div class="container">
     
-    <!-- Tab 1: Admission Form -->
+    <!-- Tab 1: Admission Form (Public) -->
     <div id="admissionTab" class="tab-content active">
       <div class="card form-card">
         <h2 style="text-align: center;">Course Admission</h2>
@@ -292,7 +323,7 @@
       </div>
     </div>
 
-    <!-- Tab 2: Daily Attendance System -->
+    <!-- Tab 2: Daily Attendance System (Teacher / Admin) -->
     <div id="attendanceTab" class="tab-content">
       <div class="card">
         <div class="header-bar">
@@ -334,7 +365,7 @@
       </div>
     </div>
 
-    <!-- Tab 3: Admin Dashboard -->
+    <!-- Tab 3: Admin Dashboard (Admin Only) -->
     <div id="adminTab" class="tab-content">
       <div class="card">
         <div class="header-bar">
@@ -396,22 +427,94 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // PIN Configurations
+    const ADMIN_PIN = "1234";
+    const TEACHER_PIN = "5678";
+
+    let currentRole = null; // 'admin' | 'teacher' | null
     let allStudents = [];
 
-    // Global switch tab function
-    window.switchTab = function(tabId) {
+    // Role verification logic
+    window.openTab = function(tabId) {
+      if (tabId === 'attendanceTab') {
+        if (currentRole !== 'admin' && currentRole !== 'teacher') {
+          const pin = prompt("Enter Teacher or Admin PIN to access Attendance:");
+          if (pin === ADMIN_PIN) {
+            setRole('admin');
+          } else if (pin === TEACHER_PIN) {
+            setRole('teacher');
+          } else if (pin !== null) {
+            alert("Invalid PIN!");
+            return;
+          } else {
+            return;
+          }
+        }
+      } else if (tabId === 'adminTab') {
+        if (currentRole !== 'admin') {
+          const pin = prompt("Enter Admin PIN to access Students Directory:");
+          if (pin === ADMIN_PIN) {
+            setRole('admin');
+          } else if (pin !== null) {
+            alert("Invalid Admin PIN!");
+            return;
+          } else {
+            return;
+          }
+        }
+      }
+
+      activateTab(tabId);
+    };
+
+    function setRole(role) {
+      currentRole = role;
+      const roleBadge = document.getElementById("currentRoleBadge");
+      const logoutBtn = document.getElementById("logoutBtn");
+      
+      if (role === 'admin') {
+        roleBadge.innerText = "Admin Logged In";
+        roleBadge.style.background = "#dcfce7";
+        roleBadge.style.color = "#15803d";
+        logoutBtn.style.display = "inline-block";
+        document.getElementById("tabBtn-attendance").innerText = "Daily Attendance";
+        document.getElementById("tabBtn-admin").innerText = "Students Directory";
+      } else if (role === 'teacher') {
+        roleBadge.innerText = "Teacher Logged In";
+        roleBadge.style.background = "#e0f2fe";
+        roleBadge.style.color = "#0369a1";
+        logoutBtn.style.display = "inline-block";
+        document.getElementById("tabBtn-attendance").innerText = "Daily Attendance";
+      }
+    }
+
+    window.logoutRole = function() {
+      currentRole = null;
+      document.getElementById("currentRoleBadge").innerText = "Public Mode";
+      document.getElementById("currentRoleBadge").style.background = "#e2e8f0";
+      document.getElementById("currentRoleBadge").style.color = "#475569";
+      document.getElementById("logoutBtn").style.display = "none";
+      document.getElementById("tabBtn-attendance").innerText = "🔒 Daily Attendance";
+      document.getElementById("tabBtn-admin").innerText = "🔒 Students Directory";
+      activateTab('admissionTab');
+    };
+
+    function activateTab(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
       
       document.getElementById(tabId).classList.add('active');
-      event.target.classList.add('active');
 
-      if (tabId === 'adminTab') {
-        fetchStudents();
+      if (tabId === 'admissionTab') {
+        document.getElementById('tabBtn-admission').classList.add('active');
       } else if (tabId === 'attendanceTab') {
+        document.getElementById('tabBtn-attendance').classList.add('active');
         initAttendance();
+      } else if (tabId === 'adminTab') {
+        document.getElementById('tabBtn-admin').classList.add('active');
+        fetchStudents();
       }
-    };
+    }
 
     // --- Admission Form Logic ---
     const form = document.getElementById("admissionForm");
@@ -549,7 +652,6 @@
       attendanceStatusMsg.innerText = "";
 
       try {
-        // 1. Fetch all students if not already cached
         if (allStudents.length === 0) {
           const querySnapshot = await getDocs(collection(db, "students"));
           allStudents = [];
@@ -558,7 +660,6 @@
           });
         }
 
-        // 2. Fetch existing attendance for this date
         const attDocRef = doc(db, "attendance", selectedDate);
         const attDocSnap = await getDoc(attDocRef);
         const savedData = attDocSnap.exists() ? attDocSnap.data().records || {} : {};
@@ -568,10 +669,9 @@
           return;
         }
 
-        // 3. Render table with attendance status
         attendanceTableBody.innerHTML = allStudents.map((s, idx) => {
           const studentId = s.mobileNumber || s.phone || s.id;
-          const currentStatus = savedData[studentId] || "Present"; // Default Present
+          const currentStatus = savedData[studentId] || "Present";
 
           return `
             <tr>
