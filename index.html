@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ml">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -67,41 +67,41 @@
 <body>
 
 <div class="form-container">
-  <h2>വിദ്യാർത്ഥി അഡ്മിഷൻ ഫോം</h2>
+  <h2>Student Admission Form</h2>
   <form id="admissionForm">
     <div class="form-group">
-      <label for="admissionNo">അഡ്മിഷൻ നമ്പർ (ID):</label>
-      <input type="text" id="admissionNo" required placeholder="ഉദാ: 2026-001">
+      <label for="admissionNo">Admission Number (ID):</label>
+      <input type="text" id="admissionNo" required placeholder="e.g. 2026-001">
     </div>
     <div class="form-group">
-      <label for="studentName">വിദ്യാർത്ഥിയുടെ പേര്:</label>
-      <input type="text" id="studentName" required placeholder="പൂർണ്ണ നാമം">
+      <label for="studentName">Student Name:</label>
+      <input type="text" id="studentName" required placeholder="Full Name">
     </div>
     <div class="form-group">
-      <label for="phone">ഫോൺ നമ്പർ (WhatsApp):</label>
-      <input type="tel" id="phone" required placeholder="10 അക്ക മൊബൈൽ നമ്പർ">
+      <label for="phone">Phone Number (WhatsApp):</label>
+      <input type="tel" id="phone" required placeholder="10-digit mobile number">
     </div>
     <div class="form-group">
-      <label for="email">ഇമെയിൽ:</label>
+      <label for="email">Email Address:</label>
       <input type="email" id="email" required placeholder="student@example.com">
     </div>
     <div class="form-group">
-      <label for="batch">ബാച്ച് / കോഴ്സ്:</label>
+      <label for="batch">Batch / Course:</label>
       <select id="batch" required>
-        <option value="">ബാച്ച് തിരഞ്ഞെടുക്കുക</option>
+        <option value="">Select Batch</option>
         <option value="Batch-A">Batch A (Morning)</option>
         <option value="Batch-B">Batch B (Evening)</option>
       </select>
     </div>
     <div class="form-group">
-      <label for="totalFee">ആകെ കോഴ്സ് ഫീസ് (₹):</label>
-      <input type="number" id="totalFee" required placeholder="ഉദാ: 6000">
+      <label for="totalFee">Total Course Fee (₹):</label>
+      <input type="number" id="totalFee" required placeholder="e.g. 6000">
     </div>
     <div class="form-group">
-      <label for="paidFee">അഡ്മിഷൻ സമയത്ത് അടച്ച തുക (₹):</label>
-      <input type="number" id="paidFee" required placeholder="ഉദാ: 1000">
+      <label for="paidFee">Paid Amount at Admission (₹):</label>
+      <input type="number" id="paidFee" required placeholder="e.g. 1000">
     </div>
-    <button type="submit" id="submitBtn">അഡ്മിഷൻ പൂർത്തിയാക്കുക</button>
+    <button type="submit" id="submitBtn">Submit Admission</button>
   </form>
   <div id="statusMessage" class="status-msg"></div>
 </div>
@@ -111,7 +111,6 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-  // നിങ്ങളുടെ SNEC Daleel പ്രോജക്റ്റ് വിവരങ്ങൾ
   const firebaseConfig = {
     apiKey: "AIzaSyAfaDp6H7eSToA5f4_TFhNGBU9OLoq4E7U",
     authDomain: "snec-daleel.firebaseapp.com",
@@ -132,7 +131,7 @@
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     submitBtn.disabled = true;
-    submitBtn.innerText = "സേവ് ചെയ്യുന്നു...";
+    submitBtn.innerText = "Saving Data...";
     statusMsg.innerText = "";
 
     const admissionNo = document.getElementById("admissionNo").value.trim();
@@ -160,15 +159,15 @@
       });
 
       statusMsg.style.color = "green";
-      statusMsg.innerText = "അഡ്മിഷൻ വിജയകരമായി രേഖപ്പെടുത്തി!";
+      statusMsg.innerText = "Admission recorded successfully!";
       form.reset();
     } catch (error) {
       console.error("Error: ", error);
       statusMsg.style.color = "red";
-      statusMsg.innerText = "പിശക്: " + error.message;
+      statusMsg.innerText = "Error: " + error.message;
     } finally {
       submitBtn.disabled = false;
-      submitBtn.innerText = "അഡ്മിഷൻ പൂർത്തിയാക്കുക";
+      submitBtn.innerText = "Submit Admission";
     }
   });
 </script>
