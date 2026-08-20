@@ -3,106 +3,173 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SNEC Daleel - Student Admission</title>
+  <title>SNEC Daleel - Course Admission Form</title>
+  <!-- Google Fonts for Modern Styling -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f6f8;
+      background: #f0f4f8;
       margin: 0;
-      padding: 20px;
+      padding: 30px 15px;
       display: flex;
       justify-content: center;
+      align-items: center;
     }
-    .form-container {
+    .form-card {
       background: #ffffff;
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 35px 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
       width: 100%;
-      max-width: 450px;
+      max-width: 550px;
     }
     h2 {
       margin-top: 0;
-      color: #333;
+      margin-bottom: 5px;
+      color: #1e293b;
       text-align: center;
+      font-weight: 700;
+    }
+    p.subtitle {
+      text-align: center;
+      color: #64748b;
+      margin-bottom: 25px;
+      font-size: 14px;
     }
     .form-group {
-      margin-bottom: 15px;
+      margin-bottom: 18px;
     }
     label {
       display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #555;
-    }
-    input, select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      box-sizing: border-box;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #334155;
       font-size: 14px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #1e293b;
+      background-color: #f8fafc;
+      transition: all 0.3s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    textarea {
+      resize: vertical;
+      min-height: 70px;
     }
     button {
       width: 100%;
-      padding: 12px;
-      background-color: #007bff;
+      padding: 14px;
+      background-color: #2563eb;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       font-size: 16px;
+      font-weight: 600;
       cursor: pointer;
-      font-weight: bold;
+      margin-top: 10px;
+      transition: background-color 0.2s ease;
     }
     button:hover {
-      background-color: #0056b3;
+      background-color: #1d4ed8;
     }
     .status-msg {
-      margin-top: 15px;
+      margin-top: 18px;
       text-align: center;
-      font-weight: bold;
+      font-weight: 500;
+      font-size: 15px;
     }
   </style>
 </head>
 <body>
 
-<div class="form-container">
-  <h2>Student Admission Form</h2>
+<div class="form-card">
+  <h2>Course Admission</h2>
+  <p class="subtitle">Please fill out the registration form below</p>
+
   <form id="admissionForm">
+    <!-- 1. Full Name -->
     <div class="form-group">
-      <label for="admissionNo">Admission Number (ID):</label>
-      <input type="text" id="admissionNo" required placeholder="e.g. 2026-001">
+      <label for="fullName">1. Full Name</label>
+      <input type="text" id="fullName" required placeholder="Enter full name">
     </div>
+
+    <!-- 2. E-Mail -->
     <div class="form-group">
-      <label for="studentName">Student Name:</label>
-      <input type="text" id="studentName" required placeholder="Full Name">
+      <label for="email">2. E-Mail Address</label>
+      <input type="email" id="email" required placeholder="name@example.com">
     </div>
+
+    <!-- 3. Mobile Number -->
     <div class="form-group">
-      <label for="phone">Phone Number (WhatsApp):</label>
-      <input type="tel" id="phone" required placeholder="10-digit mobile number">
+      <label for="mobile">3. Mobile Number (WhatsApp)</label>
+      <input type="tel" id="mobile" required placeholder="10-digit mobile number">
     </div>
+
+    <!-- 4. Place -->
     <div class="form-group">
-      <label for="email">Email Address:</label>
-      <input type="email" id="email" required placeholder="student@example.com">
+      <label for="place">4. Place / City</label>
+      <input type="text" id="place" required placeholder="Your town or city">
     </div>
+
+    <!-- 5. Address -->
     <div class="form-group">
-      <label for="batch">Batch / Course:</label>
-      <select id="batch" required>
-        <option value="">Select Batch</option>
-        <option value="Batch-A">Batch A (Morning)</option>
-        <option value="Batch-B">Batch B (Evening)</option>
-      </select>
+      <label for="address">5. Address</label>
+      <textarea id="address" rows="2" required placeholder="Full postal address"></textarea>
     </div>
+
+    <!-- 6. Date of Birth -->
     <div class="form-group">
-      <label for="totalFee">Total Course Fee (₹):</label>
-      <input type="number" id="totalFee" required placeholder="e.g. 6000">
+      <label for="dob">6. Date of Birth</label>
+      <input type="date" id="dob" required>
     </div>
+
+    <!-- 7. Religious Degree -->
     <div class="form-group">
-      <label for="paidFee">Paid Amount at Admission (₹):</label>
-      <input type="number" id="paidFee" required placeholder="e.g. 1000">
+      <label for="religiousDegree">7. Religious Degree / Qualification (മത ബിരുദം)</label>
+      <input type="text" id="religiousDegree" required placeholder="e.g. Moulavi Fazil, Wafy, etc.">
     </div>
-    <button type="submit" id="submitBtn">Submit Admission</button>
+
+    <!-- 8. Religious Institution -->
+    <div class="form-group">
+      <label for="religiousInstitution">8. Institution of Religious Degree (ബിരുദം നേടിയ സ്ഥാപനം)</label>
+      <input type="text" id="religiousInstitution" required placeholder="Name of institution / university">
+    </div>
+
+    <!-- 9. Secular Education -->
+    <div class="form-group">
+      <label for="secularEducation">9. Secular Education (ഭൗതിക വിദ്യാഭ്യാസം)</label>
+      <input type="text" id="secularEducation" required placeholder="e.g. Plus Two, BA, B.Com, etc.">
+    </div>
+
+    <!-- 10. Current Job/Profession -->
+    <div class="form-group">
+      <label for="currentJob">10. Current Profession / Job (നിലവിലെ ജോലി)</label>
+      <input type="text" id="currentJob" required placeholder="e.g. Teacher, Imam, Student, Business">
+    </div>
+
+    <!-- 11. Payment Details -->
+    <div class="form-group">
+      <label for="paymentDetails">11. Payment Details (പേയ്‌മെന്റ് വിവരങ്ങൾ)</label>
+      <input type="text" id="paymentDetails" required placeholder="Transaction ID / UPI Reference / Amount Paid">
+    </div>
+
+    <button type="submit" id="submitBtn">Submit Registration</button>
   </form>
+
   <div id="statusMessage" class="status-msg"></div>
 </div>
 
@@ -111,6 +178,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+  // SNEC Daleel Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyAfaDp6H7eSToA5f4_TFhNGBU9OLoq4E7U",
     authDomain: "snec-daleel.firebaseapp.com",
@@ -131,43 +199,43 @@
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     submitBtn.disabled = true;
-    submitBtn.innerText = "Saving Data...";
+    submitBtn.innerText = "Submitting...";
     statusMsg.innerText = "";
 
-    const admissionNo = document.getElementById("admissionNo").value.trim();
-    const studentName = document.getElementById("studentName").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const batch = document.getElementById("batch").value;
-    const totalFee = Number(document.getElementById("totalFee").value);
-    const paidFee = Number(document.getElementById("paidFee").value);
-    const balanceFee = totalFee - paidFee;
-    const admissionDate = new Date().toISOString().split("T")[0];
+    const mobile = document.getElementById("mobile").value.trim();
+    const submissionDate = new Date().toISOString();
+
+    // Data payload matching the 11 fields
+    const studentData = {
+      fullName: document.getElementById("fullName").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      mobileNumber: mobile,
+      place: document.getElementById("place").value.trim(),
+      address: document.getElementById("address").value.trim(),
+      dateOfBirth: document.getElementById("dob").value,
+      religiousDegree: document.getElementById("religiousDegree").value.trim(),
+      religiousInstitution: document.getElementById("religiousInstitution").value.trim(),
+      secularEducation: document.getElementById("secularEducation").value.trim(),
+      currentProfession: document.getElementById("currentJob").value.trim(),
+      paymentDetails: document.getElementById("paymentDetails").value.trim(),
+      registeredAt: submissionDate,
+      status: "Active"
+    };
 
     try {
-      await setDoc(doc(db, "students", admissionNo), {
-        admissionNo: admissionNo,
-        name: studentName,
-        phone: phone,
-        email: email,
-        batch: batch,
-        totalFee: totalFee,
-        paidFee: paidFee,
-        balanceFee: balanceFee,
-        admissionDate: admissionDate,
-        status: "Active"
-      });
+      // സേവ് ചെയ്യുമ്പോൾ മൊബൈൽ നമ്പർ ഡോക്യുമെന്റ് ഐഡിയായി നൽകുന്നു
+      await setDoc(doc(db, "students", mobile), studentData);
 
-      statusMsg.style.color = "green";
-      statusMsg.innerText = "Admission recorded successfully!";
+      statusMsg.style.color = "#16a34a";
+      statusMsg.innerText = "Registration submitted successfully!";
       form.reset();
     } catch (error) {
-      console.error("Error: ", error);
-      statusMsg.style.color = "red";
-      statusMsg.innerText = "Error: " + error.message;
+      console.error("Submission Error: ", error);
+      statusMsg.style.color = "#dc2626";
+      statusMsg.innerText = "Error submitting form: " + error.message;
     } finally {
       submitBtn.disabled = false;
-      submitBtn.innerText = "Submit Admission";
+      submitBtn.innerText = "Submit Registration";
     }
   });
 </script>
