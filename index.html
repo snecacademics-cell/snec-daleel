@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SNEC Daleel - Course Admission Form</title>
-  <!-- Google Fonts for Modern Styling -->
+  <title>SNEC Daleel - Unified Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
@@ -12,29 +11,81 @@
       font-family: 'Poppins', sans-serif;
     }
     body {
-      background: #f0f4f8;
+      background-color: #f1f5f9;
       margin: 0;
-      padding: 30px 15px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      padding: 0;
+      color: #1e293b;
     }
+
+    /* Navbar */
+    .navbar {
+      background-color: #ffffff;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .navbar .logo {
+      font-weight: 700;
+      font-size: 18px;
+      color: #2563eb;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+    }
+    .nav-btn {
+      padding: 8px 18px;
+      border: none;
+      background: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    .nav-btn:hover {
+      background-color: #f8fafc;
+      color: #2563eb;
+    }
+    .nav-btn.active {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Form Styles */
     .form-card {
       background: #ffffff;
-      padding: 35px 30px;
+      padding: 35px;
       border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
-      width: 100%;
-      max-width: 550px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+      max-width: 600px;
+      margin: auto;
     }
-    h2 {
+    .form-card h2 {
       margin-top: 0;
       margin-bottom: 5px;
-      color: #1e293b;
       text-align: center;
-      font-weight: 700;
     }
-    p.subtitle {
+    .subtitle {
       text-align: center;
       color: #64748b;
       margin-bottom: 25px;
@@ -50,17 +101,16 @@
       color: #334155;
       font-size: 14px;
     }
-    input, select, textarea {
+    input, textarea {
       width: 100%;
       padding: 12px 14px;
       border: 1.5px solid #cbd5e1;
       border-radius: 8px;
       font-size: 14px;
-      color: #1e293b;
       background-color: #f8fafc;
       transition: all 0.3s ease;
     }
-    input:focus, select:focus, textarea:focus {
+    input:focus, textarea:focus {
       outline: none;
       border-color: #2563eb;
       background-color: #ffffff;
@@ -70,7 +120,7 @@
       resize: vertical;
       min-height: 70px;
     }
-    button {
+    .btn-submit {
       width: 100%;
       padding: 14px;
       background-color: #2563eb;
@@ -81,164 +131,341 @@
       font-weight: 600;
       cursor: pointer;
       margin-top: 10px;
-      transition: background-color 0.2s ease;
     }
-    button:hover {
+    .btn-submit:hover {
       background-color: #1d4ed8;
     }
     .status-msg {
-      margin-top: 18px;
+      margin-top: 15px;
       text-align: center;
       font-weight: 500;
       font-size: 15px;
+    }
+
+    /* Admin Table Styles */
+    .admin-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .search-box {
+      padding: 10px 14px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 14px;
+      min-width: 250px;
+    }
+    .btn-action {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      color: white;
+    }
+    .btn-export { background-color: #16a34a; }
+    .btn-refresh { background-color: #2563eb; }
+
+    .table-responsive {
+      overflow-x: auto;
+      margin-top: 15px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e2e8f0;
+      white-space: nowrap;
+    }
+    th {
+      background-color: #f8fafc;
+      color: #475569;
+      font-weight: 600;
+    }
+    tr:hover {
+      background-color: #f8fafc;
+    }
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      background-color: #dcfce7;
+      color: #15803d;
     }
   </style>
 </head>
 <body>
 
-<div class="form-card">
-  <h2>Course Admission</h2>
-  <p class="subtitle">Please fill out the registration form below</p>
+  <!-- Top Navigation Bar -->
+  <div class="navbar">
+    <div class="logo">SNEC DALEEL</div>
+    <div class="nav-tabs">
+      <button class="nav-btn active" onclick="switchTab('admissionTab')">Admission Form</button>
+      <button class="nav-btn" onclick="switchTab('adminTab')">Students Directory</button>
+    </div>
+  </div>
 
-  <form id="admissionForm">
-    <!-- 1. Full Name -->
-    <div class="form-group">
-      <label for="fullName">1. Full Name</label>
-      <input type="text" id="fullName" required placeholder="Enter full name">
+  <div class="container">
+    
+    <!-- Tab 1: Admission Form -->
+    <div id="admissionTab" class="tab-content active">
+      <div class="form-card">
+        <h2>Course Admission</h2>
+        <p class="subtitle">Please fill out the registration form below</p>
+        <form id="admissionForm">
+          <div class="form-group">
+            <label for="fullName">1. Full Name</label>
+            <input type="text" id="fullName" required placeholder="Enter full name">
+          </div>
+          <div class="form-group">
+            <label for="email">2. E-Mail Address</label>
+            <input type="email" id="email" required placeholder="name@example.com">
+          </div>
+          <div class="form-group">
+            <label for="mobile">3. Mobile Number (WhatsApp)</label>
+            <input type="tel" id="mobile" required placeholder="10-digit mobile number">
+          </div>
+          <div class="form-group">
+            <label for="place">4. Place / City</label>
+            <input type="text" id="place" required placeholder="Your town or city">
+          </div>
+          <div class="form-group">
+            <label for="address">5. Address</label>
+            <textarea id="address" rows="2" required placeholder="Full postal address"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="dob">6. Date of Birth</label>
+            <input type="date" id="dob" required>
+          </div>
+          <div class="form-group">
+            <label for="religiousDegree">7. Religious Degree / Qualification (മത ബിരുദം)</label>
+            <input type="text" id="religiousDegree" required placeholder="e.g. Moulavi Fazil, Wafy, etc.">
+          </div>
+          <div class="form-group">
+            <label for="religiousInstitution">8. Institution of Religious Degree (ബിരുദം നേടിയ സ്ഥാപനം)</label>
+            <input type="text" id="religiousInstitution" required placeholder="Name of institution / university">
+          </div>
+          <div class="form-group">
+            <label for="secularEducation">9. Secular Education (ഭൗതിക വിദ്യാഭ്യാസം)</label>
+            <input type="text" id="secularEducation" required placeholder="e.g. Plus Two, BA, B.Com, etc.">
+          </div>
+          <div class="form-group">
+            <label for="currentJob">10. Current Profession / Job (നിലവിലെ ജോലി)</label>
+            <input type="text" id="currentJob" required placeholder="e.g. Teacher, Imam, Student, Business">
+          </div>
+          <div class="form-group">
+            <label for="paymentDetails">11. Payment Details (പേയ്‌മെന്റ് വിവരങ്ങൾ)</label>
+            <input type="text" id="paymentDetails" required placeholder="Transaction ID / UPI Ref / Amount">
+          </div>
+          <button type="submit" id="submitBtn" class="btn-submit">Submit Registration</button>
+        </form>
+        <div id="statusMessage" class="status-msg"></div>
+      </div>
     </div>
 
-    <!-- 2. E-Mail -->
-    <div class="form-group">
-      <label for="email">2. E-Mail Address</label>
-      <input type="email" id="email" required placeholder="name@example.com">
+    <!-- Tab 2: Admin Dashboard -->
+    <div id="adminTab" class="tab-content">
+      <div class="admin-card">
+        <div class="header-bar">
+          <h2 style="margin:0;">Registered Students List</h2>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <input type="text" id="searchInput" class="search-box" placeholder="Search by name, phone, place...">
+            <button class="btn-action btn-export" id="exportBtn">Export CSV</button>
+            <button class="btn-action btn-refresh" id="refreshBtn">Refresh</button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Sl No</th>
+                <th>Full Name</th>
+                <th>Mobile (ID)</th>
+                <th>Email</th>
+                <th>Place</th>
+                <th>Address</th>
+                <th>DOB</th>
+                <th>Religious Degree</th>
+                <th>Institution</th>
+                <th>Secular Edu</th>
+                <th>Profession</th>
+                <th>Payment Details</th>
+                <th>Reg. Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody">
+              <tr>
+                <td colspan="14" style="text-align:center; padding: 20px;">Loading data...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <!-- 3. Mobile Number -->
-    <div class="form-group">
-      <label for="mobile">3. Mobile Number (WhatsApp)</label>
-      <input type="tel" id="mobile" required placeholder="10-digit mobile number">
-    </div>
+  </div>
 
-    <!-- 4. Place -->
-    <div class="form-group">
-      <label for="place">4. Place / City</label>
-      <input type="text" id="place" required placeholder="Your town or city">
-    </div>
+  <!-- Firebase Scripts -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <!-- 5. Address -->
-    <div class="form-group">
-      <label for="address">5. Address</label>
-      <textarea id="address" rows="2" required placeholder="Full postal address"></textarea>
-    </div>
-
-    <!-- 6. Date of Birth -->
-    <div class="form-group">
-      <label for="dob">6. Date of Birth</label>
-      <input type="date" id="dob" required>
-    </div>
-
-    <!-- 7. Religious Degree -->
-    <div class="form-group">
-      <label for="religiousDegree">7. Religious Degree / Qualification (മത ബിരുദം)</label>
-      <input type="text" id="religiousDegree" required placeholder="e.g. Moulavi Fazil, Wafy, etc.">
-    </div>
-
-    <!-- 8. Religious Institution -->
-    <div class="form-group">
-      <label for="religiousInstitution">8. Institution of Religious Degree (ബിരുദം നേടിയ സ്ഥാപനം)</label>
-      <input type="text" id="religiousInstitution" required placeholder="Name of institution / university">
-    </div>
-
-    <!-- 9. Secular Education -->
-    <div class="form-group">
-      <label for="secularEducation">9. Secular Education (ഭൗതിക വിദ്യാഭ്യാസം)</label>
-      <input type="text" id="secularEducation" required placeholder="e.g. Plus Two, BA, B.Com, etc.">
-    </div>
-
-    <!-- 10. Current Job/Profession -->
-    <div class="form-group">
-      <label for="currentJob">10. Current Profession / Job (നിലവിലെ ജോലി)</label>
-      <input type="text" id="currentJob" required placeholder="e.g. Teacher, Imam, Student, Business">
-    </div>
-
-    <!-- 11. Payment Details -->
-    <div class="form-group">
-      <label for="paymentDetails">11. Payment Details (പേയ്‌മെന്റ് വിവരങ്ങൾ)</label>
-      <input type="text" id="paymentDetails" required placeholder="Transaction ID / UPI Reference / Amount Paid">
-    </div>
-
-    <button type="submit" id="submitBtn">Submit Registration</button>
-  </form>
-
-  <div id="statusMessage" class="status-msg"></div>
-</div>
-
-<!-- Firebase SDKs -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-  // SNEC Daleel Firebase Config
-  const firebaseConfig = {
-    apiKey: "AIzaSyAfaDp6H7eSToA5f4_TFhNGBU9OLoq4E7U",
-    authDomain: "snec-daleel.firebaseapp.com",
-    projectId: "snec-daleel",
-    storageBucket: "snec-daleel.firebasestorage.app",
-    messagingSenderId: "201962463257",
-    appId: "1:201962463257:web:f56ceb2157984e1de28a88",
-    measurementId: "G-NOWFFPDXJP"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  const form = document.getElementById("admissionForm");
-  const statusMsg = document.getElementById("statusMessage");
-  const submitBtn = document.getElementById("submitBtn");
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    submitBtn.disabled = true;
-    submitBtn.innerText = "Submitting...";
-    statusMsg.innerText = "";
-
-    const mobile = document.getElementById("mobile").value.trim();
-    const submissionDate = new Date().toISOString();
-
-    // Data payload matching the 11 fields
-    const studentData = {
-      fullName: document.getElementById("fullName").value.trim(),
-      email: document.getElementById("email").value.trim(),
-      mobileNumber: mobile,
-      place: document.getElementById("place").value.trim(),
-      address: document.getElementById("address").value.trim(),
-      dateOfBirth: document.getElementById("dob").value,
-      religiousDegree: document.getElementById("religiousDegree").value.trim(),
-      religiousInstitution: document.getElementById("religiousInstitution").value.trim(),
-      secularEducation: document.getElementById("secularEducation").value.trim(),
-      currentProfession: document.getElementById("currentJob").value.trim(),
-      paymentDetails: document.getElementById("paymentDetails").value.trim(),
-      registeredAt: submissionDate,
-      status: "Active"
+    const firebaseConfig = {
+      apiKey: "AIzaSyAfaDp6H7eSToA5f4_TFhNGBU9OLoq4E7U",
+      authDomain: "snec-daleel.firebaseapp.com",
+      projectId: "snec-daleel",
+      storageBucket: "snec-daleel.firebasestorage.app",
+      messagingSenderId: "201962463257",
+      appId: "1:201962463257:web:f56ceb2157984e1de28a88",
+      measurementId: "G-NOWFFPDXJP"
     };
 
-    try {
-      // സേവ് ചെയ്യുമ്പോൾ മൊബൈൽ നമ്പർ ഡോക്യുമെന്റ് ഐഡിയായി നൽകുന്നു
-      await setDoc(doc(db, "students", mobile), studentData);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-      statusMsg.style.color = "#16a34a";
-      statusMsg.innerText = "Registration submitted successfully!";
-      form.reset();
-    } catch (error) {
-      console.error("Submission Error: ", error);
-      statusMsg.style.color = "#dc2626";
-      statusMsg.innerText = "Error submitting form: " + error.message;
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.innerText = "Submit Registration";
+    // Global switch tab function
+    window.switchTab = function(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+
+      if (tabId === 'adminTab') {
+        fetchStudents();
+      }
+    };
+
+    // Admission Form Logic
+    const form = document.getElementById("admissionForm");
+    const statusMsg = document.getElementById("statusMessage");
+    const submitBtn = document.getElementById("submitBtn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Submitting...";
+      statusMsg.innerText = "";
+
+      const mobile = document.getElementById("mobile").value.trim();
+      const studentData = {
+        fullName: document.getElementById("fullName").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        mobileNumber: mobile,
+        place: document.getElementById("place").value.trim(),
+        address: document.getElementById("address").value.trim(),
+        dateOfBirth: document.getElementById("dob").value,
+        religiousDegree: document.getElementById("religiousDegree").value.trim(),
+        religiousInstitution: document.getElementById("religiousInstitution").value.trim(),
+        secularEducation: document.getElementById("secularEducation").value.trim(),
+        currentProfession: document.getElementById("currentJob").value.trim(),
+        paymentDetails: document.getElementById("paymentDetails").value.trim(),
+        registeredAt: new Date().toISOString(),
+        status: "Active"
+      };
+
+      try {
+        await setDoc(doc(db, "students", mobile), studentData);
+        statusMsg.style.color = "#16a34a";
+        statusMsg.innerText = "Registration submitted successfully!";
+        form.reset();
+      } catch (error) {
+        console.error("Submission Error: ", error);
+        statusMsg.style.color = "#dc2626";
+        statusMsg.innerText = "Error: " + error.message;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Submit Registration";
+      }
+    });
+
+    // Admin Table Logic
+    let allStudents = [];
+    const tableBody = document.getElementById("studentTableBody");
+    const searchInput = document.getElementById("searchInput");
+
+    async function fetchStudents() {
+      tableBody.innerHTML = '<tr><td colspan="14" style="text-align:center; padding: 20px;">Loading data...</td></tr>';
+      try {
+        const querySnapshot = await getDocs(collection(db, "students"));
+        allStudents = [];
+        querySnapshot.forEach((doc) => {
+          allStudents.push({ id: doc.id, ...doc.data() });
+        });
+        renderTable(allStudents);
+      } catch (error) {
+        console.error("Error fetching: ", error);
+        tableBody.innerHTML = `<tr><td colspan="14" style="text-align:center; color:red;">Error: ${error.message}</td></tr>`;
+      }
     }
-  });
-</script>
 
+    function renderTable(data) {
+      if (data.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="14" style="text-align:center; padding: 20px;">No records found.</td></tr>';
+        return;
+      }
+
+      tableBody.innerHTML = data.map((s, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td><strong>${s.fullName || s.name || '-'}</strong></td>
+          <td>${s.mobileNumber || s.phone || s.id}</td>
+          <td>${s.email || '-'}</td>
+          <td>${s.place || '-'}</td>
+          <td>${s.address || '-'}</td>
+          <td>${s.dateOfBirth || '-'}</td>
+          <td>${s.religiousDegree || '-'}</td>
+          <td>${s.religiousInstitution || '-'}</td>
+          <td>${s.secularEducation || '-'}</td>
+          <td>${s.currentProfession || '-'}</td>
+          <td>${s.paymentDetails || '-'}</td>
+          <td>${s.registeredAt ? s.registeredAt.split('T')[0] : (s.admissionDate || '-')}</td>
+          <td><span class="badge">${s.status || 'Active'}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    searchInput.addEventListener("input", (e) => {
+      const term = e.target.value.toLowerCase();
+      const filtered = allStudents.filter(s => 
+        (s.fullName && s.fullName.toLowerCase().includes(term)) ||
+        (s.name && s.name.toLowerCase().includes(term)) ||
+        (s.mobileNumber && s.mobileNumber.includes(term)) ||
+        (s.place && s.place.toLowerCase().includes(term))
+      );
+      renderTable(filtered);
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      if (allStudents.length === 0) return alert("No data to export!");
+      let csv = "Sl No,Full Name,Mobile,Email,Place,Address,DOB,Religious Degree,Institution,Secular Edu,Profession,Payment Details,Date,Status\n";
+      allStudents.forEach((s, i) => {
+        csv += `"${i+1}","${s.fullName || s.name || ''}","${s.mobileNumber || s.phone || s.id}","${s.email || ''}","${s.place || ''}","${s.address || ''}","${s.dateOfBirth || ''}","${s.religiousDegree || ''}","${s.religiousInstitution || ''}","${s.secularEducation || ''}","${s.currentProfession || ''}","${s.paymentDetails || ''}","${s.registeredAt || s.admissionDate || ''}","${s.status || ''}"\n`;
+      });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `Students_List_${new Date().toISOString().split('T')[0]}.csv`;
+      link.click();
+    });
+
+    document.getElementById("refreshBtn").addEventListener("click", fetchStudents);
+  </script>
 </body>
 </html>
