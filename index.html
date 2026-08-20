@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SNEC Daleel - Student Admission</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+    .form-container {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 450px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .status-msg {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+  <h2>വിദ്യാർത്ഥി അഡ്മിഷൻ ഫോം</h2>
+  <form id="admissionForm">
+    <div class="form-group">
+      <label for="admissionNo">അഡ്മിഷൻ നമ്പർ (ID):</label>
+      <input type="text" id="admissionNo" required placeholder="ഉദാ: 2026-001">
+    </div>
+    <div class="form-group">
+      <label for="studentName">വിദ്യാർത്ഥിയുടെ പേര്:</label>
+      <input type="text" id="studentName" required placeholder="പൂർണ്ണ നാമം">
+    </div>
+    <div class="form-group">
+      <label for="phone">ഫോൺ നമ്പർ (WhatsApp):</label>
+      <input type="tel" id="phone" required placeholder="10 അക്ക മൊബൈൽ നമ്പർ">
+    </div>
+    <div class="form-group">
+      <label for="email">ഇമെയിൽ:</label>
+      <input type="email" id="email" required placeholder="student@example.com">
+    </div>
+    <div class="form-group">
+      <label for="batch">ബാച്ച് / കോഴ്സ്:</label>
+      <select id="batch" required>
+        <option value="">ബാച്ച് തിരഞ്ഞെടുക്കുക</option>
+        <option value="Batch-A">Batch A (Morning)</option>
+        <option value="Batch-B">Batch B (Evening)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="totalFee">ആകെ കോഴ്സ് ഫീസ് (₹):</label>
+      <input type="number" id="totalFee" required placeholder="ഉദാ: 6000">
+    </div>
+    <div class="form-group">
+      <label for="paidFee">അഡ്മിഷൻ സമയത്ത് അടച്ച തുക (₹):</label>
+      <input type="number" id="paidFee" required placeholder="ഉദാ: 1000">
+    </div>
+    <button type="submit" id="submitBtn">അഡ്മിഷൻ പൂർത്തിയാക്കുക</button>
+  </form>
+  <div id="statusMessage" class="status-msg"></div>
+</div>
+
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  // നിങ്ങളുടെ SNEC Daleel പ്രോജക്റ്റ് വിവരങ്ങൾ
+  const firebaseConfig = {
+    apiKey: "AIzaSyAfaDp6H7eSToA5f4_TFhNGBU9OLoq4E7U",
+    authDomain: "snec-daleel.firebaseapp.com",
+    projectId: "snec-daleel",
+    storageBucket: "snec-daleel.firebasestorage.app",
+    messagingSenderId: "201962463257",
+    appId: "1:201962463257:web:f56ceb2157984e1de28a88",
+    measurementId: "G-NOWFFPDXJP"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const form = document.getElementById("admissionForm");
+  const statusMsg = document.getElementById("statusMessage");
+  const submitBtn = document.getElementById("submitBtn");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.innerText = "സേവ് ചെയ്യുന്നു...";
+    statusMsg.innerText = "";
+
+    const admissionNo = document.getElementById("admissionNo").value.trim();
+    const studentName = document.getElementById("studentName").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const batch = document.getElementById("batch").value;
+    const totalFee = Number(document.getElementById("totalFee").value);
+    const paidFee = Number(document.getElementById("paidFee").value);
+    const balanceFee = totalFee - paidFee;
+    const admissionDate = new Date().toISOString().split("T")[0];
+
+    try {
+      await setDoc(doc(db, "students", admissionNo), {
+        admissionNo: admissionNo,
+        name: studentName,
+        phone: phone,
+        email: email,
+        batch: batch,
+        totalFee: totalFee,
+        paidFee: paidFee,
+        balanceFee: balanceFee,
+        admissionDate: admissionDate,
+        status: "Active"
+      });
+
+      statusMsg.style.color = "green";
+      statusMsg.innerText = "അഡ്മിഷൻ വിജയകരമായി രേഖപ്പെടുത്തി!";
+      form.reset();
+    } catch (error) {
+      console.error("Error: ", error);
+      statusMsg.style.color = "red";
+      statusMsg.innerText = "പിശക്: " + error.message;
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerText = "അഡ്മിഷൻ പൂർത്തിയാക്കുക";
+    }
+  });
+</script>
+
+</body>
+</html>
