@@ -36,10 +36,11 @@
     }
     .nav-tabs {
       display: flex;
-      gap: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
     }
     .nav-btn {
-      padding: 8px 18px;
+      padding: 8px 16px;
       border: none;
       background: none;
       font-size: 14px;
@@ -71,26 +72,29 @@
       display: block;
     }
 
-    /* Form Styles */
-    .form-card {
+    /* Card Box */
+    .card {
       background: #ffffff;
-      padding: 35px;
+      padding: 30px;
       border-radius: 12px;
       box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+    .form-card {
       max-width: 600px;
       margin: auto;
     }
-    .form-card h2 {
+    h2 {
       margin-top: 0;
-      margin-bottom: 5px;
-      text-align: center;
+      margin-bottom: 6px;
+      color: #1e293b;
     }
     .subtitle {
-      text-align: center;
       color: #64748b;
       margin-bottom: 25px;
       font-size: 14px;
     }
+
+    /* Form Styles */
     .form-group {
       margin-bottom: 18px;
     }
@@ -101,16 +105,15 @@
       color: #334155;
       font-size: 14px;
     }
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       padding: 12px 14px;
       border: 1.5px solid #cbd5e1;
       border-radius: 8px;
       font-size: 14px;
       background-color: #f8fafc;
-      transition: all 0.3s ease;
     }
-    input:focus, textarea:focus {
+    input:focus, textarea:focus, select:focus {
       outline: none;
       border-color: #2563eb;
       background-color: #ffffff;
@@ -142,13 +145,7 @@
       font-size: 15px;
     }
 
-    /* Admin Table Styles */
-    .admin-card {
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-    }
+    /* Table & Controls */
     .header-bar {
       display: flex;
       justify-content: space-between;
@@ -206,6 +203,23 @@
       background-color: #dcfce7;
       color: #15803d;
     }
+
+    /* Attendance Specific Radio Styling */
+    .status-switch {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+    .status-switch label {
+      margin-bottom: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 600;
+    }
+    .text-present { color: #16a34a; }
+    .text-absent { color: #dc2626; }
   </style>
 </head>
 <body>
@@ -215,6 +229,7 @@
     <div class="logo">SNEC DALEEL</div>
     <div class="nav-tabs">
       <button class="nav-btn active" onclick="switchTab('admissionTab')">Admission Form</button>
+      <button class="nav-btn" onclick="switchTab('attendanceTab')">Daily Attendance</button>
       <button class="nav-btn" onclick="switchTab('adminTab')">Students Directory</button>
     </div>
   </div>
@@ -223,9 +238,9 @@
     
     <!-- Tab 1: Admission Form -->
     <div id="admissionTab" class="tab-content active">
-      <div class="form-card">
-        <h2>Course Admission</h2>
-        <p class="subtitle">Please fill out the registration form below</p>
+      <div class="card form-card">
+        <h2 style="text-align: center;">Course Admission</h2>
+        <p class="subtitle" style="text-align: center;">Please fill out the registration form below</p>
         <form id="admissionForm">
           <div class="form-group">
             <label for="fullName">1. Full Name</label>
@@ -277,11 +292,53 @@
       </div>
     </div>
 
-    <!-- Tab 2: Admin Dashboard -->
-    <div id="adminTab" class="tab-content">
-      <div class="admin-card">
+    <!-- Tab 2: Daily Attendance System -->
+    <div id="attendanceTab" class="tab-content">
+      <div class="card">
         <div class="header-bar">
-          <h2 style="margin:0;">Registered Students List</h2>
+          <div>
+            <h2>Daily Attendance Tracker</h2>
+            <p class="subtitle" style="margin-bottom:0;">Mark and track daily student attendance</p>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <label for="attendanceDate" style="margin-bottom:0; font-weight:600;">Date:</label>
+            <input type="date" id="attendanceDate" style="width: auto; padding: 8px 12px;">
+            <button class="btn-action btn-refresh" id="loadAttendanceBtn">Load Date</button>
+          </div>
+        </div>
+
+        <form id="attendanceForm">
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Sl No</th>
+                  <th>Student Name</th>
+                  <th>Mobile Number</th>
+                  <th>Place</th>
+                  <th>Attendance Status</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceTableBody">
+                <tr>
+                  <td colspan="5" style="text-align:center; padding: 20px;">Loading student list...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="submit" class="btn-action" style="background-color:#2563eb; padding: 12px 25px; font-size:15px;" id="saveAttendanceBtn">Save Attendance</button>
+          </div>
+        </form>
+        <div id="attendanceStatusMsg" class="status-msg"></div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Admin Dashboard -->
+    <div id="adminTab" class="tab-content">
+      <div class="card">
+        <div class="header-bar">
+          <h2 style="margin:0;">Registered Students Directory</h2>
           <div style="display:flex; gap:10px; flex-wrap:wrap;">
             <input type="text" id="searchInput" class="search-box" placeholder="Search by name, phone, place...">
             <button class="btn-action btn-export" id="exportBtn">Export CSV</button>
@@ -324,7 +381,7 @@
   <!-- Firebase Scripts -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAfaDp6H7eSToA5f4_TFhNGBU9OLoq4E7U",
@@ -339,6 +396,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    let allStudents = [];
+
     // Global switch tab function
     window.switchTab = function(tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -349,10 +408,12 @@
 
       if (tabId === 'adminTab') {
         fetchStudents();
+      } else if (tabId === 'attendanceTab') {
+        initAttendance();
       }
     };
 
-    // Admission Form Logic
+    // --- Admission Form Logic ---
     const form = document.getElementById("admissionForm");
     const statusMsg = document.getElementById("statusMessage");
     const submitBtn = document.getElementById("submitBtn");
@@ -395,8 +456,7 @@
       }
     });
 
-    // Admin Table Logic
-    let allStudents = [];
+    // --- Students Directory (Admin) Logic ---
     const tableBody = document.getElementById("studentTableBody");
     const searchInput = document.getElementById("searchInput");
 
@@ -466,6 +526,121 @@
     });
 
     document.getElementById("refreshBtn").addEventListener("click", fetchStudents);
+
+    // --- Daily Attendance Logic ---
+    const dateInput = document.getElementById("attendanceDate");
+    const attendanceTableBody = document.getElementById("attendanceTableBody");
+    const attendanceForm = document.getElementById("attendanceForm");
+    const attendanceStatusMsg = document.getElementById("attendanceStatusMsg");
+    const saveAttendanceBtn = document.getElementById("saveAttendanceBtn");
+
+    async function initAttendance() {
+      if (!dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+      }
+      loadAttendanceForDate();
+    }
+
+    async function loadAttendanceForDate() {
+      const selectedDate = dateInput.value;
+      if (!selectedDate) return alert("Please select a date.");
+
+      attendanceTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Fetching records...</td></tr>';
+      attendanceStatusMsg.innerText = "";
+
+      try {
+        // 1. Fetch all students if not already cached
+        if (allStudents.length === 0) {
+          const querySnapshot = await getDocs(collection(db, "students"));
+          allStudents = [];
+          querySnapshot.forEach((doc) => {
+            allStudents.push({ id: doc.id, ...doc.data() });
+          });
+        }
+
+        // 2. Fetch existing attendance for this date
+        const attDocRef = doc(db, "attendance", selectedDate);
+        const attDocSnap = await getDoc(attDocRef);
+        const savedData = attDocSnap.exists() ? attDocSnap.data().records || {} : {};
+
+        if (allStudents.length === 0) {
+          attendanceTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">No registered students found.</td></tr>';
+          return;
+        }
+
+        // 3. Render table with attendance status
+        attendanceTableBody.innerHTML = allStudents.map((s, idx) => {
+          const studentId = s.mobileNumber || s.phone || s.id;
+          const currentStatus = savedData[studentId] || "Present"; // Default Present
+
+          return `
+            <tr>
+              <td>${idx + 1}</td>
+              <td><strong>${s.fullName || s.name || '-'}</strong></td>
+              <td>${studentId}</td>
+              <td>${s.place || '-'}</td>
+              <td>
+                <div class="status-switch">
+                  <label class="text-present">
+                    <input type="radio" name="att_${studentId}" value="Present" ${currentStatus === "Present" ? "checked" : ""}> Present
+                  </label>
+                  <label class="text-absent">
+                    <input type="radio" name="att_${studentId}" value="Absent" ${currentStatus === "Absent" ? "checked" : ""}> Absent
+                  </label>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error("Attendance load error: ", err);
+        attendanceTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:red;">Error loading: ${err.message}</td></tr>`;
+      }
+    }
+
+    document.getElementById("loadAttendanceBtn").addEventListener("click", (e) => {
+      e.preventDefault();
+      loadAttendanceForDate();
+    });
+
+    attendanceForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const selectedDate = dateInput.value;
+      if (!selectedDate) return alert("Please select a date.");
+
+      saveAttendanceBtn.disabled = true;
+      saveAttendanceBtn.innerText = "Saving...";
+      attendanceStatusMsg.innerText = "";
+
+      const attendanceRecords = {};
+      allStudents.forEach(s => {
+        const studentId = s.mobileNumber || s.phone || s.id;
+        const selectedRadio = document.querySelector(`input[name="att_${studentId}"]:checked`);
+        if (selectedRadio) {
+          attendanceRecords[studentId] = selectedRadio.value;
+        }
+      });
+
+      try {
+        await setDoc(doc(db, "attendance", selectedDate), {
+          date: selectedDate,
+          records: attendanceRecords,
+          updatedAt: new Date().toISOString()
+        });
+
+        attendanceStatusMsg.style.color = "#16a34a";
+        attendanceStatusMsg.innerText = `Attendance for ${selectedDate} saved successfully!`;
+      } catch (err) {
+        console.error("Attendance save error: ", err);
+        attendanceStatusMsg.style.color = "#dc2626";
+        attendanceStatusMsg.innerText = "Error saving attendance: " + err.message;
+      } finally {
+        saveAttendanceBtn.disabled = false;
+        saveAttendanceBtn.innerText = "Save Attendance";
+      }
+    });
+
   </script>
 </body>
 </html>
