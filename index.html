@@ -9,7 +9,6 @@
     :root {
       --primary: #0f766e;
       --primary-dark: #115e59;
-      --accent: #f59e0b;
       --bg: #f8fafc;
       --card: #ffffff;
       --text: #1e293b;
@@ -33,11 +32,11 @@
     .badge-role { background: #ccfbf1; color: var(--primary-dark); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
     .btn-logout { background: #fee2e2; color: #dc2626; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; }
 
-    .container { max-width: 1100px; margin: 25px auto; padding: 0 15px; }
+    .container { max-width: 1000px; margin: 25px auto; padding: 0 15px; }
     .card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 25px; margin-bottom: 20px; }
 
     .auth-wrapper { min-height: 80vh; display: flex; justify-content: center; align-items: center; }
-    .auth-card { background: #fff; width: 100%; max-width: 420px; padding: 30px; border-radius: 14px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; text-align: center; }
+    .auth-card { background: #fff; width: 100%; max-width: 420px; padding: 30px; border-radius: 14px; border: 1px solid #e2e8f0; text-align: center; }
     .tab-btn-group { display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; margin-bottom: 20px; }
     .tab-btn { flex: 1; border: none; padding: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 6px; background: transparent; color: var(--muted); }
     .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -46,24 +45,17 @@
     input:focus, select:focus { outline: none; border-color: var(--primary); }
 
     .btn-main { width: 100%; padding: 11px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 5px; }
-    .btn-guest { width: 100%; padding: 10px; background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 10px; }
-
-    /* Flow Layouts */
-    .grid-phases { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 15px; }
-    .phase-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; }
-    .phase-card.active-phase { border: 2px solid var(--primary); background: #f0fdfa; }
-
-    .class-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
     .status-badge { font-size: 11px; padding: 4px 10px; border-radius: 4px; font-weight: 600; }
     .badge-done { background: #dcfce7; color: #16a34a; }
     .badge-pending { background: #fef3c7; color: #d97706; }
     .badge-lock { background: #f1f5f9; color: #94a3b8; }
 
-    /* Admin Table */
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; margin-top: 15px; }
+    .class-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
     th { background: #f8fafc; padding: 10px; border-bottom: 2px solid #e2e8f0; }
     td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
-    .btn-approve { background: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; }
+    .btn-approve { background: #16a34a; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; }
   </style>
 </head>
 <body>
@@ -78,149 +70,105 @@
 
   <div class="container">
 
-    <!-- 1. AUTHENTICATION (Sign In / Sign Up) -->
+    <!-- 1. LOGIN / INITIAL REGISTRATION -->
     <div class="auth-wrapper" id="authSection">
       <div class="auth-card">
         <h2 style="margin: 0 0 5px 0; color: var(--primary);">DALEEL</h2>
         <p style="color: var(--muted); font-size: 13px; margin-bottom: 18px;">Structured Learning Management System</p>
 
         <div class="tab-btn-group">
-          <button class="tab-btn active" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
-          <button class="tab-btn" id="tabSignUp" onclick="switchAuthTab('signup')">Sign Up</button>
+          <button class="tab-btn active" id="tabSignIn" onclick="switchTab('signin')">Sign In</button>
+          <button class="tab-btn" id="tabSignUp" onclick="switchTab('signup')">Sign Up</button>
         </div>
 
         <form id="formSignIn">
-          <input type="text" id="loginIdentifier" placeholder="Registered Mobile / Email / Admin PIN" required>
-          <button type="submit" class="btn-main">Sign In</button>
+          <input type="text" id="loginInput" placeholder="Enter Mobile Number or Admin PIN" required>
+          <button type="submit" class="btn-main" id="btnSignIn">Sign In</button>
         </form>
 
         <form id="formSignUp" style="display: none;">
           <input type="text" id="regName" placeholder="Full Name" required>
-          <input type="text" id="regMobile" placeholder="Mobile Number" required>
+          <input type="text" id="regMobile" placeholder="Mobile Number (e.g. 9847790786)" required>
           <input type="email" id="regEmail" placeholder="Email Address" required>
-          <button type="submit" class="btn-main">Create Account</button>
+          <button type="submit" class="btn-main">Continue to Application</button>
         </form>
-
-        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 18px 0;">
-        <button class="btn-guest" onclick="enterAsGuest()">Continue as Guest (Browse Only)</button>
+        <div id="authError" style="color: #dc2626; font-size: 12px; margin-top: 10px;"></div>
       </div>
     </div>
 
-    <!-- 2. DETAILED ADMISSION APPLICATION FORM (For New Students) -->
+    <!-- 2. DETAILED APPLICATION FORM -->
     <div id="admissionSection" style="display: none;">
-      <div class="card" style="max-width: 650px; margin: auto;">
-        <h3 style="margin-top: 0; color: var(--primary);">Phase 1 Admission Application</h3>
-        <p style="color: var(--muted); font-size: 13px;">Complete your academic profile to request admission approval from Admin.</p>
-        
+      <div class="card" style="max-width: 600px; margin: auto;">
+        <h3 style="margin-top: 0; color: var(--primary);">Complete Admission Profile</h3>
+        <p style="color: var(--muted); font-size: 13px;">Submit your academic details to request enrollment.</p>
+
         <form id="formAdmission">
-          <label style="font-size: 12px; font-weight: 600;">Applicant Name</label>
-          <input type="text" id="admName" readonly>
+          <input type="text" id="admFullName" placeholder="Full Name" required readonly>
+          <input type="text" id="admMobile" placeholder="Mobile Number" required readonly>
+          <input type="email" id="admEmail" placeholder="Email" required readonly>
+          <input type="date" id="admDob" required placeholder="Date of Birth">
+          <input type="text" id="admProfession" placeholder="Current Profession (e.g. MUALLIM)" required>
+          <input type="text" id="admReligiousDeg" placeholder="Religious Degree (e.g. RAHMANI)" required>
+          <input type="text" id="admReligiousInst" placeholder="Religious Institution (e.g. RAHMANIYYA)" required>
+          <input type="text" id="admSecularEdu" placeholder="Secular Education (e.g. DEGREE / PLUS TWO)" required>
+          <input type="text" id="admPlace" placeholder="Place (e.g. CHEMBRASSERI)" required>
+          <input type="text" id="admAddress" placeholder="Address (e.g. CHEMBRASSERI EAST)" required>
 
-          <label style="font-size: 12px; font-weight: 600;">Contact Mobile</label>
-          <input type="text" id="admMobile" readonly>
-
-          <label style="font-size: 12px; font-weight: 600;">Father's Name</label>
-          <input type="text" id="admFather" placeholder="Enter Father's Name" required>
-
-          <label style="font-size: 12px; font-weight: 600;">Date of Birth</label>
-          <input type="date" id="admDob" required>
-
-          <label style="font-size: 12px; font-weight: 600;">Current Institution / College</label>
-          <input type="text" id="admInstitution" placeholder="Enter Current Institution Name" required>
-
-          <label style="font-size: 12px; font-weight: 600;">Applying Phase</label>
-          <select id="admPhase" required>
-            <option value="Phase 1">Phase 1 (Foundation Track - 20 Classes)</option>
-            <option value="Phase 2">Phase 2 (Direct Track)</option>
-          </select>
-
-          <label style="font-size: 12px; font-weight: 600;">Address / District</label>
-          <input type="text" id="admAddress" placeholder="Place, District" required>
-
-          <button type="submit" class="btn-main">Submit Application for Approval</button>
+          <button type="submit" class="btn-main" id="btnSubmitAdmission">Submit Application</button>
         </form>
       </div>
     </div>
 
-    <!-- 3. APPROVAL PENDING NOTICE SCREEN -->
+    <!-- 3. VERIFICATION PENDING SCREEN -->
     <div id="pendingSection" style="display: none;">
       <div class="card" style="max-width: 550px; margin: 40px auto; text-align: center; border: 2px dashed #f59e0b;">
-        <h3 style="color: #d97706; margin-top: 0;">Application Submitted</h3>
-        <p style="font-size: 14px; color: var(--text);">Your admission request has been sent to the Admin team.</p>
-        <p style="font-size: 13px; color: var(--muted);">Once your application is verified and approved, your Phase 1 classes and study materials will automatically unlock here.</p>
-        <span class="status-badge badge-pending" style="font-size: 13px; padding: 6px 14px;">Status: Verification Pending</span>
+        <h3 style="color: #d97706; margin-top: 0;">Verification Pending</h3>
+        <p style="font-size: 14px;">Your profile has been saved in Daleel Firestore Database.</p>
+        <p style="font-size: 13px; color: var(--muted);">An Admin will verify your details and approve your admission. Once approved, your Phase 1 classes will automatically unlock.</p>
+        <span class="status-badge badge-pending">Status: Awaiting Admin Approval</span>
       </div>
     </div>
 
-    <!-- 4. ACTIVE STUDENT LEARNING DASHBOARD (Unlocked after Admin Approval) -->
+    <!-- 4. ACTIVE LEARNING DASHBOARD -->
     <div id="studentDashboard" style="display: none;">
       <div class="card">
         <h3 style="margin: 0; color: var(--primary);" id="welcomeStudent">Welcome!</h3>
-        <span class="status-badge badge-done" style="margin-top: 6px; display: inline-block;">Enrolled Student • Approved</span>
+        <span class="status-badge badge-done" style="margin-top: 6px; display: inline-block;">Enrolled Student • Active</span>
       </div>
-
-      <div class="grid-phases">
-        <div class="phase-card active-phase"><h4 style="margin:0 0 4px 0;">Phase 1</h4><span style="font-size:12px; color:var(--muted);">20 Classes • Active</span></div>
-        <div class="phase-card"><h4 style="margin:0 0 4px 0;">Phase 2</h4><span style="font-size:12px; color:var(--muted);">Advanced</span></div>
-        <div class="phase-card"><h4 style="margin:0 0 4px 0;">Phase 3</h4><span style="font-size:12px; color:var(--muted);">Specialization</span></div>
-        <div class="phase-card"><h4 style="margin:0 0 4px 0;">Phase 4</h4><span style="font-size:12px; color:var(--muted);">Graduation</span></div>
-      </div>
-
-      <div style="margin-top: 25px;">
-        <h4>Phase 1: Classes & Schedule</h4>
+      <div class="card">
+        <h4>Phase 1 Classes</h4>
         <div class="class-item">
-          <div>
-            <strong>Class 01: Introduction & Foundation</strong>
-            <div style="font-size: 12px; color: var(--muted); margin-top: 3px;">Video Lecture • Study Material • MCQ Test</div>
-          </div>
-          <span class="status-badge badge-done">Completed (90%)</span>
-        </div>
-        <div class="class-item">
-          <div>
-            <strong>Class 02: Core Principles & Methodology</strong>
-            <div style="font-size: 12px; color: var(--muted); margin-top: 3px;">Active Class</div>
-          </div>
+          <div><strong>Class 01: Introduction & Principles</strong><div style="font-size: 12px; color: var(--muted);">Video Lecture • Assessment</div></div>
           <span class="status-badge badge-pending">Active</span>
         </div>
         <div class="class-item" style="opacity: 0.6;">
-          <div>
-            <strong>Class 03: Applied Studies</strong>
-            <div style="font-size: 12px; color: var(--muted); margin-top: 3px;">Unlocks after Class 02 completion</div>
-          </div>
+          <div><strong>Class 02: Core Studies</strong><div style="font-size: 12px; color: var(--muted);">Locked</div></div>
           <span class="status-badge badge-lock">Locked</span>
         </div>
       </div>
     </div>
 
-    <!-- 5. ADMIN CONTROL PANEL (Approvals & Mark Entries) -->
+    <!-- 5. ADMIN PANEL -->
     <div id="adminDashboard" style="display: none;">
       <div class="card">
-        <h3 style="margin: 0; color: var(--primary);">Admin Management Portal</h3>
-        <p style="color: var(--muted); font-size: 13px; margin: 5px 0 0 0;">Review pending admission applications and approve students.</p>
+        <h3 style="margin: 0; color: var(--primary);">Daleel Admin Approval Panel</h3>
+        <p style="color: var(--muted); font-size: 13px; margin: 5px 0 0 0;">Verify registered candidates directly in Firestore.</p>
       </div>
-
       <div class="card">
-        <h4>Pending Student Admissions</h4>
+        <h4>Pending Applicants</h4>
         <table>
           <thead>
             <tr>
-              <th>Applicant</th>
+              <th>Name</th>
               <th>Mobile</th>
-              <th>Institution</th>
-              <th>Applying Phase</th>
+              <th>Profession</th>
+              <th>Place</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
-          <tbody id="adminApplicationTable">
-            <tr>
-              <td><strong>Yoosuf Rahmani</strong></td>
-              <td>9876543210</td>
-              <td>SNEC College</td>
-              <td>Phase 1</td>
-              <td><span class="status-badge badge-pending">Pending</span></td>
-              <td><button class="btn-approve" onclick="approveStudent()">Approve & Unlock Classes</button></td>
-            </tr>
+          <tbody id="adminStudentList">
+            <tr><td colspan="6" style="text-align:center;">Loading records from Firestore...</td></tr>
           </tbody>
         </table>
       </div>
@@ -228,103 +176,166 @@
 
   </div>
 
-  <script>
-    const ADMIN_SECRET_PIN = "9999";
-    
-    // Default simulated user state: 'new' | 'pending' | 'approved'
-    let userState = 'new'; 
-    let currentUser = null;
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, getDocs, collection, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    function switchAuthTab(tab) {
-      document.getElementById("tabSignIn").classList.toggle("active", tab === 'signin');
-      document.getElementById("tabSignUp").classList.toggle("active", tab === 'signup');
-      document.getElementById("formSignIn").style.display = tab === 'signin' ? 'block' : 'none';
-      document.getElementById("formSignUp").style.display = tab === 'signup' ? 'block' : 'none';
-    }
+    const firebaseConfig = {
+      apiKey: "AIzaSyAfaDp6H7eSToA5f4_TFhNGBU9OLoq4E7U",
+      authDomain: "snec-daleel.firebaseapp.com",
+      projectId: "snec-daleel",
+      storageBucket: "snec-daleel.firebasestorage.app",
+      messagingSenderId: "201962463257",
+      appId: "1:201962463257:web:f56ceb2157984e1de28a88",
+      measurementId: "G-N0WFFPDXJP"
+    };
 
-    // Sign In
-    document.getElementById("formSignIn").addEventListener("submit", (e) => {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const ADMIN_PIN = "9999";
+    let activeStudentDoc = null;
+
+    window.switchTab = function(t) {
+      document.getElementById("tabSignIn").classList.toggle("active", t === 'signin');
+      document.getElementById("tabSignUp").classList.toggle("active", t === 'signup');
+      document.getElementById("formSignIn").style.display = t === 'signin' ? 'block' : 'none';
+      document.getElementById("formSignUp").style.display = t === 'signup' ? 'block' : 'none';
+    };
+
+    // Sign In logic directly verifying against Firestore
+    document.getElementById("formSignIn").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const input = document.getElementById("loginIdentifier").value.trim();
+      const val = document.getElementById("loginInput").value.trim();
+      const err = document.getElementById("authError");
+      err.innerText = "";
 
-      if (input === ADMIN_SECRET_PIN) {
-        currentUser = { name: "Super Admin", role: "admin" };
+      if (val === ADMIN_PIN) {
         showAdminView();
-      } else {
-        currentUser = { name: "Yoosuf Rahmani", mobile: input, role: "student" };
-        routeStudentByStatus();
+        return;
+      }
+
+      try {
+        const snap = await getDoc(doc(db, "students", val));
+        if (snap.exists()) {
+          const data = snap.data();
+          activeStudentDoc = data;
+          if (data.status === "Active" || data.status === "Approved") {
+            showStudentDashboard(data);
+          } else {
+            showPendingScreen();
+          }
+        } else {
+          err.innerText = "No student found with this mobile number. Please Sign Up first.";
+        }
+      } catch (ex) {
+        err.innerText = "Firestore Error: " + ex.message;
       }
     });
 
-    // Sign Up
+    // Sign Up Form (Initial Step)
     document.getElementById("formSignUp").addEventListener("submit", (e) => {
       e.preventDefault();
-      currentUser = {
-        name: document.getElementById("regName").value,
-        mobile: document.getElementById("regMobile").value,
-        email: document.getElementById("regEmail").value,
-        role: "student"
-      };
-      userState = 'new';
-      routeStudentByStatus();
-    });
+      document.getElementById("admFullName").value = document.getElementById("regName").value.trim();
+      document.getElementById("admMobile").value = document.getElementById("regMobile").value.trim();
+      document.getElementById("admEmail").value = document.getElementById("regEmail").value.trim();
 
-    function enterAsGuest() {
-      currentUser = { name: "Guest User", role: "guest" };
-      userState = 'approved';
-      routeStudentByStatus();
-    }
-
-    // Directing Student to appropriate screen based on approval status
-    function routeStudentByStatus() {
-      hideAllSections();
+      hideAll();
       document.getElementById("appNavbar").style.display = "flex";
-      document.getElementById("userRoleDisplay").innerText = currentUser.role.toUpperCase();
-
-      if (userState === 'new') {
-        document.getElementById("admissionSection").style.display = "block";
-        document.getElementById("admName").value = currentUser.name;
-        document.getElementById("admMobile").value = currentUser.mobile || "";
-      } else if (userState === 'pending') {
-        document.getElementById("pendingSection").style.display = "block";
-      } else if (userState === 'approved') {
-        document.getElementById("studentDashboard").style.display = "block";
-        document.getElementById("welcomeStudent").innerText = "Welcome, " + currentUser.name;
-      }
-    }
-
-    // Submit Admission Application
-    document.getElementById("formAdmission").addEventListener("submit", (e) => {
-      e.preventDefault();
-      userState = 'pending';
-      alert("Application submitted successfully! Waiting for Admin verification.");
-      routeStudentByStatus();
+      document.getElementById("admissionSection").style.display = "block";
     });
 
-    // Admin Views & Actions
-    function showAdminView() {
-      hideAllSections();
+    // Submit Complete Application directly into Firestore
+    document.getElementById("formAdmission").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const mobile = document.getElementById("admMobile").value.trim();
+      const btn = document.getElementById("btnSubmitAdmission");
+      btn.disabled = true;
+      btn.innerText = "Saving to Firestore...";
+
+      const studentPayload = {
+        fullName: document.getElementById("admFullName").value.trim(),
+        mobileNumber: mobile,
+        email: document.getElementById("admEmail").value.trim(),
+        dateOfBirth: document.getElementById("admDob").value,
+        currentProfession: document.getElementById("admProfession").value.trim(),
+        religiousDegree: document.getElementById("admReligiousDeg").value.trim(),
+        religiousInstitution: document.getElementById("admReligiousInst").value.trim(),
+        secularEducation: document.getElementById("admSecularEdu").value.trim(),
+        place: document.getElementById("admPlace").value.trim(),
+        address: document.getElementById("admAddress").value.trim(),
+        registeredAt: new Date().toISOString(),
+        paymentDetails: "DONE",
+        status: "Pending Approval"
+      };
+
+      try {
+        await setDoc(doc(db, "students", mobile), studentPayload);
+        alert("Application successfully submitted to Firestore!");
+        showPendingScreen();
+      } catch (err) {
+        alert("Error saving document: " + err.message);
+      }
+      btn.disabled = false;
+      btn.innerText = "Submit Application";
+    });
+
+    function showPendingScreen() {
+      hideAll();
+      document.getElementById("appNavbar").style.display = "flex";
+      document.getElementById("pendingSection").style.display = "block";
+      document.getElementById("userRoleDisplay").innerText = "Applicant";
+    }
+
+    function showStudentDashboard(data) {
+      hideAll();
+      document.getElementById("appNavbar").style.display = "flex";
+      document.getElementById("studentDashboard").style.display = "block";
+      document.getElementById("welcomeStudent").innerText = "Welcome, " + (data.fullName || "Student");
+      document.getElementById("userRoleDisplay").innerText = "Student";
+    }
+
+    async function showAdminView() {
+      hideAll();
       document.getElementById("appNavbar").style.display = "flex";
       document.getElementById("adminDashboard").style.display = "block";
       document.getElementById("userRoleDisplay").innerText = "SUPER ADMIN";
+
+      const tb = document.getElementById("adminStudentList");
+      tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">Fetching records...</td></tr>';
+
+      try {
+        const snap = await getDocs(collection(db, "students"));
+        tb.innerHTML = "";
+        snap.forEach(d => {
+          const s = d.data();
+          tb.innerHTML += `
+            <tr>
+              <td><strong>${s.fullName || '-'}</strong></td>
+              <td>${s.mobileNumber || d.id}</td>
+              <td>${s.currentProfession || '-'}</td>
+              <td>${s.place || '-'}</td>
+              <td><span class="status-badge ${s.status === 'Active' ? 'badge-done' : 'badge-pending'}">${s.status || 'Pending'}</span></td>
+              <td>
+                ${s.status !== 'Active' ? `<button class="btn-approve" onclick="approveCandidate('${d.id}')">Approve</button>` : '<strong style="color:#16a34a;">Approved</strong>'}
+              </td>
+            </tr>
+          `;
+        });
+      } catch (e) {
+        tb.innerHTML = `<tr><td colspan="6" style="color:red;">Error: ${e.message}</td></tr>`;
+      }
     }
 
-    function approveStudent() {
-      userState = 'approved';
-      document.getElementById("adminApplicationTable").innerHTML = `
-        <tr>
-          <td><strong>Yoosuf Rahmani</strong></td>
-          <td>9876543210</td>
-          <td>SNEC College</td>
-          <td>Phase 1</td>
-          <td><span class="status-badge badge-done">Approved</span></td>
-          <td><strong style="color: #16a34a;">Enrolled</strong></td>
-        </tr>
-      `;
-      alert("Student application approved! Classes are now unlocked for this student.");
-    }
+    window.approveCandidate = async function(id) {
+      if (confirm("Approve admission for student " + id + "?")) {
+        await updateDoc(doc(db, "students", id), { status: "Active" });
+        alert("Student approved successfully!");
+        showAdminView();
+      }
+    };
 
-    function hideAllSections() {
+    function hideAll() {
       document.getElementById("authSection").style.display = "none";
       document.getElementById("admissionSection").style.display = "none";
       document.getElementById("pendingSection").style.display = "none";
@@ -332,12 +343,11 @@
       document.getElementById("adminDashboard").style.display = "none";
     }
 
-    function logout() {
-      currentUser = null;
-      hideAllSections();
+    window.logout = function() {
+      hideAll();
       document.getElementById("appNavbar").style.display = "none";
       document.getElementById("authSection").style.display = "flex";
-    }
+    };
   </script>
 </body>
 </html>
