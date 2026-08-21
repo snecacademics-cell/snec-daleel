@@ -45,6 +45,8 @@
     input:focus, select:focus { outline: none; border-color: var(--primary); }
 
     .btn-main { width: 100%; padding: 11px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 5px; }
+    .btn-main:disabled { background: #94a3b8; cursor: not-allowed; }
+    
     .status-badge { font-size: 11px; padding: 4px 10px; border-radius: 4px; font-weight: 600; }
     .badge-done { background: #dcfce7; color: #16a34a; }
     .badge-pending { background: #fef3c7; color: #d97706; }
@@ -56,9 +58,33 @@
     th { background: #f8fafc; padding: 10px; border-bottom: 2px solid #e2e8f0; }
     td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
     .btn-approve { background: #16a34a; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; }
+
+    /* Modern Notification Toast */
+    #toastMessage {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #1e293b;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: none;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
+
+  <!-- In-App Notification Toast -->
+  <div id="toastMessage"></div>
 
   <div class="navbar" id="appNavbar" style="display: none;">
     <div class="brand">DALEEL LMS</div>
@@ -194,7 +220,15 @@
     const db = getFirestore(app);
 
     const ADMIN_PIN = "9999";
-    let activeStudentDoc = null;
+
+    // Non-intrusive in-app notification function
+    function showToast(text, bg = "#1e293b") {
+      const toast = document.getElementById("toastMessage");
+      toast.innerText = text;
+      toast.style.background = bg;
+      toast.style.display = "block";
+      setTimeout(() => { toast.style.display = "none"; }, 3500);
+    }
 
     window.switchTab = function(t) {
       document.getElementById("tabSignIn").classList.toggle("active", t === 'signin');
@@ -203,7 +237,7 @@
       document.getElementById("formSignUp").style.display = t === 'signup' ? 'block' : 'none';
     };
 
-    // Sign In logic directly verifying against Firestore
+    // Sign In logic
     document.getElementById("formSignIn").addEventListener("submit", async (e) => {
       e.preventDefault();
       const val = document.getElementById("loginInput").value.trim();
@@ -219,7 +253,6 @@
         const snap = await getDoc(doc(db, "students", val));
         if (snap.exists()) {
           const data = snap.data();
-          activeStudentDoc = data;
           if (data.status === "Active" || data.status === "Approved") {
             showStudentDashboard(data);
           } else {
@@ -251,7 +284,7 @@
       const mobile = document.getElementById("admMobile").value.trim();
       const btn = document.getElementById("btnSubmitAdmission");
       btn.disabled = true;
-      btn.innerText = "Saving to Firestore...";
+      btn.innerText = "Saving application...";
 
       const studentPayload = {
         fullName: document.getElementById("admFullName").value.trim(),
@@ -271,10 +304,10 @@
 
       try {
         await setDoc(doc(db, "students", mobile), studentPayload);
-        alert("Application successfully submitted to Firestore!");
+        showToast("Application submitted successfully!", "#0f766e");
         showPendingScreen();
       } catch (err) {
-        alert("Error saving document: " + err.message);
+        showToast("Error: " + err.message, "#dc2626");
       }
       btn.disabled = false;
       btn.innerText = "Submit Application";
@@ -328,10 +361,12 @@
     }
 
     window.approveCandidate = async function(id) {
-      if (confirm("Approve admission for student " + id + "?")) {
+      try {
         await updateDoc(doc(db, "students", id), { status: "Active" });
-        alert("Student approved successfully!");
+        showToast("Student approved successfully!", "#16a34a");
         showAdminView();
+      } catch(e) {
+        showToast("Approval failed: " + e.message, "#dc2626");
       }
     };
 
