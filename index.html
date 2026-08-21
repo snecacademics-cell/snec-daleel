@@ -18,7 +18,6 @@
     * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
     body { background-color: var(--bg); margin: 0; color: var(--text); }
 
-    /* Navbar */
     .navbar {
       background: #fff;
       padding: 14px 24px;
@@ -30,41 +29,35 @@
       top: 0;
       z-index: 100;
     }
-    .brand { font-size: 20px; font-weight: 700; color: var(--primary); letter-spacing: 0.5px; }
+    .brand { font-size: 20px; font-weight: 700; color: var(--primary); }
     .badge-role { background: #ccfbf1; color: var(--primary-dark); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
     .btn-logout { background: #fee2e2; color: #dc2626; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; }
 
     .container { max-width: 1100px; margin: 25px auto; padding: 0 15px; }
 
-    /* Auth Card */
     .auth-wrapper { min-height: 80vh; display: flex; justify-content: center; align-items: center; }
     .auth-card { background: #fff; width: 100%; max-width: 420px; padding: 30px; border-radius: 14px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; text-align: center; }
     .tab-btn-group { display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; margin-bottom: 20px; }
     .tab-btn { flex: 1; border: none; padding: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 6px; background: transparent; color: var(--muted); }
     .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-    input, select { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; }
-    input:focus, select:focus { outline: none; border-color: var(--primary); }
+    input { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; }
+    input:focus { outline: none; border-color: var(--primary); }
 
     .btn-main { width: 100%; padding: 11px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 5px; }
     .btn-guest { width: 100%; padding: 10px; background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 10px; }
 
-    /* Phases Grid */
     .grid-phases { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-top: 20px; }
     .phase-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; }
     .phase-card:hover { border-color: var(--primary); transform: translateY(-2px); }
     .phase-card.active-phase { border: 2px solid var(--primary); background: #f0fdfa; }
 
-    /* Class Flow Items */
     .class-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
     .class-item.locked { opacity: 0.6; background: #f8fafc; pointer-events: none; }
     .status-badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600; }
     .badge-done { background: #dcfce7; color: #16a34a; }
     .badge-pending { background: #fef3c7; color: #d97706; }
     .badge-lock { background: #f1f5f9; color: #94a3b8; }
-
-    /* Modal / Certificate Slip */
-    .slip-box { background: #fff; border: 2px dashed var(--primary); padding: 30px; border-radius: 12px; max-width: 600px; margin: auto; text-align: center; }
   </style>
 </head>
 <body>
@@ -91,23 +84,18 @@
           <button class="tab-btn" id="tabSignUp" onclick="switchAuthTab('signup')">Sign Up</button>
         </div>
 
-        <!-- Sign In Form -->
+        <!-- Sign In Form (Students, Teachers, and Admin) -->
         <form id="formSignIn">
-          <input type="text" id="loginMobile" placeholder="Registered Mobile No" required>
-          <input type="email" id="loginEmail" placeholder="Email Address" required>
+          <input type="text" id="loginIdentifier" placeholder="Registered Mobile / Email / Admin PIN" required>
           <button type="submit" class="btn-main">Sign In</button>
         </form>
 
-        <!-- Sign Up Form -->
+        <!-- Sign Up Form (Only for Users / Students) -->
         <form id="formSignUp" style="display: none;">
           <input type="text" id="regName" placeholder="Full Name" required>
           <input type="text" id="regMobile" placeholder="Mobile Number" required>
           <input type="email" id="regEmail" placeholder="Email Address" required>
-          <select id="regRole">
-            <option value="student">Join as Student</option>
-            <option value="admin">Join as Admin</option>
-          </select>
-          <button type="submit" class="btn-main">Complete Registration</button>
+          <button type="submit" class="btn-main">Create Account</button>
         </form>
 
         <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 18px 0;">
@@ -146,7 +134,6 @@
       <div style="margin-top: 25px;">
         <h4 style="color: var(--text); margin-bottom: 12px;">Phase 1: Classes & Assessments (Sat & Tue Schedule)</h4>
         
-        <!-- Class 1 -->
         <div class="class-item">
           <div>
             <strong>Class 01: Introduction & Foundation</strong>
@@ -155,7 +142,6 @@
           <span class="status-badge badge-done">Completed (90%)</span>
         </div>
 
-        <!-- Class 2 -->
         <div class="class-item">
           <div>
             <strong>Class 02: Core Principles & Methodology</strong>
@@ -164,7 +150,6 @@
           <span class="status-badge badge-pending">Active</span>
         </div>
 
-        <!-- Class 3 (Locked) -->
         <div class="class-item locked">
           <div>
             <strong>Class 03: Applied Studies</strong>
@@ -173,33 +158,24 @@
           <span class="status-badge badge-lock">Locked</span>
         </div>
       </div>
-
-      <!-- Provisional Certificate Slip Generation Button -->
-      <div style="text-align: center; margin-top: 30px;">
-        <button class="btn-main" style="max-width: 300px;" onclick="generateProvisionalSlip()">View Provisional Pass Slip</button>
-      </div>
     </div>
 
-    <!-- 3. PROVISIONAL CERTIFICATE SLIP MODAL -->
-    <div id="slipSection" style="display: none; margin-top: 20px;">
-      <div class="slip-box">
-        <h3 style="color: var(--primary); margin: 0;">DALEEL ACADEMIC VERIFICATION</h3>
-        <p style="font-size: 12px; color: var(--muted);">Provisional Pass Document</p>
-        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0;">
-        <div style="text-align: left; font-size: 13px; line-height: 1.8;">
-          <div><strong>Candidate Name:</strong> <span id="slipName">-</span></div>
-          <div><strong>Registered Mobile:</strong> <span id="slipMobile">-</span></div>
-          <div><strong>Completed Phase:</strong> Phase 1 (20 Classes)</div>
-          <div><strong>Certificate Code:</strong> <span style="font-weight: 700; color: var(--primary);">DL-2026-PH1-9482</span></div>
-          <div><strong>Convocation Status:</strong> <span style="color: #d97706; font-weight: 600;">Eligible for Certificate Delivery</span></div>
-        </div>
-        <button class="btn-guest" onclick="closeSlip()" style="margin-top: 20px;">Back to Dashboard</button>
+    <!-- 3. ADMIN / TEACHER DASHBOARD -->
+    <div id="adminDashboard" style="display: none;">
+      <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+        <h3 style="margin: 0; color: var(--primary);">Admin Management Portal</h3>
+        <p style="color: var(--muted); font-size: 13px; margin: 5px 0 0 0;">Manage Classes, Assign Teachers, and Enter Offline Exam Marks.</p>
+      </div>
+      <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+        <h4>Teacher Approval & Role Management</h4>
+        <p style="font-size: 13px; color: var(--muted);">Promote registered users to Teachers or Evaluators.</p>
       </div>
     </div>
 
   </div>
 
   <script>
+    const ADMIN_SECRET_PIN = "9999";
     let currentUser = null;
 
     function switchAuthTab(tab) {
@@ -212,61 +188,60 @@
     // Sign In Action
     document.getElementById("formSignIn").addEventListener("submit", (e) => {
       e.preventDefault();
-      currentUser = {
-        name: "Enrolled Candidate",
-        mobile: document.getElementById("loginMobile").value,
-        email: document.getElementById("loginEmail").value,
-        role: "student"
-      };
-      launchDashboard();
+      const input = document.getElementById("loginIdentifier").value.trim();
+
+      if (input === ADMIN_SECRET_PIN) {
+        currentUser = { name: "Super Admin", role: "admin" };
+        showAdminView();
+      } else {
+        currentUser = { name: "Registered User", mobile: input, role: "student" };
+        showStudentView();
+      }
     });
 
-    // Sign Up Action
+    // Sign Up Action (Only Students by default)
     document.getElementById("formSignUp").addEventListener("submit", (e) => {
       e.preventDefault();
       currentUser = {
         name: document.getElementById("regName").value,
         mobile: document.getElementById("regMobile").value,
         email: document.getElementById("regEmail").value,
-        role: document.getElementById("regRole").value
+        role: "student"
       };
-      launchDashboard();
+      showStudentView();
     });
 
     function enterAsGuest() {
-      currentUser = { name: "Guest User", mobile: "N/A", email: "N/A", role: "guest" };
-      launchDashboard();
+      currentUser = { name: "Guest User", role: "guest" };
+      showStudentView();
     }
 
-    function launchDashboard() {
+    function showStudentView() {
       document.getElementById("authSection").style.display = "none";
-      document.getElementById("appNavbar").style.display = "flex";
+      document.getElementById("adminDashboard").style.display = "none";
       document.getElementById("studentDashboard").style.display = "block";
+      document.getElementById("appNavbar").style.display = "flex";
       document.getElementById("userRoleDisplay").innerText = currentUser.role.toUpperCase();
       document.getElementById("welcomeStudent").innerText = "Welcome, " + currentUser.name;
+    }
+
+    function showAdminView() {
+      document.getElementById("authSection").style.display = "none";
+      document.getElementById("studentDashboard").style.display = "none";
+      document.getElementById("adminDashboard").style.display = "block";
+      document.getElementById("appNavbar").style.display = "flex";
+      document.getElementById("userRoleDisplay").innerText = "SUPER ADMIN";
     }
 
     function selectPhase(phaseNo) {
       alert("Loading classes for Phase " + phaseNo);
     }
 
-    function generateProvisionalSlip() {
-      document.getElementById("studentDashboard").style.display = "none";
-      document.getElementById("slipSection").style.display = "block";
-      document.getElementById("slipName").innerText = currentUser.name;
-      document.getElementById("slipMobile").innerText = currentUser.mobile;
-    }
-
-    function closeSlip() {
-      document.getElementById("slipSection").style.display = "none";
-      document.getElementById("studentDashboard").style.display = "block";
-    }
-
     function logout() {
       currentUser = null;
       document.getElementById("appNavbar").style.display = "none";
       document.getElementById("studentDashboard").style.display = "none";
-      document.getElementById("slipSection").style.display = "none";
+      document.getElementById("adminDashboard").style.display = "none";
       document.getElementById("authSection").style.display = "flex";
     }
   </script>
