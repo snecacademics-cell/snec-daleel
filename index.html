@@ -41,49 +41,43 @@
     .tab-btn { flex: 1; border: none; padding: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 6px; background: transparent; color: var(--muted); }
     .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-    input, select { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; }
-    input:focus, select:focus { outline: none; border-color: var(--primary); }
+    input, select, textarea { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
 
     .btn-main { width: 100%; padding: 11px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 5px; }
     .btn-main:disabled { background: #94a3b8; cursor: not-allowed; }
+    .btn-secondary { background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+
+    .grid-phases { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+    .phase-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; }
+    .phase-card.active-phase { border: 2px solid var(--primary); background: #f0fdfa; }
+
+    .class-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
+    .class-item:hover { border-color: var(--primary); }
+    .class-item.locked { opacity: 0.6; cursor: not-allowed; background: #f8fafc; pointer-events: none; }
     
     .status-badge { font-size: 11px; padding: 4px 10px; border-radius: 4px; font-weight: 600; }
     .badge-done { background: #dcfce7; color: #16a34a; }
     .badge-pending { background: #fef3c7; color: #d97706; }
     .badge-lock { background: #f1f5f9; color: #94a3b8; }
 
-    .class-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-    
+    /* Video Frame */
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 15px; background: #000; }
+    .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+    /* MCQ Option Card */
+    .mcq-option { display: block; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-size: 13px; }
+    .mcq-option input { width: auto; margin-right: 10px; }
+
+    #toastMessage { position: fixed; bottom: 20px; right: 20px; background: #1e293b; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; display: none; z-index: 1000; }
     table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
     th { background: #f8fafc; padding: 10px; border-bottom: 2px solid #e2e8f0; }
     td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
     .btn-approve { background: #16a34a; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; }
-
-    /* Modern Notification Toast */
-    #toastMessage {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #1e293b;
-      color: #fff;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      display: none;
-      z-index: 1000;
-      animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
   </style>
 </head>
 <body>
 
-  <!-- In-App Notification Toast -->
   <div id="toastMessage"></div>
 
   <div class="navbar" id="appNavbar" style="display: none;">
@@ -96,7 +90,7 @@
 
   <div class="container">
 
-    <!-- 1. LOGIN / INITIAL REGISTRATION -->
+    <!-- 1. AUTHENTICATION -->
     <div class="auth-wrapper" id="authSection">
       <div class="auth-card">
         <h2 style="margin: 0 0 5px 0; color: var(--primary);">DALEEL</h2>
@@ -109,12 +103,12 @@
 
         <form id="formSignIn">
           <input type="text" id="loginInput" placeholder="Enter Mobile Number or Admin PIN" required>
-          <button type="submit" class="btn-main" id="btnSignIn">Sign In</button>
+          <button type="submit" class="btn-main">Sign In</button>
         </form>
 
         <form id="formSignUp" style="display: none;">
           <input type="text" id="regName" placeholder="Full Name" required>
-          <input type="text" id="regMobile" placeholder="Mobile Number (e.g. 9847790786)" required>
+          <input type="text" id="regMobile" placeholder="Mobile Number" required>
           <input type="email" id="regEmail" placeholder="Email Address" required>
           <button type="submit" class="btn-main">Continue to Application</button>
         </form>
@@ -122,80 +116,99 @@
       </div>
     </div>
 
-    <!-- 2. DETAILED APPLICATION FORM -->
+    <!-- 2. ADMISSION PROFILE FORM -->
     <div id="admissionSection" style="display: none;">
       <div class="card" style="max-width: 600px; margin: auto;">
         <h3 style="margin-top: 0; color: var(--primary);">Complete Admission Profile</h3>
-        <p style="color: var(--muted); font-size: 13px;">Submit your academic details to request enrollment.</p>
-
         <form id="formAdmission">
           <input type="text" id="admFullName" placeholder="Full Name" required readonly>
           <input type="text" id="admMobile" placeholder="Mobile Number" required readonly>
           <input type="email" id="admEmail" placeholder="Email" required readonly>
           <input type="date" id="admDob" required placeholder="Date of Birth">
-          <input type="text" id="admProfession" placeholder="Current Profession (e.g. MUALLIM)" required>
-          <input type="text" id="admReligiousDeg" placeholder="Religious Degree (e.g. RAHMANI)" required>
-          <input type="text" id="admReligiousInst" placeholder="Religious Institution (e.g. RAHMANIYYA)" required>
-          <input type="text" id="admSecularEdu" placeholder="Secular Education (e.g. DEGREE / PLUS TWO)" required>
-          <input type="text" id="admPlace" placeholder="Place (e.g. CHEMBRASSERI)" required>
-          <input type="text" id="admAddress" placeholder="Address (e.g. CHEMBRASSERI EAST)" required>
-
+          <input type="text" id="admProfession" placeholder="Current Profession" required>
+          <input type="text" id="admReligiousDeg" placeholder="Religious Degree" required>
+          <input type="text" id="admReligiousInst" placeholder="Religious Institution" required>
+          <input type="text" id="admSecularEdu" placeholder="Secular Education" required>
+          <input type="text" id="admPlace" placeholder="Place" required>
+          <input type="text" id="admAddress" placeholder="Address" required>
           <button type="submit" class="btn-main" id="btnSubmitAdmission">Submit Application</button>
         </form>
       </div>
     </div>
 
-    <!-- 3. VERIFICATION PENDING SCREEN -->
+    <!-- 3. VERIFICATION PENDING -->
     <div id="pendingSection" style="display: none;">
       <div class="card" style="max-width: 550px; margin: 40px auto; text-align: center; border: 2px dashed #f59e0b;">
         <h3 style="color: #d97706; margin-top: 0;">Verification Pending</h3>
-        <p style="font-size: 14px;">Your profile has been saved in Daleel Firestore Database.</p>
-        <p style="font-size: 13px; color: var(--muted);">An Admin will verify your details and approve your admission. Once approved, your Phase 1 classes will automatically unlock.</p>
+        <p style="font-size: 13px; color: var(--muted);">An Admin will verify your details. Once approved, your Phase 1 classes will automatically unlock.</p>
         <span class="status-badge badge-pending">Status: Awaiting Admin Approval</span>
       </div>
     </div>
 
-    <!-- 4. ACTIVE LEARNING DASHBOARD -->
+    <!-- 4. STUDENT LEARNING DASHBOARD (Timeline) -->
     <div id="studentDashboard" style="display: none;">
       <div class="card">
         <h3 style="margin: 0; color: var(--primary);" id="welcomeStudent">Welcome!</h3>
-        <span class="status-badge badge-done" style="margin-top: 6px; display: inline-block;">Enrolled Student • Active</span>
+        <span class="status-badge badge-done" style="margin-top: 6px; display: inline-block;">Enrolled • Active</span>
       </div>
+
+      <div class="grid-phases">
+        <div class="phase-card active-phase"><h4 style="margin:0 0 4px 0;">Phase 1</h4><span style="font-size:12px; color:var(--muted);">20 Classes • Active</span></div>
+        <div class="phase-card"><h4 style="margin:0 0 4px 0;">Phase 2</h4><span style="font-size:12px; color:var(--muted);">Advanced</span></div>
+        <div class="phase-card"><h4 style="margin:0 0 4px 0;">Phase 3</h4><span style="font-size:12px; color:var(--muted);">Specialization</span></div>
+        <div class="phase-card"><h4 style="margin:0 0 4px 0;">Phase 4</h4><span style="font-size:12px; color:var(--muted);">Graduation</span></div>
+      </div>
+
+      <div style="margin-top: 25px;">
+        <h4>Phase 1: Classes & Assessments</h4>
+        <div id="classListContainer"></div>
+      </div>
+    </div>
+
+    <!-- 5. INTERACTIVE CLASSROOM VIEW -->
+    <div id="classroomSection" style="display: none;">
       <div class="card">
-        <h4>Phase 1 Classes</h4>
-        <div class="class-item">
-          <div><strong>Class 01: Introduction & Principles</strong><div style="font-size: 12px; color: var(--muted);">Video Lecture • Assessment</div></div>
-          <span class="status-badge badge-pending">Active</span>
+        <button class="btn-secondary" onclick="backToDashboard()" style="margin-bottom: 15px;">← Back to Classes</button>
+        <h3 style="margin-top: 0; color: var(--primary);" id="crTitle">Class 01: Introduction</h3>
+
+        <!-- Video Lecture -->
+        <div class="video-container">
+          <iframe id="crVideo" src="" allowfullscreen></iframe>
         </div>
-        <div class="class-item" style="opacity: 0.6;">
-          <div><strong>Class 02: Core Studies</strong><div style="font-size: 12px; color: var(--muted);">Locked</div></div>
-          <span class="status-badge badge-lock">Locked</span>
+
+        <!-- Study Material -->
+        <div style="margin: 15px 0;">
+          <a id="crPdf" href="#" target="_blank" class="btn-secondary" style="display: inline-block; text-decoration: none;">📄 Download Study Material (PDF)</a>
+        </div>
+
+        <!-- Practical Activity -->
+        <div style="margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <h4 style="margin: 0 0 8px 0;">Practical Activity</h4>
+          <p id="crActivityText" style="font-size: 13px; color: var(--muted); margin-bottom: 10px;">Activity instructions will appear here.</p>
+          <textarea id="activityAnswer" placeholder="Type your activity response / notes here..." rows="3"></textarea>
+        </div>
+
+        <!-- MCQ Assessment -->
+        <div style="margin-top: 20px;">
+          <h4>Class Assessment (MCQ)</h4>
+          <div id="mcqContainer"></div>
+          <button class="btn-main" onclick="submitAssessment()" style="margin-top: 15px;" id="btnSubmitMcq">Submit Assessment</button>
         </div>
       </div>
     </div>
 
-    <!-- 5. ADMIN PANEL -->
+    <!-- 6. ADMIN PANEL -->
     <div id="adminDashboard" style="display: none;">
       <div class="card">
-        <h3 style="margin: 0; color: var(--primary);">Daleel Admin Approval Panel</h3>
-        <p style="color: var(--muted); font-size: 13px; margin: 5px 0 0 0;">Verify registered candidates directly in Firestore.</p>
+        <h3 style="margin: 0; color: var(--primary);">Admin Management Portal</h3>
       </div>
       <div class="card">
         <h4>Pending Applicants</h4>
         <table>
           <thead>
-            <tr>
-              <th>Name</th>
-              <th>Mobile</th>
-              <th>Profession</th>
-              <th>Place</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
+            <tr><th>Name</th><th>Mobile</th><th>Place</th><th>Status</th><th>Action</th></tr>
           </thead>
-          <tbody id="adminStudentList">
-            <tr><td colspan="6" style="text-align:center;">Loading records from Firestore...</td></tr>
-          </tbody>
+          <tbody id="adminStudentList"></tbody>
         </table>
       </div>
     </div>
@@ -220,8 +233,44 @@
     const db = getFirestore(app);
 
     const ADMIN_PIN = "9999";
+    let activeStudent = null;
+    let currentClassIdx = 0;
 
-    // Non-intrusive in-app notification function
+    // Standard 20 Classes Configuration
+    const PHASE1_CLASSES = [
+      {
+        id: 1,
+        title: "Class 01: Introduction to Fundamentals",
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        activity: "Write a brief summary of the foundational concepts discussed in the lecture.",
+        questions: [
+          { q: "What is the primary objective of Phase 1?", options: ["Foundational Study", "Final Review", "Exam Prep"], ans: 0 },
+          { q: "Classes are scheduled on which days?", options: ["Sat & Tue", "Sun & Wed", "Daily"], ans: 0 }
+        ]
+      },
+      {
+        id: 2,
+        title: "Class 02: Core Principles & Methodology",
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        activity: "Analyze the 3 core principles mentioned in this class.",
+        questions: [
+          { q: "How many core principles were outlined?", options: ["3", "5", "7"], ans: 0 }
+        ]
+      },
+      {
+        id: 3,
+        title: "Class 03: Applied Practical Studies",
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        activity: "Practical case study application notes.",
+        questions: [
+          { q: "Which domain was analyzed in the case study?", options: ["Domain A", "Domain B"], ans: 0 }
+        ]
+      }
+    ];
+
     function showToast(text, bg = "#1e293b") {
       const toast = document.getElementById("toastMessage");
       toast.innerText = text;
@@ -237,12 +286,10 @@
       document.getElementById("formSignUp").style.display = t === 'signup' ? 'block' : 'none';
     };
 
-    // Sign In logic
+    // Sign In
     document.getElementById("formSignIn").addEventListener("submit", async (e) => {
       e.preventDefault();
       const val = document.getElementById("loginInput").value.trim();
-      const err = document.getElementById("authError");
-      err.innerText = "";
 
       if (val === ADMIN_PIN) {
         showAdminView();
@@ -252,21 +299,21 @@
       try {
         const snap = await getDoc(doc(db, "students", val));
         if (snap.exists()) {
-          const data = snap.data();
-          if (data.status === "Active" || data.status === "Approved") {
-            showStudentDashboard(data);
+          activeStudent = { id: snap.id, ...snap.data() };
+          if (activeStudent.status === "Active" || activeStudent.status === "Approved") {
+            showStudentDashboard();
           } else {
             showPendingScreen();
           }
         } else {
-          err.innerText = "No student found with this mobile number. Please Sign Up first.";
+          document.getElementById("authError").innerText = "Mobile number not found. Please Sign Up.";
         }
       } catch (ex) {
-        err.innerText = "Firestore Error: " + ex.message;
+        document.getElementById("authError").innerText = "Error: " + ex.message;
       }
     });
 
-    // Sign Up Form (Initial Step)
+    // Sign Up
     document.getElementById("formSignUp").addEventListener("submit", (e) => {
       e.preventDefault();
       document.getElementById("admFullName").value = document.getElementById("regName").value.trim();
@@ -278,15 +325,11 @@
       document.getElementById("admissionSection").style.display = "block";
     });
 
-    // Submit Complete Application directly into Firestore
+    // Submit Application
     document.getElementById("formAdmission").addEventListener("submit", async (e) => {
       e.preventDefault();
       const mobile = document.getElementById("admMobile").value.trim();
-      const btn = document.getElementById("btnSubmitAdmission");
-      btn.disabled = true;
-      btn.innerText = "Saving application...";
-
-      const studentPayload = {
+      const payload = {
         fullName: document.getElementById("admFullName").value.trim(),
         mobileNumber: mobile,
         email: document.getElementById("admEmail").value.trim(),
@@ -299,33 +342,111 @@
         address: document.getElementById("admAddress").value.trim(),
         registeredAt: new Date().toISOString(),
         paymentDetails: "DONE",
-        status: "Pending Approval"
+        status: "Pending Approval",
+        completedClasses: 0 // Progress Tracker
       };
 
-      try {
-        await setDoc(doc(db, "students", mobile), studentPayload);
-        showToast("Application submitted successfully!", "#0f766e");
-        showPendingScreen();
-      } catch (err) {
-        showToast("Error: " + err.message, "#dc2626");
-      }
-      btn.disabled = false;
-      btn.innerText = "Submit Application";
+      await setDoc(doc(db, "students", mobile), payload);
+      showToast("Application submitted successfully!", "#0f766e");
+      showPendingScreen();
     });
+
+    function showStudentDashboard() {
+      hideAll();
+      document.getElementById("appNavbar").style.display = "flex";
+      document.getElementById("studentDashboard").style.display = "block";
+      document.getElementById("welcomeStudent").innerText = "Welcome, " + activeStudent.fullName;
+
+      const completedCount = activeStudent.completedClasses || 0;
+      const container = document.getElementById("classListContainer");
+      container.innerHTML = "";
+
+      PHASE1_CLASSES.forEach((cls, index) => {
+        const isCompleted = index < completedCount;
+        const isUnlocked = index <= completedCount;
+
+        container.innerHTML += `
+          <div class="class-item ${!isUnlocked ? 'locked' : ''}" onclick="openClass(${index})">
+            <div>
+              <strong>${cls.title}</strong>
+              <div style="font-size: 12px; color: var(--muted); margin-top: 3px;">Video Lecture • Study Material • MCQ Test</div>
+            </div>
+            <span class="status-badge ${isCompleted ? 'badge-done' : (isUnlocked ? 'badge-pending' : 'badge-lock')}">
+              ${isCompleted ? 'Completed' : (isUnlocked ? 'Start Class' : 'Locked')}
+            </span>
+          </div>
+        `;
+      });
+    }
+
+    window.openClass = function(idx) {
+      currentClassIdx = idx;
+      const cls = PHASE1_CLASSES[idx];
+
+      hideAll();
+      document.getElementById("appNavbar").style.display = "flex";
+      document.getElementById("classroomSection").style.display = "block";
+
+      document.getElementById("crTitle").innerText = cls.title;
+      document.getElementById("crVideo").src = cls.videoUrl;
+      document.getElementById("crPdf").href = cls.pdfUrl;
+      document.getElementById("crActivityText").innerText = cls.activity;
+      document.getElementById("activityAnswer").value = "";
+
+      // Render Questions
+      const mcqDiv = document.getElementById("mcqContainer");
+      mcqDiv.innerHTML = "";
+      cls.questions.forEach((q, qIdx) => {
+        mcqDiv.innerHTML += `
+          <div style="margin-bottom: 12px;">
+            <p style="font-weight: 600; font-size: 13px; margin: 0 0 6px 0;">${qIdx + 1}. ${q.q}</p>
+            ${q.options.map((opt, optIdx) => `
+              <label class="mcq-option">
+                <input type="radio" name="mcq_${qIdx}" value="${optIdx}" required> ${opt}
+              </label>
+            `).join('')}
+          </div>
+        `;
+      });
+    };
+
+    window.submitAssessment = async function() {
+      const cls = PHASE1_CLASSES[currentClassIdx];
+      let correct = 0;
+
+      for (let i = 0; i < cls.questions.length; i++) {
+        const selected = document.querySelector(`input[name="mcq_${i}"]:checked`);
+        if (!selected) {
+          showToast("Please answer all questions before submitting!", "#d97706");
+          return;
+        }
+        if (parseInt(selected.value) === cls.questions[i].ans) {
+          correct++;
+        }
+      }
+
+      const scorePercent = Math.round((correct / cls.questions.length) * 100);
+
+      if (scorePercent >= 60) {
+        showToast(`Congratulations! Passed with ${scorePercent}%. Next class unlocked!`, "#16a34a");
+        const newProgress = Math.max(activeStudent.completedClasses || 0, currentClassIdx + 1);
+        await updateDoc(doc(db, "students", activeStudent.id), { completedClasses: newProgress });
+        activeStudent.completedClasses = newProgress;
+        showStudentDashboard();
+      } else {
+        showToast(`Score: ${scorePercent}%. Minimum 60% required to pass. Please retry!`, "#dc2626");
+      }
+    };
+
+    window.backToDashboard = function() {
+      document.getElementById("crVideo").src = "";
+      showStudentDashboard();
+    };
 
     function showPendingScreen() {
       hideAll();
       document.getElementById("appNavbar").style.display = "flex";
       document.getElementById("pendingSection").style.display = "block";
-      document.getElementById("userRoleDisplay").innerText = "Applicant";
-    }
-
-    function showStudentDashboard(data) {
-      hideAll();
-      document.getElementById("appNavbar").style.display = "flex";
-      document.getElementById("studentDashboard").style.display = "block";
-      document.getElementById("welcomeStudent").innerText = "Welcome, " + (data.fullName || "Student");
-      document.getElementById("userRoleDisplay").innerText = "Student";
     }
 
     async function showAdminView() {
@@ -335,39 +456,27 @@
       document.getElementById("userRoleDisplay").innerText = "SUPER ADMIN";
 
       const tb = document.getElementById("adminStudentList");
-      tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">Fetching records...</td></tr>';
-
-      try {
-        const snap = await getDocs(collection(db, "students"));
-        tb.innerHTML = "";
-        snap.forEach(d => {
-          const s = d.data();
-          tb.innerHTML += `
-            <tr>
-              <td><strong>${s.fullName || '-'}</strong></td>
-              <td>${s.mobileNumber || d.id}</td>
-              <td>${s.currentProfession || '-'}</td>
-              <td>${s.place || '-'}</td>
-              <td><span class="status-badge ${s.status === 'Active' ? 'badge-done' : 'badge-pending'}">${s.status || 'Pending'}</span></td>
-              <td>
-                ${s.status !== 'Active' ? `<button class="btn-approve" onclick="approveCandidate('${d.id}')">Approve</button>` : '<strong style="color:#16a34a;">Approved</strong>'}
-              </td>
-            </tr>
-          `;
-        });
-      } catch (e) {
-        tb.innerHTML = `<tr><td colspan="6" style="color:red;">Error: ${e.message}</td></tr>`;
-      }
+      tb.innerHTML = '<tr><td colspan="5">Fetching...</td></tr>';
+      const snap = await getDocs(collection(db, "students"));
+      tb.innerHTML = "";
+      snap.forEach(d => {
+        const s = d.data();
+        tb.innerHTML += `
+          <tr>
+            <td><strong>${s.fullName || '-'}</strong></td>
+            <td>${s.mobileNumber || d.id}</td>
+            <td>${s.place || '-'}</td>
+            <td><span class="status-badge ${s.status === 'Active' ? 'badge-done' : 'badge-pending'}">${s.status || 'Pending'}</span></td>
+            <td>${s.status !== 'Active' ? `<button class="btn-approve" onclick="approveCandidate('${d.id}')">Approve</button>` : '<strong style="color:#16a34a;">Approved</strong>'}</td>
+          </tr>
+        `;
+      });
     }
 
     window.approveCandidate = async function(id) {
-      try {
-        await updateDoc(doc(db, "students", id), { status: "Active" });
-        showToast("Student approved successfully!", "#16a34a");
-        showAdminView();
-      } catch(e) {
-        showToast("Approval failed: " + e.message, "#dc2626");
-      }
+      await updateDoc(doc(db, "students", id), { status: "Active" });
+      showToast("Student Approved!", "#16a34a");
+      showAdminView();
     };
 
     function hideAll() {
@@ -375,10 +484,12 @@
       document.getElementById("admissionSection").style.display = "none";
       document.getElementById("pendingSection").style.display = "none";
       document.getElementById("studentDashboard").style.display = "none";
+      document.getElementById("classroomSection").style.display = "none";
       document.getElementById("adminDashboard").style.display = "none";
     }
 
     window.logout = function() {
+      activeStudent = null;
       hideAll();
       document.getElementById("appNavbar").style.display = "none";
       document.getElementById("authSection").style.display = "flex";
