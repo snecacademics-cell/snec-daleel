@@ -34,6 +34,7 @@
     .btn-logout { background: #fee2e2; color: #dc2626; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; }
 
     .container { max-width: 1100px; margin: 25px auto; padding: 0 15px; }
+    .card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 25px; margin-bottom: 20px; }
 
     .auth-wrapper { min-height: 80vh; display: flex; justify-content: center; align-items: center; }
     .auth-card { background: #fff; width: 100%; max-width: 420px; padding: 30px; border-radius: 14px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; text-align: center; }
@@ -41,28 +42,32 @@
     .tab-btn { flex: 1; border: none; padding: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 6px; background: transparent; color: var(--muted); }
     .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-    input { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; }
-    input:focus { outline: none; border-color: var(--primary); }
+    input, select { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; }
+    input:focus, select:focus { outline: none; border-color: var(--primary); }
 
     .btn-main { width: 100%; padding: 11px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 5px; }
     .btn-guest { width: 100%; padding: 10px; background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 10px; }
 
-    .grid-phases { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-top: 20px; }
-    .phase-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: 0.2s; }
-    .phase-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+    /* Flow Layouts */
+    .grid-phases { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 15px; }
+    .phase-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; }
     .phase-card.active-phase { border: 2px solid var(--primary); background: #f0fdfa; }
 
     .class-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-    .class-item.locked { opacity: 0.6; background: #f8fafc; pointer-events: none; }
-    .status-badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 600; }
+    .status-badge { font-size: 11px; padding: 4px 10px; border-radius: 4px; font-weight: 600; }
     .badge-done { background: #dcfce7; color: #16a34a; }
     .badge-pending { background: #fef3c7; color: #d97706; }
     .badge-lock { background: #f1f5f9; color: #94a3b8; }
+
+    /* Admin Table */
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; margin-top: 15px; }
+    th { background: #f8fafc; padding: 10px; border-bottom: 2px solid #e2e8f0; }
+    td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
+    .btn-approve { background: #16a34a; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; }
   </style>
 </head>
 <body>
 
-  <!-- Navbar -->
   <div class="navbar" id="appNavbar" style="display: none;">
     <div class="brand">DALEEL LMS</div>
     <div style="display: flex; align-items: center; gap: 12px;">
@@ -73,7 +78,7 @@
 
   <div class="container">
 
-    <!-- 1. AUTHENTICATION SECTION -->
+    <!-- 1. AUTHENTICATION (Sign In / Sign Up) -->
     <div class="auth-wrapper" id="authSection">
       <div class="auth-card">
         <h2 style="margin: 0 0 5px 0; color: var(--primary);">DALEEL</h2>
@@ -84,13 +89,11 @@
           <button class="tab-btn" id="tabSignUp" onclick="switchAuthTab('signup')">Sign Up</button>
         </div>
 
-        <!-- Sign In Form (Students, Teachers, and Admin) -->
         <form id="formSignIn">
           <input type="text" id="loginIdentifier" placeholder="Registered Mobile / Email / Admin PIN" required>
           <button type="submit" class="btn-main">Sign In</button>
         </form>
 
-        <!-- Sign Up Form (Only for Users / Students) -->
         <form id="formSignUp" style="display: none;">
           <input type="text" id="regName" placeholder="Full Name" required>
           <input type="text" id="regMobile" placeholder="Mobile Number" required>
@@ -103,72 +106,123 @@
       </div>
     </div>
 
-    <!-- 2. STUDENT DASHBOARD -->
-    <div id="studentDashboard" style="display: none;">
-      <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
-        <h3 style="margin: 0; color: var(--primary);" id="welcomeStudent">Welcome!</h3>
-        <p style="color: var(--muted); font-size: 13px; margin: 5px 0 0 0;">Select your learning phase to access classes & materials.</p>
-      </div>
-
-      <!-- Phase Selection -->
-      <div class="grid-phases">
-        <div class="phase-card active-phase" onclick="selectPhase(1)">
-          <h4 style="margin: 0 0 5px 0;">Phase 1</h4>
-          <span style="font-size: 12px; color: var(--muted);">20 Classes • Active</span>
-        </div>
-        <div class="phase-card" onclick="selectPhase(2)">
-          <h4 style="margin: 0 0 5px 0;">Phase 2</h4>
-          <span style="font-size: 12px; color: var(--muted);">Advanced Track</span>
-        </div>
-        <div class="phase-card" onclick="selectPhase(3)">
-          <h4 style="margin: 0 0 5px 0;">Phase 3</h4>
-          <span style="font-size: 12px; color: var(--muted);">Specialization</span>
-        </div>
-        <div class="phase-card" onclick="selectPhase(4)">
-          <h4 style="margin: 0 0 5px 0;">Phase 4</h4>
-          <span style="font-size: 12px; color: var(--muted);">Graduation Track</span>
-        </div>
-      </div>
-
-      <!-- Phase Content / Classes Timeline -->
-      <div style="margin-top: 25px;">
-        <h4 style="color: var(--text); margin-bottom: 12px;">Phase 1: Classes & Assessments (Sat & Tue Schedule)</h4>
+    <!-- 2. DETAILED ADMISSION APPLICATION FORM (For New Students) -->
+    <div id="admissionSection" style="display: none;">
+      <div class="card" style="max-width: 650px; margin: auto;">
+        <h3 style="margin-top: 0; color: var(--primary);">Phase 1 Admission Application</h3>
+        <p style="color: var(--muted); font-size: 13px;">Complete your academic profile to request admission approval from Admin.</p>
         
+        <form id="formAdmission">
+          <label style="font-size: 12px; font-weight: 600;">Applicant Name</label>
+          <input type="text" id="admName" readonly>
+
+          <label style="font-size: 12px; font-weight: 600;">Contact Mobile</label>
+          <input type="text" id="admMobile" readonly>
+
+          <label style="font-size: 12px; font-weight: 600;">Father's Name</label>
+          <input type="text" id="admFather" placeholder="Enter Father's Name" required>
+
+          <label style="font-size: 12px; font-weight: 600;">Date of Birth</label>
+          <input type="date" id="admDob" required>
+
+          <label style="font-size: 12px; font-weight: 600;">Current Institution / College</label>
+          <input type="text" id="admInstitution" placeholder="Enter Current Institution Name" required>
+
+          <label style="font-size: 12px; font-weight: 600;">Applying Phase</label>
+          <select id="admPhase" required>
+            <option value="Phase 1">Phase 1 (Foundation Track - 20 Classes)</option>
+            <option value="Phase 2">Phase 2 (Direct Track)</option>
+          </select>
+
+          <label style="font-size: 12px; font-weight: 600;">Address / District</label>
+          <input type="text" id="admAddress" placeholder="Place, District" required>
+
+          <button type="submit" class="btn-main">Submit Application for Approval</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 3. APPROVAL PENDING NOTICE SCREEN -->
+    <div id="pendingSection" style="display: none;">
+      <div class="card" style="max-width: 550px; margin: 40px auto; text-align: center; border: 2px dashed #f59e0b;">
+        <h3 style="color: #d97706; margin-top: 0;">Application Submitted</h3>
+        <p style="font-size: 14px; color: var(--text);">Your admission request has been sent to the Admin team.</p>
+        <p style="font-size: 13px; color: var(--muted);">Once your application is verified and approved, your Phase 1 classes and study materials will automatically unlock here.</p>
+        <span class="status-badge badge-pending" style="font-size: 13px; padding: 6px 14px;">Status: Verification Pending</span>
+      </div>
+    </div>
+
+    <!-- 4. ACTIVE STUDENT LEARNING DASHBOARD (Unlocked after Admin Approval) -->
+    <div id="studentDashboard" style="display: none;">
+      <div class="card">
+        <h3 style="margin: 0; color: var(--primary);" id="welcomeStudent">Welcome!</h3>
+        <span class="status-badge badge-done" style="margin-top: 6px; display: inline-block;">Enrolled Student • Approved</span>
+      </div>
+
+      <div class="grid-phases">
+        <div class="phase-card active-phase"><h4 style="margin:0 0 4px 0;">Phase 1</h4><span style="font-size:12px; color:var(--muted);">20 Classes • Active</span></div>
+        <div class="phase-card"><h4 style="margin:0 0 4px 0;">Phase 2</h4><span style="font-size:12px; color:var(--muted);">Advanced</span></div>
+        <div class="phase-card"><h4 style="margin:0 0 4px 0;">Phase 3</h4><span style="font-size:12px; color:var(--muted);">Specialization</span></div>
+        <div class="phase-card"><h4 style="margin:0 0 4px 0;">Phase 4</h4><span style="font-size:12px; color:var(--muted);">Graduation</span></div>
+      </div>
+
+      <div style="margin-top: 25px;">
+        <h4>Phase 1: Classes & Schedule</h4>
         <div class="class-item">
           <div>
             <strong>Class 01: Introduction & Foundation</strong>
-            <div style="font-size: 12px; color: var(--muted); margin-top: 3px;">Video Lecture • Activity • MCQ Assessment</div>
+            <div style="font-size: 12px; color: var(--muted); margin-top: 3px;">Video Lecture • Study Material • MCQ Test</div>
           </div>
           <span class="status-badge badge-done">Completed (90%)</span>
         </div>
-
         <div class="class-item">
           <div>
             <strong>Class 02: Core Principles & Methodology</strong>
-            <div style="font-size: 12px; color: var(--muted); margin-top: 3px;">Class Live • Pending Assessment</div>
+            <div style="font-size: 12px; color: var(--muted); margin-top: 3px;">Active Class</div>
           </div>
           <span class="status-badge badge-pending">Active</span>
         </div>
-
-        <div class="class-item locked">
+        <div class="class-item" style="opacity: 0.6;">
           <div>
             <strong>Class 03: Applied Studies</strong>
-            <div style="font-size: 12px; color: var(--muted); margin-top: 3px;">Unlocks after Class 02 assessment</div>
+            <div style="font-size: 12px; color: var(--muted); margin-top: 3px;">Unlocks after Class 02 completion</div>
           </div>
           <span class="status-badge badge-lock">Locked</span>
         </div>
       </div>
     </div>
 
-    <!-- 3. ADMIN / TEACHER DASHBOARD -->
+    <!-- 5. ADMIN CONTROL PANEL (Approvals & Mark Entries) -->
     <div id="adminDashboard" style="display: none;">
-      <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+      <div class="card">
         <h3 style="margin: 0; color: var(--primary);">Admin Management Portal</h3>
-        <p style="color: var(--muted); font-size: 13px; margin: 5px 0 0 0;">Manage Classes, Assign Teachers, and Enter Offline Exam Marks.</p>
+        <p style="color: var(--muted); font-size: 13px; margin: 5px 0 0 0;">Review pending admission applications and approve students.</p>
       </div>
-      <div style="background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
-        <h4>Teacher Approval & Role Management</h4>
-        <p style="font-size: 13px; color: var(--muted);">Promote registered users to Teachers or Evaluators.</p>
+
+      <div class="card">
+        <h4>Pending Student Admissions</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Applicant</th>
+              <th>Mobile</th>
+              <th>Institution</th>
+              <th>Applying Phase</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="adminApplicationTable">
+            <tr>
+              <td><strong>Yoosuf Rahmani</strong></td>
+              <td>9876543210</td>
+              <td>SNEC College</td>
+              <td>Phase 1</td>
+              <td><span class="status-badge badge-pending">Pending</span></td>
+              <td><button class="btn-approve" onclick="approveStudent()">Approve & Unlock Classes</button></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -176,6 +230,9 @@
 
   <script>
     const ADMIN_SECRET_PIN = "9999";
+    
+    // Default simulated user state: 'new' | 'pending' | 'approved'
+    let userState = 'new'; 
     let currentUser = null;
 
     function switchAuthTab(tab) {
@@ -185,7 +242,7 @@
       document.getElementById("formSignUp").style.display = tab === 'signup' ? 'block' : 'none';
     }
 
-    // Sign In Action
+    // Sign In
     document.getElementById("formSignIn").addEventListener("submit", (e) => {
       e.preventDefault();
       const input = document.getElementById("loginIdentifier").value.trim();
@@ -194,12 +251,12 @@
         currentUser = { name: "Super Admin", role: "admin" };
         showAdminView();
       } else {
-        currentUser = { name: "Registered User", mobile: input, role: "student" };
-        showStudentView();
+        currentUser = { name: "Yoosuf Rahmani", mobile: input, role: "student" };
+        routeStudentByStatus();
       }
     });
 
-    // Sign Up Action (Only Students by default)
+    // Sign Up
     document.getElementById("formSignUp").addEventListener("submit", (e) => {
       e.preventDefault();
       currentUser = {
@@ -208,40 +265,77 @@
         email: document.getElementById("regEmail").value,
         role: "student"
       };
-      showStudentView();
+      userState = 'new';
+      routeStudentByStatus();
     });
 
     function enterAsGuest() {
       currentUser = { name: "Guest User", role: "guest" };
-      showStudentView();
+      userState = 'approved';
+      routeStudentByStatus();
     }
 
-    function showStudentView() {
-      document.getElementById("authSection").style.display = "none";
-      document.getElementById("adminDashboard").style.display = "none";
-      document.getElementById("studentDashboard").style.display = "block";
+    // Directing Student to appropriate screen based on approval status
+    function routeStudentByStatus() {
+      hideAllSections();
       document.getElementById("appNavbar").style.display = "flex";
       document.getElementById("userRoleDisplay").innerText = currentUser.role.toUpperCase();
-      document.getElementById("welcomeStudent").innerText = "Welcome, " + currentUser.name;
+
+      if (userState === 'new') {
+        document.getElementById("admissionSection").style.display = "block";
+        document.getElementById("admName").value = currentUser.name;
+        document.getElementById("admMobile").value = currentUser.mobile || "";
+      } else if (userState === 'pending') {
+        document.getElementById("pendingSection").style.display = "block";
+      } else if (userState === 'approved') {
+        document.getElementById("studentDashboard").style.display = "block";
+        document.getElementById("welcomeStudent").innerText = "Welcome, " + currentUser.name;
+      }
     }
 
+    // Submit Admission Application
+    document.getElementById("formAdmission").addEventListener("submit", (e) => {
+      e.preventDefault();
+      userState = 'pending';
+      alert("Application submitted successfully! Waiting for Admin verification.");
+      routeStudentByStatus();
+    });
+
+    // Admin Views & Actions
     function showAdminView() {
-      document.getElementById("authSection").style.display = "none";
-      document.getElementById("studentDashboard").style.display = "none";
-      document.getElementById("adminDashboard").style.display = "block";
+      hideAllSections();
       document.getElementById("appNavbar").style.display = "flex";
+      document.getElementById("adminDashboard").style.display = "block";
       document.getElementById("userRoleDisplay").innerText = "SUPER ADMIN";
     }
 
-    function selectPhase(phaseNo) {
-      alert("Loading classes for Phase " + phaseNo);
+    function approveStudent() {
+      userState = 'approved';
+      document.getElementById("adminApplicationTable").innerHTML = `
+        <tr>
+          <td><strong>Yoosuf Rahmani</strong></td>
+          <td>9876543210</td>
+          <td>SNEC College</td>
+          <td>Phase 1</td>
+          <td><span class="status-badge badge-done">Approved</span></td>
+          <td><strong style="color: #16a34a;">Enrolled</strong></td>
+        </tr>
+      `;
+      alert("Student application approved! Classes are now unlocked for this student.");
+    }
+
+    function hideAllSections() {
+      document.getElementById("authSection").style.display = "none";
+      document.getElementById("admissionSection").style.display = "none";
+      document.getElementById("pendingSection").style.display = "none";
+      document.getElementById("studentDashboard").style.display = "none";
+      document.getElementById("adminDashboard").style.display = "none";
     }
 
     function logout() {
       currentUser = null;
+      hideAllSections();
       document.getElementById("appNavbar").style.display = "none";
-      document.getElementById("studentDashboard").style.display = "none";
-      document.getElementById("adminDashboard").style.display = "none";
       document.getElementById("authSection").style.display = "flex";
     }
   </script>
