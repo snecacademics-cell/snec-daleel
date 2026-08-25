@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DALEEL - Learning Portal</title>
+  <title>DALEEL - SNEC Advanced Studies Program</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -61,11 +61,9 @@
     .badge-pending { background: #fef3c7; color: #d97706; }
     .badge-lock { background: #f1f5f9; color: #94a3b8; }
 
-    /* Video Frame */
     .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 15px; background: #000; }
     .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
 
-    /* MCQ Option Card */
     .mcq-option { display: block; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-size: 13px; }
     .mcq-option input { width: auto; margin-right: 10px; }
 
@@ -94,7 +92,7 @@
     <div class="auth-wrapper" id="authSection">
       <div class="auth-card">
         <h2 style="margin: 0 0 5px 0; color: var(--primary);">DALEEL</h2>
-        <p style="color: var(--muted); font-size: 13px; margin-bottom: 18px;">Structured Learning Management System</p>
+        <p style="color: var(--muted); font-size: 13px; margin-bottom: 18px; font-weight: 500;">SNEC Advanced Studies Program</p>
 
         <div class="tab-btn-group">
           <button class="tab-btn active" id="tabSignIn" onclick="switchTab('signin')">Sign In</button>
@@ -145,7 +143,7 @@
       </div>
     </div>
 
-    <!-- 4. STUDENT LEARNING DASHBOARD (Timeline) -->
+    <!-- 4. STUDENT LEARNING DASHBOARD -->
     <div id="studentDashboard" style="display: none;">
       <div class="card">
         <h3 style="margin: 0; color: var(--primary);" id="welcomeStudent">Welcome!</h3>
@@ -171,24 +169,20 @@
         <button class="btn-secondary" onclick="backToDashboard()" style="margin-bottom: 15px;">← Back to Classes</button>
         <h3 style="margin-top: 0; color: var(--primary);" id="crTitle">Class 01: Introduction</h3>
 
-        <!-- Video Lecture -->
         <div class="video-container">
           <iframe id="crVideo" src="" allowfullscreen></iframe>
         </div>
 
-        <!-- Study Material -->
         <div style="margin: 15px 0;">
           <a id="crPdf" href="#" target="_blank" class="btn-secondary" style="display: inline-block; text-decoration: none;">📄 Download Study Material (PDF)</a>
         </div>
 
-        <!-- Practical Activity -->
         <div style="margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
           <h4 style="margin: 0 0 8px 0;">Practical Activity</h4>
           <p id="crActivityText" style="font-size: 13px; color: var(--muted); margin-bottom: 10px;">Activity instructions will appear here.</p>
           <textarea id="activityAnswer" placeholder="Type your activity response / notes here..." rows="3"></textarea>
         </div>
 
-        <!-- MCQ Assessment -->
         <div style="margin-top: 20px;">
           <h4>Class Assessment (MCQ)</h4>
           <div id="mcqContainer"></div>
@@ -236,7 +230,6 @@
     let activeStudent = null;
     let currentClassIdx = 0;
 
-    // Standard 20 Classes Configuration
     const PHASE1_CLASSES = [
       {
         id: 1,
@@ -343,7 +336,7 @@
         registeredAt: new Date().toISOString(),
         paymentDetails: "DONE",
         status: "Pending Approval",
-        completedClasses: 0 // Progress Tracker
+        completedClasses: 0
       };
 
       await setDoc(doc(db, "students", mobile), payload);
@@ -393,7 +386,6 @@
       document.getElementById("crActivityText").innerText = cls.activity;
       document.getElementById("activityAnswer").value = "";
 
-      // Render Questions
       const mcqDiv = document.getElementById("mcqContainer");
       mcqDiv.innerHTML = "";
       cls.questions.forEach((q, qIdx) => {
