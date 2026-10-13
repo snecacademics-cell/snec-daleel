@@ -4,211 +4,221 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DALEEL - SNEC Advanced Studies Program</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6.4.0 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
-      --primary: #0f766e;
-      --primary-dark: #115e59;
-      --bg: #f8fafc;
-      --card: #ffffff;
-      --text: #1e293b;
+      --primary-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      --sidebar-bg: #1e1e2f;
+      --sidebar-text: #cbd5e1;
+      --body-bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --text-color: #1e293b;
+      --success: #05c46b;
+      --error: #fc5c65;
+      --info: #4b7bec;
       --muted: #64748b;
     }
-    * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-    body { background-color: var(--bg); margin: 0; color: var(--text); }
 
-    .navbar {
-      background: #fff;
-      padding: 14px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .brand { font-size: 20px; font-weight: 700; color: var(--primary); }
-    .badge-role { background: #ccfbf1; color: var(--primary-dark); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-    .btn-logout { background: #fee2e2; color: #dc2626; border: none; padding: 6px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    body { background-color: var(--body-bg); margin: 0; color: var(--text-color); display: flex; height: 100vh; overflow: hidden; }
 
-    .container { max-width: 1000px; margin: 25px auto; padding: 0 15px; }
-    .card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 25px; margin-bottom: 20px; }
+    /* Layout & Sidebar */
+    .sidebar { width: 260px; background: var(--sidebar-bg); color: var(--sidebar-text); display: flex; flex-direction: column; padding: 20px; z-index: 100; }
+    .sidebar-brand { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 30px; display: flex; align-items: center; gap: 12px; }
+    .sidebar-menu { list-style: none; padding: 0; margin: 0; flex: 1; }
+    .sidebar-menu li { padding: 12px 18px; margin-bottom: 8px; border-radius: 50px; cursor: pointer; display: flex; align-items: center; gap: 15px; font-weight: 500; font-size: 14px; }
+    .sidebar-menu li:hover, .sidebar-menu li.active { background: var(--primary-gradient); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(30,60,114,0.3); }
 
-    .auth-wrapper { min-height: 80vh; display: flex; justify-content: center; align-items: center; }
-    .auth-card { background: #fff; width: 100%; max-width: 420px; padding: 30px; border-radius: 14px; border: 1px solid #e2e8f0; text-align: center; }
-    .tab-btn-group { display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; margin-bottom: 20px; }
-    .tab-btn { flex: 1; border: none; padding: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 6px; background: transparent; color: var(--muted); }
-    .tab-btn.active { background: #fff; color: var(--primary); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+    .navbar { background: var(--card-bg); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+    .container { padding: 30px; max-width: 1100px; margin: auto; width: 100%; }
 
-    input, select, textarea { width: 100%; padding: 11px 14px; margin-bottom: 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 13px; }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
-
-    .btn-main { width: 100%; padding: 11px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 5px; }
-    .btn-main:disabled { background: #94a3b8; cursor: not-allowed; }
-    .btn-secondary { background: #f1f5f9; color: var(--text); border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-
-    .grid-phases { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
-    .phase-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; }
-    .phase-card.active-phase { border: 2px solid var(--primary); background: #f0fdfa; }
-
-    .class-item { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px 20px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
-    .class-item:hover { border-color: var(--primary); }
+    /* Cards & Containers */
+    .card { background: var(--card-bg); border-radius: 15px; padding: 25px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; }
+    .class-item { background: #fff; border: 1px solid #cbd5e1; border-radius: 30px; padding: 18px 25px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .class-item:hover { border-color: #2a5298; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.05); }
     .class-item.locked { opacity: 0.6; cursor: not-allowed; background: #f8fafc; pointer-events: none; }
-    
-    .status-badge { font-size: 11px; padding: 4px 10px; border-radius: 4px; font-weight: 600; }
-    .badge-done { background: #dcfce7; color: #16a34a; }
+
+    /* Inputs & Buttons */
+    input, select, textarea { width: 100%; padding: 12px 18px; margin-bottom: 15px; border: 1.5px solid #cbd5e1; border-radius: 30px; font-size: 14px; outline: none; background: #fff; }
+    input:focus, select:focus, textarea:focus { border-color: #2a5298; box-shadow: 0 0 0 3px rgba(42,82,152,0.15); }
+
+    .btn-main { width: 100%; padding: 12px 24px; background: var(--primary-gradient); color: #fff; border: none; border-radius: 50px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; box-shadow: 0 4px 15px rgba(30,60,114,0.3); }
+    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30,60,114,0.4); }
+
+    .btn-pill-secondary { padding: 8px 20px; background: #f1f5f9; color: var(--text-color); border: 1px solid #cbd5e1; border-radius: 50px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; }
+    .btn-approve { background: var(--success); color: white; border: none; padding: 8px 16px; border-radius: 50px; cursor: pointer; font-weight: 600; font-size: 12px; }
+
+    /* Status Badges */
+    .status-badge { font-size: 12px; padding: 6px 14px; border-radius: 50px; font-weight: 600; display: inline-block; }
+    .badge-done { background: #dcfce7; color: var(--success); }
     .badge-pending { background: #fef3c7; color: #d97706; }
-    .badge-lock { background: #f1f5f9; color: #94a3b8; }
+    .badge-lock { background: #f1f5f9; color: var(--muted); }
 
-    .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-bottom: 15px; background: #000; }
+    /* Auth Wrapper */
+    .auth-wrapper { height: 100vh; display: flex; justify-content: center; align-items: center; background: var(--primary-gradient); width: 100vw; position: fixed; top: 0; left: 0; z-index: 1000; }
+    .auth-card { background: #fff; width: 100%; max-width: 420px; padding: 40px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); text-align: center; }
+    
+    .tab-btn-group { display: flex; background: #f1f5f9; padding: 5px; border-radius: 50px; margin-bottom: 25px; }
+    .tab-btn { flex: 1; border: none; padding: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: 50px; background: transparent; color: var(--muted); }
+    .tab-btn.active { background: #fff; color: #1e3c72; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+    /* Video & MCQ */
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 15px; margin-bottom: 20px; background: #000; }
     .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+    .mcq-option { display: block; background: #f8fafc; border: 1.5px solid #cbd5e1; padding: 12px 18px; border-radius: 30px; margin-bottom: 10px; cursor: pointer; font-size: 13px; }
+    .mcq-option input { width: auto; margin-right: 12px; }
 
-    .mcq-option { display: block; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; cursor: pointer; font-size: 13px; }
-    .mcq-option input { width: auto; margin-right: 10px; }
+    /* Custom Toast Container */
+    #toastContainer { position: fixed; bottom: 25px; right: 25px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+    .toast-msg { background: #1e293b; color: #fff; padding: 14px 24px; border-radius: 50px; font-size: 14px; font-weight: 500; box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 12px; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-    #toastMessage { position: fixed; bottom: 20px; right: 20px; background: #1e293b; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; display: none; z-index: 1000; }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
-    th { background: #f8fafc; padding: 10px; border-bottom: 2px solid #e2e8f0; }
-    td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
-    .btn-approve { background: #16a34a; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; }
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+    th { background: #f8fafc; padding: 12px; border-bottom: 2px solid #e2e8f0; color: var(--muted); }
+    td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; padding: 15px; flex-direction: row; justify-content: space-between; align-items: center; }
+      .sidebar-menu { display: none; }
+      .main-content { height: calc(100vh - 60px); }
+    }
   </style>
 </head>
 <body>
 
-  <div id="toastMessage"></div>
+  <div id="toastContainer"></div>
 
-  <div class="navbar" id="appNavbar" style="display: none;">
-    <div class="brand">DALEEL LMS</div>
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <span class="badge-role" id="userRoleDisplay">Student</span>
-      <button class="btn-logout" onclick="logout()">Logout</button>
+  <!-- AUTHENTICATION VIEW -->
+  <div class="auth-wrapper" id="authSection">
+    <div class="auth-card">
+      <div style="font-size: 32px; color: #2a5298; margin-bottom: 10px;"><i class="fa-solid fa-graduation-cap"></i></div>
+      <h2 style="margin: 0 0 5px 0; color: #1e3c72; font-weight: 700;">DALEEL</h2>
+      <p style="color: var(--muted); font-size: 13px; margin-bottom: 20px;">SNEC Advanced Studies Program</p>
+
+      <div class="tab-btn-group">
+        <button class="tab-btn active" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
+        <button class="tab-btn" id="tabSignUp" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+
+      <form id="formSignIn" onsubmit="handleSignIn(event)">
+        <input type="text" id="loginInput" placeholder="Enter Mobile Number or Admin PIN" required>
+        <button type="submit" class="btn-main"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+      </form>
+
+      <form id="formSignUp" style="display: none;" onsubmit="handleSignUp(event)">
+        <input type="text" id="regName" placeholder="Full Name" required>
+        <input type="text" id="regMobile" placeholder="Mobile Number" required>
+        <input type="email" id="regEmail" placeholder="Email Address" required>
+        <button type="submit" class="btn-main"><i class="fa-solid fa-user-plus"></i> Continue to Application</button>
+      </form>
     </div>
   </div>
 
-  <div class="container">
-
-    <!-- 1. AUTHENTICATION -->
-    <div class="auth-wrapper" id="authSection">
-      <div class="auth-card">
-        <h2 style="margin: 0 0 5px 0; color: var(--primary);">DALEEL</h2>
-        <p style="color: var(--muted); font-size: 13px; margin-bottom: 18px; font-weight: 500;">SNEC Advanced Studies Program</p>
-
-        <div class="tab-btn-group">
-          <button class="tab-btn active" id="tabSignIn" onclick="switchTab('signin')">Sign In</button>
-          <button class="tab-btn" id="tabSignUp" onclick="switchTab('signup')">Sign Up</button>
-        </div>
-
-        <form id="formSignIn">
-          <input type="text" id="loginInput" placeholder="Enter Mobile Number or Admin PIN" required>
-          <button type="submit" class="btn-main">Sign In</button>
-        </form>
-
-        <form id="formSignUp" style="display: none;">
-          <input type="text" id="regName" placeholder="Full Name" required>
-          <input type="text" id="regMobile" placeholder="Mobile Number" required>
-          <input type="email" id="regEmail" placeholder="Email Address" required>
-          <button type="submit" class="btn-main">Continue to Application</button>
-        </form>
-        <div id="authError" style="color: #dc2626; font-size: 12px; margin-top: 10px;"></div>
-      </div>
+  <!-- ADMISSION PROFILE FORM -->
+  <div id="admissionSection" class="auth-wrapper" style="display: none;">
+    <div class="auth-card" style="max-width: 550px; text-align: left; max-height: 90vh; overflow-y: auto;">
+      <h3 style="margin-top: 0; color: #1e3c72;"><i class="fa-solid fa-file-lines"></i> Complete Admission Profile</h3>
+      <form id="formAdmission" onsubmit="submitAdmission(event)">
+        <label style="font-size:12px; font-weight:600; color:var(--muted);">Full Name</label>
+        <input type="text" id="admFullName" required readonly>
+        <label style="font-size:12px; font-weight:600; color:var(--muted);">Mobile Number</label>
+        <input type="text" id="admMobile" required readonly>
+        <label style="font-size:12px; font-weight:600; color:var(--muted);">Email</label>
+        <input type="email" id="admEmail" required readonly>
+        <label style="font-size:12px; font-weight:600; color:var(--muted);">Date of Birth</label>
+        <input type="date" id="admDob" required>
+        <input type="text" id="admProfession" placeholder="Current Profession" required>
+        <input type="text" id="admReligiousDeg" placeholder="Religious Degree" required>
+        <input type="text" id="admPlace" placeholder="Place" required>
+        <input type="text" id="admAddress" placeholder="Address" required>
+        <button type="submit" class="btn-main"><i class="fa-solid fa-check"></i> Submit Application</button>
+      </form>
     </div>
+  </div>
 
-    <!-- 2. ADMISSION PROFILE FORM -->
-    <div id="admissionSection" style="display: none;">
-      <div class="card" style="max-width: 600px; margin: auto;">
-        <h3 style="margin-top: 0; color: var(--primary);">Complete Admission Profile</h3>
-        <form id="formAdmission">
-          <input type="text" id="admFullName" placeholder="Full Name" required readonly>
-          <input type="text" id="admMobile" placeholder="Mobile Number" required readonly>
-          <input type="email" id="admEmail" placeholder="Email" required readonly>
-          <input type="date" id="admDob" required placeholder="Date of Birth">
-          <input type="text" id="admProfession" placeholder="Current Profession" required>
-          <input type="text" id="admReligiousDeg" placeholder="Religious Degree" required>
-          <input type="text" id="admReligiousInst" placeholder="Religious Institution" required>
-          <input type="text" id="admSecularEdu" placeholder="Secular Education" required>
-          <input type="text" id="admPlace" placeholder="Place" required>
-          <input type="text" id="admAddress" placeholder="Address" required>
-          <button type="submit" class="btn-main" id="btnSubmitAdmission">Submit Application</button>
-        </form>
-      </div>
+  <!-- VERIFICATION PENDING -->
+  <div id="pendingSection" class="auth-wrapper" style="display: none;">
+    <div class="auth-card" style="border: 2px dashed #f59e0b;">
+      <h3 style="color: #d97706; margin-top: 0;"><i class="fa-solid fa-clock"></i> Verification Pending</h3>
+      <p style="font-size: 13px; color: var(--muted);">An Admin will verify your details. Once approved, your Phase 1 classes will automatically unlock.</p>
+      <span class="status-badge badge-pending">Status: Awaiting Admin Approval</span>
+      <button class="btn-pill-secondary" onclick="logout()" style="margin-top: 20px;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
     </div>
+  </div>
 
-    <!-- 3. VERIFICATION PENDING -->
-    <div id="pendingSection" style="display: none;">
-      <div class="card" style="max-width: 550px; margin: 40px auto; text-align: center; border: 2px dashed #f59e0b;">
-        <h3 style="color: #d97706; margin-top: 0;">Verification Pending</h3>
-        <p style="font-size: 13px; color: var(--muted);">An Admin will verify your details. Once approved, your Phase 1 classes will automatically unlock.</p>
-        <span class="status-badge badge-pending">Status: Awaiting Admin Approval</span>
-      </div>
+  <!-- MAIN APP SIDEBAR & NAVIGATION -->
+  <div class="sidebar" id="appSidebar" style="display: none;">
+    <div class="sidebar-brand"><i class="fa-solid fa-graduation-cap"></i> DALEEL LMS</div>
+    <ul class="sidebar-menu">
+      <li class="active" onclick="switchNavTab('dashboard', event)"><i class="fa-solid fa-house"></i> Dashboard</li>
+      <li onclick="switchNavTab('classes', event)"><i class="fa-solid fa-book-open"></i> Classes & Study</li>
+      <li onclick="switchNavTab('admin', event)" id="adminMenuTab" style="display:none;"><i class="fa-solid fa-shield-halved"></i> Admin Panel</li>
+    </ul>
+  </div>
+
+  <div class="main-content" id="appMain" style="display: none;">
+    <div class="navbar">
+      <div style="font-weight: 600; color: #1e3c72;" id="userRoleDisplay">Student Portal</div>
+      <button class="btn-pill-secondary" onclick="logout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
     </div>
-
-    <!-- 4. STUDENT LEARNING DASHBOARD -->
-    <div id="studentDashboard" style="display: none;">
-      <div class="card">
-        <h3 style="margin: 0; color: var(--primary);" id="welcomeStudent">Welcome!</h3>
-        <span class="status-badge badge-done" style="margin-top: 6px; display: inline-block;">Enrolled • Active</span>
+    
+    <div class="container">
+      <!-- Dashboard View -->
+      <div id="viewDashboard" class="card">
+        <h3 style="margin-top:0; color:#1e3c72;" id="welcomeStudent">Welcome!</h3>
+        <span class="status-badge badge-done">Enrolled • Active</span>
       </div>
 
-      <div class="grid-phases">
-        <div class="phase-card active-phase"><h4 style="margin:0 0 4px 0;">Phase 1</h4><span style="font-size:12px; color:var(--muted);">20 Classes • Active</span></div>
-        <div class="phase-card"><h4 style="margin:0 0 4px 0;">Phase 2</h4><span style="font-size:12px; color:var(--muted);">Advanced</span></div>
-        <div class="phase-card"><h4 style="margin:0 0 4px 0;">Phase 3</h4><span style="font-size:12px; color:var(--muted);">Specialization</span></div>
-        <div class="phase-card"><h4 style="margin:0 0 4px 0;">Phase 4</h4><span style="font-size:12px; color:var(--muted);">Graduation</span></div>
+      <!-- Classes View -->
+      <div id="viewClasses" class="card" style="display:none;">
+        <h3 style="margin-top:0; color:#1e3c72;"><i class="fa-solid fa-list-check"></i> Phase 1: Classes & Assessments</h3>
+        <div id="classListContainer" style="margin-top: 20px;"></div>
       </div>
 
-      <div style="margin-top: 25px;">
-        <h4>Phase 1: Classes & Assessments</h4>
-        <div id="classListContainer"></div>
-      </div>
-    </div>
-
-    <!-- 5. INTERACTIVE CLASSROOM VIEW -->
-    <div id="classroomSection" style="display: none;">
-      <div class="card">
-        <button class="btn-secondary" onclick="backToDashboard()" style="margin-bottom: 15px;">← Back to Classes</button>
-        <h3 style="margin-top: 0; color: var(--primary);" id="crTitle">Class 01: Introduction</h3>
-
+      <!-- Classroom View -->
+      <div id="viewClassroom" class="card" style="display:none;">
+        <button class="btn-pill-secondary" onclick="switchNavTab('classes')" style="margin-bottom: 20px;"><i class="fa-solid fa-arrow-left"></i> Back to Classes</button>
+        <h3 style="margin-top: 0; color: #1e3c72;" id="crTitle">Class Title</h3>
         <div class="video-container">
           <iframe id="crVideo" src="" allowfullscreen></iframe>
         </div>
-
-        <div style="margin: 15px 0;">
-          <a id="crPdf" href="#" target="_blank" class="btn-secondary" style="display: inline-block; text-decoration: none;">📄 Download Study Material (PDF)</a>
+        <div style="margin-bottom: 20px;">
+          <a id="crPdf" href="#" target="_blank" class="btn-pill-secondary" style="text-decoration: none;"><i class="fa-solid fa-file-pdf"></i> Download Study Material (PDF)</a>
         </div>
-
-        <div style="margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
-          <h4 style="margin: 0 0 8px 0;">Practical Activity</h4>
-          <p id="crActivityText" style="font-size: 13px; color: var(--muted); margin-bottom: 10px;">Activity instructions will appear here.</p>
+        <div style="margin-top: 20px; background: #f8fafc; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0;">
+          <h4 style="margin: 0 0 8px 0;"><i class="fa-solid fa-pen-to-square"></i> Practical Activity</h4>
+          <p id="crActivityText" style="font-size: 13px; color: var(--muted); margin-bottom: 12px;"></p>
           <textarea id="activityAnswer" placeholder="Type your activity response / notes here..." rows="3"></textarea>
         </div>
-
         <div style="margin-top: 20px;">
-          <h4>Class Assessment (MCQ)</h4>
+          <h4><i class="fa-solid fa-clipboard-question"></i> Class Assessment (MCQ)</h4>
           <div id="mcqContainer"></div>
-          <button class="btn-main" onclick="submitAssessment()" style="margin-top: 15px;" id="btnSubmitMcq">Submit Assessment</button>
+          <button class="btn-main" onclick="submitAssessment()" style="margin-top: 20px;"><i class="fa-solid fa-paper-plane"></i> Submit Assessment</button>
+        </div>
+      </div>
+
+      <!-- Admin View -->
+      <div id="viewAdmin" class="card" style="display:none;">
+        <h3 style="margin-top:0; color:#1e3c72;"><i class="fa-solid fa-users-gear"></i> Admin Management Portal</h3>
+        <h4 style="margin-top: 20px; color: var(--muted);">Pending Applicants</h4>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr><th>Name</th><th>Mobile</th><th>Place</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody id="adminStudentList"></tbody>
+          </table>
         </div>
       </div>
     </div>
-
-    <!-- 6. ADMIN PANEL -->
-    <div id="adminDashboard" style="display: none;">
-      <div class="card">
-        <h3 style="margin: 0; color: var(--primary);">Admin Management Portal</h3>
-      </div>
-      <div class="card">
-        <h4>Pending Applicants</h4>
-        <table>
-          <thead>
-            <tr><th>Name</th><th>Mobile</th><th>Place</th><th>Status</th><th>Action</th></tr>
-          </thead>
-          <tbody id="adminStudentList"></tbody>
-        </table>
-      </div>
-    </div>
-
   </div>
 
+  <!-- Firebase Scripts (Modular SDK) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, getDocs, collection, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -225,7 +235,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
     const ADMIN_PIN = "9999";
     let activeStudent = null;
     let currentClassIdx = 0;
@@ -251,41 +260,51 @@
         questions: [
           { q: "How many core principles were outlined?", options: ["3", "5", "7"], ans: 0 }
         ]
-      },
-      {
-        id: 3,
-        title: "Class 03: Applied Practical Studies",
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-        pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        activity: "Practical case study application notes.",
-        questions: [
-          { q: "Which domain was analyzed in the case study?", options: ["Domain A", "Domain B"], ans: 0 }
-        ]
       }
     ];
 
-    function showToast(text, bg = "#1e293b") {
-      const toast = document.getElementById("toastMessage");
-      toast.innerText = text;
-      toast.style.background = bg;
-      toast.style.display = "block";
-      setTimeout(() => { toast.style.display = "none"; }, 3500);
+    function showToast(text, type = 'success') {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = "toast-msg";
+      const icon = type === 'success' ? '<i class="fa-solid fa-circle-check" style="color:#05c46b;"></i>' : '<i class="fa-solid fa-triangle-exclamation" style="color:#fc5c65;"></i>';
+      toast.innerHTML = `${icon} <span>${text}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.remove(); }, 3500);
     }
 
-    window.switchTab = function(t) {
+    window.switchAuthTab = function(t) {
       document.getElementById("tabSignIn").classList.toggle("active", t === 'signin');
       document.getElementById("tabSignUp").classList.toggle("active", t === 'signup');
       document.getElementById("formSignIn").style.display = t === 'signin' ? 'block' : 'none';
       document.getElementById("formSignUp").style.display = t === 'signup' ? 'block' : 'none';
     };
 
-    // Sign In
-    document.getElementById("formSignIn").addEventListener("submit", async (e) => {
+    // Session Persistence Check on Load
+    document.addEventListener("DOMContentLoaded", () => {
+      const session = sessionStorage.getItem("snec_user");
+      if (session) {
+        activeStudent = JSON.parse(session);
+        if (activeStudent.role === 'admin') {
+          showAdminDashboard();
+        } else if (activeStudent.status === "Active" || activeStudent.status === "Approved") {
+          showStudentDashboard();
+        } else {
+          showPendingScreen();
+        }
+      }
+      setupKeyboardNavigation();
+    });
+
+    window.handleSignIn = async function(e) {
       e.preventDefault();
       const val = document.getElementById("loginInput").value.trim();
 
       if (val === ADMIN_PIN) {
-        showAdminView();
+        activeStudent = { role: "admin", name: "Super Admin" };
+        sessionStorage.setItem("snec_user", JSON.stringify(activeStudent));
+        showToast("Logged in as Super Admin!");
+        showAdminDashboard();
         return;
       }
 
@@ -293,33 +312,32 @@
         const snap = await getDoc(doc(db, "students", val));
         if (snap.exists()) {
           activeStudent = { id: snap.id, ...snap.data() };
+          sessionStorage.setItem("snec_user", JSON.stringify(activeStudent));
           if (activeStudent.status === "Active" || activeStudent.status === "Approved") {
             showStudentDashboard();
+            showToast("Welcome back, " + activeStudent.fullName);
           } else {
             showPendingScreen();
           }
         } else {
-          document.getElementById("authError").innerText = "Mobile number not found. Please Sign Up.";
+          showToast("Mobile number not found. Please Sign Up.", "error");
         }
       } catch (ex) {
-        document.getElementById("authError").innerText = "Error: " + ex.message;
+        showToast("Error: " + ex.message, "error");
       }
-    });
+    };
 
-    // Sign Up
-    document.getElementById("formSignUp").addEventListener("submit", (e) => {
+    window.handleSignUp = function(e) {
       e.preventDefault();
       document.getElementById("admFullName").value = document.getElementById("regName").value.trim();
       document.getElementById("admMobile").value = document.getElementById("regMobile").value.trim();
       document.getElementById("admEmail").value = document.getElementById("regEmail").value.trim();
 
-      hideAll();
-      document.getElementById("appNavbar").style.display = "flex";
-      document.getElementById("admissionSection").style.display = "block";
-    });
+      document.getElementById("authSection").style.display = "none";
+      document.getElementById("admissionSection").style.display = "flex";
+    };
 
-    // Submit Application
-    document.getElementById("formAdmission").addEventListener("submit", async (e) => {
+    window.submitAdmission = async function(e) {
       e.preventDefault();
       const mobile = document.getElementById("admMobile").value.trim();
       const payload = {
@@ -329,27 +347,47 @@
         dateOfBirth: document.getElementById("admDob").value,
         currentProfession: document.getElementById("admProfession").value.trim(),
         religiousDegree: document.getElementById("admReligiousDeg").value.trim(),
-        religiousInstitution: document.getElementById("admReligiousInst").value.trim(),
-        secularEducation: document.getElementById("admSecularEdu").value.trim(),
         place: document.getElementById("admPlace").value.trim(),
         address: document.getElementById("admAddress").value.trim(),
         registeredAt: new Date().toISOString(),
-        paymentDetails: "DONE",
         status: "Pending Approval",
         completedClasses: 0
       };
 
       await setDoc(doc(db, "students", mobile), payload);
-      showToast("Application submitted successfully!", "#0f766e");
+      activeStudent = payload;
+      sessionStorage.setItem("snec_user", JSON.stringify(activeStudent));
+      showToast("Application submitted successfully!");
       showPendingScreen();
-    });
+    };
+
+    window.logout = function() {
+      sessionStorage.clear();
+      activeStudent = null;
+      document.getElementById("appSidebar").style.display = "none";
+      document.getElementById("appMain").style.display = "none";
+      document.getElementById("admissionSection").style.display = "none";
+      document.getElementById("pendingSection").style.display = "none";
+      document.getElementById("authSection").style.display = "flex";
+      document.getElementById("loginInput").value = "";
+      showToast("Logged out successfully.");
+    };
 
     function showStudentDashboard() {
-      hideAll();
-      document.getElementById("appNavbar").style.display = "flex";
-      document.getElementById("studentDashboard").style.display = "block";
+      document.getElementById("authSection").style.display = "none";
+      document.getElementById("admissionSection").style.display = "none";
+      document.getElementById("pendingSection").style.display = "none";
+      document.getElementById("appSidebar").style.display = "flex";
+      document.getElementById("appMain").style.display = "flex";
+      document.getElementById("adminMenuTab").style.display = "none";
+      document.getElementById("userRoleDisplay").innerText = "Student Portal";
       document.getElementById("welcomeStudent").innerText = "Welcome, " + activeStudent.fullName;
 
+      renderClassList();
+      switchNavTab('dashboard');
+    }
+
+    function renderClassList() {
       const completedCount = activeStudent.completedClasses || 0;
       const container = document.getElementById("classListContainer");
       container.innerHTML = "";
@@ -362,7 +400,7 @@
           <div class="class-item ${!isUnlocked ? 'locked' : ''}" onclick="openClass(${index})">
             <div>
               <strong>${cls.title}</strong>
-              <div style="font-size: 12px; color: var(--muted); margin-top: 3px;">Video Lecture • Study Material • MCQ Test</div>
+              <div style="font-size: 12px; color: var(--muted); margin-top: 4px;"><i class="fa-solid fa-video"></i> Video Lecture &bull; Study Material &bull; MCQ Test</div>
             </div>
             <span class="status-badge ${isCompleted ? 'badge-done' : (isUnlocked ? 'badge-pending' : 'badge-lock')}">
               ${isCompleted ? 'Completed' : (isUnlocked ? 'Start Class' : 'Locked')}
@@ -376,9 +414,10 @@
       currentClassIdx = idx;
       const cls = PHASE1_CLASSES[idx];
 
-      hideAll();
-      document.getElementById("appNavbar").style.display = "flex";
-      document.getElementById("classroomSection").style.display = "block";
+      document.getElementById("viewDashboard").style.display = "none";
+      document.getElementById("viewClasses").style.display = "none";
+      document.getElementById("viewAdmin").style.display = "none";
+      document.getElementById("viewClassroom").style.display = "block";
 
       document.getElementById("crTitle").innerText = cls.title;
       document.getElementById("crVideo").src = cls.videoUrl;
@@ -390,8 +429,8 @@
       mcqDiv.innerHTML = "";
       cls.questions.forEach((q, qIdx) => {
         mcqDiv.innerHTML += `
-          <div style="margin-bottom: 12px;">
-            <p style="font-weight: 600; font-size: 13px; margin: 0 0 6px 0;">${qIdx + 1}. ${q.q}</p>
+          <div style="margin-bottom: 15px;">
+            <p style="font-weight: 600; font-size: 13px; margin: 0 0 8px 0;">${qIdx + 1}. ${q.q}</p>
             ${q.options.map((opt, optIdx) => `
               <label class="mcq-option">
                 <input type="radio" name="mcq_${qIdx}" value="${optIdx}" required> ${opt}
@@ -409,7 +448,7 @@
       for (let i = 0; i < cls.questions.length; i++) {
         const selected = document.querySelector(`input[name="mcq_${i}"]:checked`);
         if (!selected) {
-          showToast("Please answer all questions before submitting!", "#d97706");
+          showToast("Please answer all questions before submitting!", "error");
           return;
         }
         if (parseInt(selected.value) === cls.questions[i].ans) {
@@ -420,72 +459,89 @@
       const scorePercent = Math.round((correct / cls.questions.length) * 100);
 
       if (scorePercent >= 60) {
-        showToast(`Congratulations! Passed with ${scorePercent}%. Next class unlocked!`, "#16a34a");
+        showToast(`Congratulations! Passed with ${scorePercent}%. Next class unlocked!`);
         const newProgress = Math.max(activeStudent.completedClasses || 0, currentClassIdx + 1);
-        await updateDoc(doc(db, "students", activeStudent.id), { completedClasses: newProgress });
+        await updateDoc(doc(db, "students", activeStudent.mobileNumber || activeStudent.id), { completedClasses: newProgress });
         activeStudent.completedClasses = newProgress;
-        showStudentDashboard();
+        sessionStorage.setItem("snec_user", JSON.stringify(activeStudent));
+        renderClassList();
+        switchNavTab('classes');
       } else {
-        showToast(`Score: ${scorePercent}%. Minimum 60% required to pass. Please retry!`, "#dc2626");
+        showToast(`Score: ${scorePercent}%. Minimum 60% required to pass. Please retry!`, "error");
       }
     };
 
-    window.backToDashboard = function() {
-      document.getElementById("crVideo").src = "";
-      showStudentDashboard();
-    };
+    async function showAdminDashboard() {
+      document.getElementById("authSection").style.display = "none";
+      document.getElementById("admissionSection").style.display = "none";
+      document.getElementById("pendingSection").style.display = "none";
+      document.getElementById("appSidebar").style.display = "flex";
+      document.getElementById("appMain").style.display = "flex";
+      document.getElementById("adminMenuTab.style.display = "display", document.getElementById("adminMenuTab").style.display = "flex";
+      document.getElementById("userRoleDisplay").innerText = "SUPER ADMIN PORTAL";
 
-    function showPendingScreen() {
-      hideAll();
-      document.getElementById("appNavbar").style.display = "flex";
-      document.getElementById("pendingSection").style.display = "block";
-    }
-
-    async function showAdminView() {
-      hideAll();
-      document.getElementById("appNavbar").style.display = "flex";
-      document.getElementById("adminDashboard").style.display = "block";
-      document.getElementById("userRoleDisplay").innerText = "SUPER ADMIN";
-
+      switchNavTab('admin');
+      
       const tb = document.getElementById("adminStudentList");
-      tb.innerHTML = '<tr><td colspan="5">Fetching...</td></tr>';
-      const snap = await getDocs(collection(db, "students"));
-      tb.innerHTML = "";
-      snap.forEach(d => {
-        const s = d.data();
-        tb.innerHTML += `
-          <tr>
-            <td><strong>${s.fullName || '-'}</strong></td>
-            <td>${s.mobileNumber || d.id}</td>
-            <td>${s.place || '-'}</td>
-            <td><span class="status-badge ${s.status === 'Active' ? 'badge-done' : 'badge-pending'}">${s.status || 'Pending'}</span></td>
-            <td>${s.status !== 'Active' ? `<button class="btn-approve" onclick="approveCandidate('${d.id}')">Approve</button>` : '<strong style="color:#16a34a;">Approved</strong>'}</td>
-          </tr>
-        `;
-      });
+      tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">Fetching applicants...</td></tr>';
+      
+      try {
+        const snap = await getDocs(collection(db, "students"));
+        tb.innerHTML = "";
+        snap.forEach(d => {
+          const s = d.data();
+          tb.innerHTML += `
+            <tr>
+              <td><strong>${s.fullName || '-'}</strong></td>
+              <td>${s.mobileNumber || d.id}</td>
+              <td>${s.place || '-'}</td>
+              <td><span class="status-badge ${s.status === 'Active' || s.status === 'Approved' ? 'badge-done' : 'badge-pending'}">${s.status || 'Pending'}</span></td>
+              <td>${s.status !== 'Active' && s.status !== 'Approved' ? `<button class="btn-approve" onclick="approveCandidate('${d.id}')"><i class="fa-solid fa-check"></i> Approve</button>` : '<strong style="color:#05c46b;"><i class="fa-solid fa-circle-check"></i> Approved</strong>'}</td>
+            </tr>
+          `;
+        });
+      } catch (err) {
+        tb.innerHTML = `<tr><td colspan="5" style="color:red;">Error loading data: ${err.message}</td></tr>`;
+      }
     }
 
     window.approveCandidate = async function(id) {
       await updateDoc(doc(db, "students", id), { status: "Active" });
-      showToast("Student Approved!", "#16a34a");
-      showAdminView();
+      showToast("Student Approved Successfully!");
+      showAdminDashboard();
     };
 
-    function hideAll() {
+    function showPendingScreen() {
       document.getElementById("authSection").style.display = "none";
       document.getElementById("admissionSection").style.display = "none";
-      document.getElementById("pendingSection").style.display = "none";
-      document.getElementById("studentDashboard").style.display = "none";
-      document.getElementById("classroomSection").style.display = "none";
-      document.getElementById("adminDashboard").style.display = "none";
+      document.getElementById("appSidebar").style.display = "none";
+      document.getElementById("appMain").style.display = "none";
+      document.getElementById("pendingSection").style.display = "flex";
     }
 
-    window.logout = function() {
-      activeStudent = null;
-      hideAll();
-      document.getElementById("appNavbar").style.display = "none";
-      document.getElementById("authSection").style.display = "flex";
+    window.switchNavTab = function(tabName, event) {
+      if (event) {
+        document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
+        event.currentTarget.classList.add("active");
+      }
+      document.getElementById("viewDashboard").style.display = tabName === 'dashboard' ? 'block' : 'none';
+      document.getElementById("viewClasses").style.display = tabName === 'classes' ? 'block' : 'none';
+      document.getElementById("viewClassroom").style.display = 'none';
+      document.getElementById("viewAdmin").style.display = tabName === 'admin' ? 'block' : 'none';
     };
+
+    function setupKeyboardNavigation() {
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+          const focusable = Array.from(document.querySelectorAll('input, select, button'));
+          const index = focusable.indexOf(e.target);
+          if (index > -1 && index + 1 < focusable.length) {
+            e.preventDefault();
+            focusable[index + 1].focus();
+          }
+        }
+      });
+    }
   </script>
 </body>
 </html>
