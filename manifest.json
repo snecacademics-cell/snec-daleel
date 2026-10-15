@@ -7,14 +7,14 @@
   "theme_color": "#1e3c72",
   "icons": [
     {
-      "src": "daleel.jpeg",
+      "src": "daleel.png",
       "sizes": "192x192",
-      "type": "image/jpeg"
+      "type": "image/png"
     },
     {
-      "src": "daleel.jpeg",
+      "src": "daleel.png",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/png"
     }
   ]
 }
