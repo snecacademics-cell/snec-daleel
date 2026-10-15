@@ -20,7 +20,6 @@
       <h2 style="margin: 0 0 5px 0; color: #1e3c72; font-weight: 700;">DALEEL</h2>
       <p style="color: var(--muted); font-size: 13px; margin-bottom: 20px;">SNEC Advanced Studies Program</p>
 
-      <!-- INSTALL APP BUTTON -->
       <button id="installAppBtn" class="btn-pill-secondary" style="display: none; width: 100%; justify-content: center; margin-bottom: 20px; background: #dcfce7; color: #05c46b; border-color: #05c46b;">
         <i class="fa-solid fa-download"></i> Install DALEEL App
       </button>
@@ -79,10 +78,16 @@
   <!-- MAIN APP SIDEBAR & NAVIGATION -->
   <div class="sidebar" id="appSidebar" style="display: none;">
     <div class="sidebar-brand"><i class="fa-solid fa-graduation-cap"></i> DALEEL LMS</div>
-    <ul class="sidebar-menu">
-      <li class="active" onclick="switchNavTab('dashboard', event)"><i class="fa-solid fa-house"></i> Dashboard</li>
-      <li onclick="switchNavTab('classes', event)"><i class="fa-solid fa-book-open"></i> Classes & Study</li>
-      <li onclick="switchNavTab('admin', event)" id="adminMenuTab" style="display:none;"><i class="fa-solid fa-shield-halved"></i> Admin Panel</li>
+    <ul class="sidebar-menu" id="sidebarMenu">
+      <!-- Student Items -->
+      <li id="navStudentDashboard" onclick="switchNavTab('dashboard', event)"><i class="fa-solid fa-house"></i> Dashboard</li>
+      <li id="navStudentClasses" onclick="switchNavTab('classes', event)"><i class="fa-solid fa-book-open"></i> Classes & Study</li>
+      
+      <!-- Admin Items -->
+      <li id="navAdminPending" style="display:none;" onclick="switchAdminTab('pending', event)"><i class="fa-solid fa-user-clock"></i> Pending Approvals</li>
+      <li id="navAdminApproved" style="display:none;" onclick="switchAdminTab('approved', event)"><i class="fa-solid fa-user-check"></i> Approved Students</li>
+      <li id="navAdminAttendance" style="display:none;" onclick="switchAdminTab('attendance', event)"><i class="fa-solid fa-calendar-check"></i> Attendance</li>
+      <li id="navAdminManage" style="display:none;" onclick="switchAdminTab('manageClasses', event)"><i class="fa-solid fa-video"></i> Manage Classes</li>
     </ul>
   </div>
 
@@ -102,9 +107,7 @@
       <!-- Classes View -->
       <div id="viewClasses" class="card" style="display:none;">
         <h3 style="margin-top:0; color:#1e3c72;"><i class="fa-solid fa-list-check"></i> Classes & Assessments</h3>
-        <div id="classListContainer" style="margin-top: 20px;">
-          <!-- Classes will load here dynamically -->
-        </div>
+        <div id="classListContainer" style="margin-top: 20px;"></div>
       </div>
 
       <!-- Classroom View -->
@@ -131,15 +134,7 @@
 
       <!-- Admin View -->
       <div id="viewAdmin" class="card" style="display:none;">
-        <h3 style="margin-top:0; color:#1e3c72;"><i class="fa-solid fa-users-gear"></i> Admin Management Portal</h3>
-        
-        <!-- Admin Sub Tabs -->
-        <div class="tab-btn-group" style="margin-top: 20px; max-width: 800px; flex-wrap: wrap;">
-          <button class="tab-btn active" id="tabPending" onclick="switchAdminTab('pending')">Pending Approvals</button>
-          <button class="tab-btn" id="tabApproved" onclick="switchAdminTab('approved')">Approved Students</button>
-          <button class="tab-btn" id="tabAttendance" onclick="switchAdminTab('attendance')">Attendance</button>
-          <button class="tab-btn" id="tabManageClasses" onclick="switchAdminTab('manageClasses')">Manage Classes</button>
-        </div>
+        <h3 style="margin-top:0; color:#1e3c72; margin-bottom: 20px;" id="adminTitleHeader"><i class="fa-solid fa-users-gear"></i> Admin Management Portal</h3>
 
         <!-- Pending Tab Content -->
         <div id="adminTabPending">
