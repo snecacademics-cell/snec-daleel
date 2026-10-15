@@ -146,13 +146,12 @@ function showStudentDashboard() {
   document.getElementById("appMain").style.display = "flex";
   document.getElementById("userRoleDisplay").innerText = "Student Portal";
   
-  // Sidebar config for Student
-  document.getElementById("navStudentDashboard").style.display = "flex";
-  document.getElementById("navStudentClasses").style.display = "flex";
-  document.getElementById("navAdminPending").style.display = "none";
-  document.getElementById("navAdminApproved").style.display = "none";
-  document.getElementById("navAdminAttendance").style.display = "none";
-  document.getElementById("navAdminManage").style.display = "none";
+  if(document.getElementById("navStudentDashboard")) document.getElementById("navStudentDashboard").style.display = "flex";
+  if(document.getElementById("navStudentClasses")) document.getElementById("navStudentClasses").style.display = "flex";
+  if(document.getElementById("navAdminPending")) document.getElementById("navAdminPending").style.display = "none";
+  if(document.getElementById("navAdminApproved")) document.getElementById("navAdminApproved").style.display = "none";
+  if(document.getElementById("navAdminAttendance")) document.getElementById("navAdminAttendance").style.display = "none";
+  if(document.getElementById("navAdminManage")) document.getElementById("navAdminManage").style.display = "none";
 
   const dName = activeStudent.fullName ? activeStudent.fullName.toUpperCase() : "Student";
   document.getElementById("welcomeStudent").innerText = "Welcome, " + dName;
@@ -272,16 +271,14 @@ function showPendingScreen() {
   document.getElementById("pendingSection").style.display = "flex";
 }
 
-/* Navigation System */
 window.switchNavTab = function(tabName, event) {
   if (event) {
     document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
     event.currentTarget.classList.add("active");
   } else {
-    // default setup when loaded via JS
     document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
-    if(tabName === 'dashboard') document.getElementById('navStudentDashboard').classList.add("active");
-    if(tabName === 'classes') document.getElementById('navStudentClasses').classList.add("active");
+    if(tabName === 'dashboard' && document.getElementById('navStudentDashboard')) document.getElementById('navStudentDashboard').classList.add("active");
+    if(tabName === 'classes' && document.getElementById('navStudentClasses')) document.getElementById('navStudentClasses').classList.add("active");
   }
   
   document.getElementById("viewDashboard").style.display = tabName === 'dashboard' ? 'block' : 'none';
@@ -302,21 +299,18 @@ function showAdminDashboard() {
   document.getElementById("appMain").style.display = "flex";
   document.getElementById("userRoleDisplay").innerText = "SUPER ADMIN PORTAL";
   
-  // Sidebar config for Admin
-  document.getElementById("navStudentDashboard").style.display = "none";
-  document.getElementById("navStudentClasses").style.display = "none";
-  document.getElementById("navAdminPending").style.display = "flex";
-  document.getElementById("navAdminApproved").style.display = "flex";
-  document.getElementById("navAdminAttendance").style.display = "flex";
-  document.getElementById("navAdminManage").style.display = "flex";
+  if(document.getElementById("navStudentDashboard")) document.getElementById("navStudentDashboard").style.display = "none";
+  if(document.getElementById("navStudentClasses")) document.getElementById("navStudentClasses").style.display = "none";
+  if(document.getElementById("navAdminPending")) document.getElementById("navAdminPending").style.display = "flex";
+  if(document.getElementById("navAdminApproved")) document.getElementById("navAdminApproved").style.display = "flex";
+  if(document.getElementById("navAdminAttendance")) document.getElementById("navAdminAttendance").style.display = "flex";
+  if(document.getElementById("navAdminManage")) document.getElementById("navAdminManage").style.display = "flex";
 
-  // Always show Admin View container for Admin role
   document.getElementById("viewDashboard").style.display = "none";
   document.getElementById("viewClasses").style.display = "none";
   document.getElementById("viewClassroom").style.display = "none";
   document.getElementById("viewAdmin").style.display = "block";
 
-  // Default to pending tab
   switchAdminTab('pending'); 
 }
 
@@ -326,7 +320,7 @@ window.switchAdminTab = function(tab, event) {
     event.currentTarget.classList.add("active");
   } else {
     document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
-    if(tab==='pending') document.getElementById('navAdminPending').classList.add('active');
+    if(tab==='pending' && document.getElementById('navAdminPending')) document.getElementById('navAdminPending').classList.add('active');
   }
 
   document.getElementById('adminTabPending').style.display = tab === 'pending' ? 'block' : 'none';
@@ -349,7 +343,9 @@ window.switchAdminTab = function(tab, event) {
     loadAdminClassesList(); 
   }
   
-  document.getElementById('adminTitleHeader').innerHTML = `<i class="fa-solid fa-users-gear"></i> ${titleText}`;
+  if(document.getElementById('adminTitleHeader')) {
+    document.getElementById('adminTitleHeader').innerHTML = `<i class="fa-solid fa-users-gear"></i> ${titleText}`;
+  }
 };
 
 /* 1. Pending Approvals Tab */
