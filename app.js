@@ -272,6 +272,7 @@ function showPendingScreen() {
 }
 
 window.switchNavTab = function(tabName, event) {
+  autoCloseMobileMenu();
   if (event) {
     document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
     event.currentTarget.classList.add("active");
@@ -315,6 +316,7 @@ function showAdminDashboard() {
 }
 
 window.switchAdminTab = function(tab, event) {
+  autoCloseMobileMenu();
   if(event) {
     document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
     event.currentTarget.classList.add("active");
