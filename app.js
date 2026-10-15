@@ -28,6 +28,18 @@ function showToast(text, type = 'success') {
   setTimeout(() => { toast.remove(); }, 3500);
 }
 
+window.toggleMobileMenu = function() {
+  const sb = document.getElementById("appSidebar");
+  if (sb) sb.classList.toggle("active");
+};
+
+function autoCloseMobileMenu() {
+  const sb = document.getElementById("appSidebar");
+  if (sb && sb.classList.contains("active")) {
+    sb.classList.remove("active");
+  }
+}
+
 window.switchAuthTab = function(t) {
   document.getElementById("tabSignIn").classList.toggle("active", t === 'signin');
   document.getElementById("tabSignUp").classList.toggle("active", t === 'signup');
@@ -589,13 +601,14 @@ function setupKeyboardNavigation() {
   });
 }
 
-/* =========================================
-   PWA / INSTALL APP LOGIC
-   ========================================= */
+/* PWA / INSTALL APP LOGIC */
 let deferredPrompt;
 const installBtn = document.getElementById('installAppBtn');
-
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+if (!isStandalone && installBtn) {
+  installBtn.style.display = 'flex';
+}
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -613,30 +626,19 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 if (installBtn) {
   installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      installBtn.style.display = 'none';
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        installBtn.style.display = 'none';
+      }
+      deferredPrompt = null;
+    } else {
+      showToast("To install, click the 3 dots on your browser and select 'Add to Home Screen'.", "info");
     }
-    deferredPrompt = null;
   });
 }
-// Mobile Sidebar Toggle and Auto-Close
-window.toggleMobileMenu = function() {
-  const sb = document.getElementById("appSidebar");
-  if (sb) {
-    sb.classList.toggle("active");
-  }
-};
 
-// മൊബൈലിൽ ഏതെങ്കിലും മെനു ഐറ്റം ക്ലിക്ക് ചെയ്യുമ്പോൾ സൈഡ്‌ബാർ ഓട്ടോമാറ്റിക് ആയി ക്ലോസ് ആകാൻ
-function autoCloseMobileMenu() {
-  const sb = document.getElementById("appSidebar");
-  if (sb && sb.classList.contains("active")) {
-    sb.classList.remove("active");
-  }
-}
 window.addEventListener('appinstalled', (evt) => {
   if(installBtn) installBtn.style.display = 'none';
 });
