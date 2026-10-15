@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DALEEL - SNEC Advanced Studies Program</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- CSS ഫയൽ ലിങ്ക് ചെയ്യുന്നു -->
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -95,7 +94,7 @@
 
       <!-- Classes View -->
       <div id="viewClasses" class="card" style="display:none;">
-        <h3 style="margin-top:0; color:#1e3c72;"><i class="fa-solid fa-list-check"></i> Phase 1: Classes & Assessments</h3>
+        <h3 style="margin-top:0; color:#1e3c72;"><i class="fa-solid fa-list-check"></i> Classes & Assessments</h3>
         <div id="classListContainer" style="margin-top: 20px;"></div>
       </div>
 
@@ -107,7 +106,7 @@
           <iframe id="crVideo" src="" allowfullscreen></iframe>
         </div>
         <div style="margin-bottom: 20px;">
-          <a id="crPdf" href="#" target="_blank" class="btn-pill-secondary" style="text-decoration: none;"><i class="fa-solid fa-file-pdf"></i> Download Study Material (PDF)</a>
+          <a id="crPdf" href="#" target="_blank" class="btn-pill-secondary" style="text-decoration: none;"><i class="fa-solid fa-file-pdf"></i> Download Study Material</a>
         </div>
         <div style="margin-top: 20px; background: #f8fafc; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0;">
           <h4 style="margin: 0 0 8px 0;"><i class="fa-solid fa-pen-to-square"></i> Practical Activity</h4>
@@ -124,46 +123,74 @@
       <!-- Admin View -->
       <div id="viewAdmin" class="card" style="display:none;">
         <h3 style="margin-top:0; color:#1e3c72;"><i class="fa-solid fa-users-gear"></i> Admin Management Portal</h3>
-        <h4 style="margin-top: 20px; color: var(--muted);">Pending Applicants</h4>
-        <div style="overflow-x: auto;">
-          <table>
-            <thead>
-              <!-- Attendance added here -->
-              <tr><th>Name</th><th>Mobile</th><th>Place</th><th>Status</th><th>Action</th><th>Attendance</th></tr>
-            </thead>
-            <tbody id="adminStudentList"></tbody>
-          </table>
+        
+        <!-- Admin Sub Tabs -->
+        <div class="tab-btn-group" style="margin-top: 20px; max-width: 600px;">
+          <button class="tab-btn active" id="tabPending" onclick="switchAdminTab('pending')">Pending Approvals</button>
+          <button class="tab-btn" id="tabApproved" onclick="switchAdminTab('approved')">Approved Students</button>
+          <button class="tab-btn" id="tabAttendance" onclick="switchAdminTab('attendance')">Attendance</button>
         </div>
+
+        <!-- Pending Tab Content -->
+        <div id="adminTabPending">
+          <div style="overflow-x: auto;">
+            <table>
+              <thead><tr><th>Name</th><th>Mobile</th><th>Place</th><th>Action</th></tr></thead>
+              <tbody id="adminPendingList"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Approved Students Tab Content -->
+        <div id="adminTabApproved" style="display: none;">
+          <div style="overflow-x: auto;">
+            <table>
+              <thead><tr><th>Name</th><th>Mobile</th><th>Place</th><th>Phase</th></tr></thead>
+              <tbody id="adminApprovedList"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Attendance Tab Content -->
+        <div id="adminTabAttendance" style="display: none;">
+          <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center; background: #f8fafc; padding: 15px; border-radius: 15px;">
+            <label style="font-weight: 600; color: var(--text-color);">Program Date:</label>
+            <input type="date" id="programDate" style="max-width: 200px; margin-bottom: 0;">
+            <button class="btn-main" style="width: auto; padding: 10px 20px;" onclick="fetchAttendanceList()">Load Students</button>
+          </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead><tr><th>Name</th><th>Phase</th><th>Present?</th></tr></thead>
+              <tbody id="adminAttendanceList"></tbody>
+            </table>
+          </div>
+          <button class="btn-main" style="margin-top: 20px; max-width: 300px;" onclick="saveProgramAttendance()"><i class="fa-solid fa-floppy-disk"></i> Save Attendance</button>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <!-- ATTENDANCE MODAL -->
-  <div id="attendanceModal" class="auth-wrapper" style="display: none; background: rgba(30, 60, 114, 0.8);">
-    <div class="auth-card" style="max-width: 500px; text-align: left;">
-      <h3 style="margin-top: 0; color: #1e3c72;"><i class="fa-solid fa-calendar-check"></i> Attendance</h3>
-      <h4 id="attStudentName" style="color: var(--muted); margin-bottom: 20px;">Student Name</h4>
+  <!-- APPROVAL MODAL -->
+  <div id="approvalModal" class="auth-wrapper" style="display: none; background: rgba(30, 60, 114, 0.8);">
+    <div class="auth-card" style="max-width: 400px; text-align: left;">
+      <h3 style="margin-top: 0; color: #1e3c72;"><i class="fa-solid fa-check-circle"></i> Approve Student</h3>
+      <h4 id="approveStudentName" style="color: var(--muted); margin-bottom: 20px;">Student Name</h4>
       
-      <div id="attendanceHistory" style="max-height: 150px; overflow-y: auto; margin-bottom: 20px; font-size: 13px;">
-        <!-- Attendance list will appear here -->
-      </div>
-
-      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <input type="date" id="attDate" style="margin-bottom: 0;" required>
-        <select id="attStatus" style="margin-bottom: 0;">
-          <option value="Present">Present</option>
-          <option value="Absent">Absent</option>
-        </select>
-      </div>
+      <label style="font-size:12px; font-weight:600; color:var(--muted);">Select Phase</label>
+      <select id="approvePhase" required>
+        <option value="Phase 1">Phase 1</option>
+        <option value="Phase 2">Phase 2</option>
+        <option value="Phase 3">Phase 3</option>
+      </select>
       
-      <div style="display: flex; gap: 10px;">
-        <button class="btn-main" onclick="saveAttendance()"><i class="fa-solid fa-floppy-disk"></i> Save</button>
-        <button class="btn-pill-secondary" onclick="closeAttendance()" style="width: 100%; justify-content: center;">Cancel</button>
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button class="btn-approve" onclick="confirmApproval()" style="padding: 12px; font-size: 14px; width: 100%;"><i class="fa-solid fa-check"></i> Confirm</button>
+        <button class="btn-pill-secondary" onclick="closeApprovalModal()" style="width: 100%; justify-content: center;">Cancel</button>
       </div>
     </div>
   </div>
 
-  <!-- JS ഫയൽ ലിങ്ക് ചെയ്യുന്നു -->
   <script type="module" src="app.js"></script>
 </body>
 </html>
