@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, getDocs, collection, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, getDocs, collection, updateDoc, query, where, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAfaDp6H7eSToA5f4_TFhNGBU9OLoq4E7U",
@@ -17,29 +17,8 @@ const ADMIN_PIN = "9999";
 let activeStudent = null;
 let currentClassIdx = 0;
 
-const PHASE1_CLASSES = [
-  {
-    id: 1,
-    title: "Class 01: Introduction to Fundamentals",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-    activity: "Write a brief summary of the foundational concepts discussed in the lecture.",
-    questions: [
-      { q: "What is the primary objective of Phase 1?", options: ["Foundational Study", "Final Review", "Exam Prep"], ans: 0 },
-      { q: "Classes are scheduled on which days?", options: ["Sat & Tue", "Sun & Wed", "Daily"], ans: 0 }
-    ]
-  },
-  {
-    id: 2,
-    title: "Class 02: Core Principles & Methodology",
-    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-    activity: "Analyze the 3 core principles mentioned in this class.",
-    questions: [
-      { q: "How many core principles were outlined?", options: ["3", "5", "7"], ans: 0 }
-    ]
-  }
-];
+// ഇനി മുതൽ ക്ലാസുകൾ ഡാറ്റാബേസിൽ നിന്നാണ് വരുന്നത്
+let globalClasses = [];
 
 function showToast(text, type = 'success') {
   const container = document.getElementById("toastContainer");
@@ -58,7 +37,27 @@ window.switchAuthTab = function(t) {
   document.getElementById("formSignUp").style.display = t === 'signup' ? 'block' : 'none';
 };
 
-document.addEventListener("DOMContentLoaded", () => {
+// ഡാറ്റാബേസിൽ നിന്ന് എല്ലാ ക്ലാസുകളും വലിച്ചെടുക്കാനുള്ള ഫംഗ്ഷൻ
+async function fetchAllClasses() {
+  try {
+    const snap = await getDocs(collection(db, "classes"));
+    let tempClasses = [];
+    snap.forEach(doc => {
+      tempClasses.push({ docId: doc.id, ...doc.data() });
+    });
+    // ID വെച്ച് ഓർഡർ ആക്കുന്നു
+    tempClasses.sort((a, b) => parseInt(a.id) - parseInt(b.id));
+    globalClasses = tempClasses;
+  } catch (err) {
+    console.error("Error loading classes: ", err);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  setupKeyboardNavigation();
+  // ആദ്യം ക്ലാസുകൾ ലോഡ് ചെയ്യുക
+  await fetchAllClasses();
+
   const session = sessionStorage.getItem("snec_user");
   if (session) {
     activeStudent = JSON.parse(session);
@@ -70,7 +69,6 @@ document.addEventListener("DOMContentLoaded", () => {
       showPendingScreen();
     }
   }
-  setupKeyboardNavigation();
 });
 
 window.handleSignIn = async function(e) {
@@ -170,7 +168,12 @@ function renderClassList() {
   const container = document.getElementById("classListContainer");
   container.innerHTML = "";
 
-  PHASE1_CLASSES.forEach((cls, index) => {
+  if (globalClasses.length === 0) {
+    container.innerHTML = "<p style='color:var(--muted);'>No classes available at the moment. Please contact Admin.</p>";
+    return;
+  }
+
+  globalClasses.forEach((cls, index) => {
     const isCompleted = index < completedCount;
     const isUnlocked = index <= completedCount;
 
@@ -190,7 +193,7 @@ function renderClassList() {
 
 window.openClass = function(idx) {
   currentClassIdx = idx;
-  const cls = PHASE1_CLASSES[idx];
+  const cls = globalClasses[idx];
 
   document.getElementById("viewDashboard").style.display = "none";
   document.getElementById("viewClasses").style.display = "none";
@@ -200,36 +203,47 @@ window.openClass = function(idx) {
   document.getElementById("crTitle").innerText = cls.title;
   document.getElementById("crVideo").src = cls.videoUrl;
   document.getElementById("crPdf").href = cls.pdfUrl;
-  document.getElementById("crActivityText").innerText = cls.activity;
+  document.getElementById("crActivityText").innerText = cls.activity || "No specific activity notes.";
   document.getElementById("activityAnswer").value = "";
 
   const mcqDiv = document.getElementById("mcqContainer");
   mcqDiv.innerHTML = "";
-  cls.questions.forEach((q, qIdx) => {
-    mcqDiv.innerHTML += `
-      <div style="margin-bottom: 15px;">
-        <p style="font-weight: 600; font-size: 13px; margin: 0 0 8px 0;">${qIdx + 1}. ${q.q}</p>
-        ${q.options.map((opt, optIdx) => `
-          <label class="mcq-option">
-            <input type="radio" name="mcq_${qIdx}" value="${optIdx}" required> ${opt}
-          </label>
-        `).join('')}
-      </div>
-    `;
-  });
+  
+  if (cls.questions && cls.questions.length > 0) {
+    cls.questions.forEach((q, qIdx) => {
+      mcqDiv.innerHTML += `
+        <div style="margin-bottom: 15px;">
+          <p style="font-weight: 600; font-size: 13px; margin: 0 0 8px 0;">${qIdx + 1}. ${q.q}</p>
+          ${q.options.map((opt, optIdx) => `
+            <label class="mcq-option">
+              <input type="radio" name="mcq_${qIdx}" value="${optIdx}" required> ${opt.trim()}
+            </label>
+          `).join('')}
+        </div>
+      `;
+    });
+  } else {
+    mcqDiv.innerHTML = "<p style='color:var(--muted); font-size:13px;'>No questions available for this class.</p>";
+  }
 };
 
 window.submitAssessment = async function() {
-  const cls = PHASE1_CLASSES[currentClassIdx];
-  let correct = 0;
+  const cls = globalClasses[currentClassIdx];
+  if(!cls.questions || cls.questions.length === 0) {
+    // If no questions, simply pass them
+    showToast(`Class marked as completed! Next class unlocked!`);
+    await passStudent();
+    return;
+  }
 
+  let correct = 0;
   for (let i = 0; i < cls.questions.length; i++) {
     const selected = document.querySelector(`input[name="mcq_${i}"]:checked`);
     if (!selected) {
       showToast("Please answer all questions before submitting!", "error");
       return;
     }
-    if (parseInt(selected.value) === cls.questions[i].ans) {
+    if (parseInt(selected.value) === parseInt(cls.questions[i].ans)) {
       correct++;
     }
   }
@@ -238,16 +252,20 @@ window.submitAssessment = async function() {
 
   if (scorePercent >= 60) {
     showToast(`Congratulations! Passed with ${scorePercent}%. Next class unlocked!`);
-    const newProgress = Math.max(activeStudent.completedClasses || 0, currentClassIdx + 1);
-    await updateDoc(doc(db, "students", activeStudent.mobileNumber || activeStudent.id), { completedClasses: newProgress });
-    activeStudent.completedClasses = newProgress;
-    sessionStorage.setItem("snec_user", JSON.stringify(activeStudent));
-    renderClassList();
-    switchNavTab('classes');
+    await passStudent();
   } else {
     showToast(`Score: ${scorePercent}%. Minimum 60% required to pass. Please retry!`, "error");
   }
 };
+
+async function passStudent() {
+  const newProgress = Math.max(activeStudent.completedClasses || 0, currentClassIdx + 1);
+  await updateDoc(doc(db, "students", activeStudent.mobileNumber || activeStudent.id), { completedClasses: newProgress });
+  activeStudent.completedClasses = newProgress;
+  sessionStorage.setItem("snec_user", JSON.stringify(activeStudent));
+  renderClassList();
+  switchNavTab('classes');
+}
 
 function showPendingScreen() {
   document.getElementById("authSection").style.display = "none";
@@ -289,10 +307,12 @@ window.switchAdminTab = function(tab) {
   document.getElementById('tabPending').classList.toggle('active', tab === 'pending');
   document.getElementById('tabApproved').classList.toggle('active', tab === 'approved');
   document.getElementById('tabAttendance').classList.toggle('active', tab === 'attendance');
+  document.getElementById('tabManageClasses').classList.toggle('active', tab === 'manageClasses');
 
   document.getElementById('adminTabPending').style.display = tab === 'pending' ? 'block' : 'none';
   document.getElementById('adminTabApproved').style.display = tab === 'approved' ? 'block' : 'none';
   document.getElementById('adminTabAttendance').style.display = tab === 'attendance' ? 'block' : 'none';
+  document.getElementById('adminTabManageClasses').style.display = tab === 'manageClasses' ? 'block' : 'none';
 
   if (tab === 'pending') loadPendingStudents();
   if (tab === 'approved') loadApprovedStudents();
@@ -302,9 +322,13 @@ window.switchAdminTab = function(tab) {
     const selectAllChk = document.getElementById("selectAllAtt");
     if(selectAllChk) selectAllChk.checked = false;
   }
+  if (tab === 'manageClasses') {
+    loadAdminClassesList();
+  }
 };
 
-/* 1. Pending Approvals Tab */
+/* --- Pending & Approved & Attendance Tabs (unchanged logic) --- */
+
 async function loadPendingStudents() {
   const tb = document.getElementById("adminPendingList");
   tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
@@ -330,20 +354,16 @@ async function loadPendingStudents() {
   } catch (err) { tb.innerHTML = `<tr><td colspan="4" style="color:red;">Error: ${err.message}</td></tr>`; }
 }
 
-/* Approval Modal Logic */
 let studentToApprove = null;
-
 window.openApprovalModal = function(id, name) {
   studentToApprove = id;
   document.getElementById("approveStudentName").innerText = name;
   document.getElementById("approvalModal").style.display = "flex";
 };
-
 window.closeApprovalModal = function() {
   studentToApprove = null;
   document.getElementById("approvalModal").style.display = "none";
 };
-
 window.confirmApproval = async function() {
   const phase = document.getElementById("approvePhase").value;
   try {
@@ -351,12 +371,9 @@ window.confirmApproval = async function() {
     showToast(`Student approved to ${phase}`);
     closeApprovalModal();
     loadPendingStudents();
-  } catch(err) {
-    showToast("Error: " + err.message, "error");
-  }
+  } catch(err) { showToast("Error: " + err.message, "error"); }
 };
 
-/* 2. Approved Students Tab */
 async function loadApprovedStudents() {
   const tb = document.getElementById("adminApprovedList");
   tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
@@ -364,62 +381,38 @@ async function loadApprovedStudents() {
     const q = query(collection(db, "students"), where("status", "==", "Active"));
     const snap = await getDocs(q);
     tb.innerHTML = "";
-    if (snap.empty) {
-      tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">No approved students.</td></tr>';
-      return;
-    }
+    if (snap.empty) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">No approved students.</td></tr>'; return; }
     snap.forEach(d => {
       const s = d.data();
       const dName = s.fullName ? s.fullName.toUpperCase() : '-';
       tb.innerHTML += `
-        <tr>
-          <td><strong>${dName}</strong></td>
-          <td>${s.mobileNumber || d.id}</td>
-          <td>${s.place || '-'}</td>
-          <td><span class="status-badge badge-done">${s.phase || 'Phase 1'}</span></td>
-        </tr>`;
+        <tr><td><strong>${dName}</strong></td><td>${s.mobileNumber || d.id}</td><td>${s.place || '-'}</td><td><span class="status-badge badge-done">${s.phase || 'Phase 1'}</span></td></tr>`;
     });
   } catch (err) { tb.innerHTML = `<tr><td colspan="4" style="color:red;">Error: ${err.message}</td></tr>`; }
 }
 
-/* 3. Attendance Tab Logic */
 let currentAttendanceList = [];
-
 window.fetchAttendanceList = async function() {
   const dateStr = document.getElementById("programDate").value;
   if(!dateStr) return showToast("Select a valid date", "error");
-
   const tb = document.getElementById("adminAttendanceList");
   tb.innerHTML = '<tr><td colspan="3" style="text-align:center;">Loading students...</td></tr>';
   currentAttendanceList = [];
-  
   const selectAllChk = document.getElementById("selectAllAtt");
   if(selectAllChk) selectAllChk.checked = false;
-
   try {
     const q = query(collection(db, "students"), where("status", "==", "Active"));
     const snap = await getDocs(q);
     tb.innerHTML = "";
-    if (snap.empty) {
-      tb.innerHTML = '<tr><td colspan="3" style="text-align:center;">No approved students found.</td></tr>';
-      return;
-    }
-    
+    if (snap.empty) { tb.innerHTML = '<tr><td colspan="3" style="text-align:center;">No approved students found.</td></tr>'; return; }
     snap.forEach(d => {
       const s = d.data();
       const isPresent = s.attendance && s.attendance[dateStr] === "Present";
       currentAttendanceList.push(d.id);
-      
       const dName = s.fullName ? s.fullName.toUpperCase() : '-';
-      
       tb.innerHTML += `
-        <tr>
-          <td><strong>${dName}</strong></td>
-          <td><span class="status-badge badge-done" style="background:#f1f5f9; color:var(--muted);">${s.phase || 'Phase 1'}</span></td>
-          <td>
-            <input type="checkbox" id="att_${d.id}" class="att-student-chk" style="width:20px; height:20px; margin:0;" ${isPresent ? 'checked' : ''}>
-          </td>
-        </tr>`;
+        <tr><td><strong>${dName}</strong></td><td><span class="status-badge badge-done" style="background:#f1f5f9; color:var(--muted);">${s.phase || 'Phase 1'}</span></td>
+        <td><input type="checkbox" id="att_${d.id}" class="att-student-chk" style="width:20px; height:20px; margin:0;" ${isPresent ? 'checked' : ''}></td></tr>`;
     });
   } catch (err) { tb.innerHTML = `<tr><td colspan="3" style="color:red;">Error: ${err.message}</td></tr>`; }
 };
@@ -433,26 +426,137 @@ window.toggleAllAttendance = function() {
 window.saveProgramAttendance = async function() {
   const dateStr = document.getElementById("programDate").value;
   if(!dateStr || currentAttendanceList.length === 0) return showToast("No list loaded", "error");
-
   try {
     for (let id of currentAttendanceList) {
       const checkbox = document.getElementById(`att_${id}`);
       const status = checkbox.checked ? "Present" : "Absent";
-      
       const studentRef = doc(db, "students", id);
       const docSnap = await getDoc(studentRef);
       let attData = docSnap.exists() && docSnap.data().attendance ? docSnap.data().attendance : {};
       attData[dateStr] = status;
-      
       await updateDoc(studentRef, { attendance: attData });
     }
     showToast(`Attendance saved for ${dateStr}!`);
-  } catch(err) {
-    showToast("Error saving attendance: " + err.message, "error");
+  } catch(err) { showToast("Error saving attendance: " + err.message, "error"); }
+};
+
+/* =========================================
+   MANAGE CLASSES (DYNAMIC ADD/EDIT)
+   ========================================= */
+
+function loadAdminClassesList() {
+  const tb = document.getElementById("adminClassesList");
+  tb.innerHTML = "";
+  if (globalClasses.length === 0) {
+    tb.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No classes found. Add a new class!</td></tr>";
+    return;
+  }
+  globalClasses.forEach(c => {
+    tb.innerHTML += `
+      <tr>
+        <td>${c.id}</td>
+        <td><strong>${c.title}</strong></td>
+        <td>
+          <button class="btn-approve" onclick="deleteClass('${c.docId}')" style="background: var(--error);"><i class="fa-solid fa-trash"></i> Delete</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+let questionCount = 0;
+window.openNewClassModal = function() {
+  document.getElementById("newClassId").value = "";
+  document.getElementById("newClassTitle").value = "";
+  document.getElementById("newClassVideo").value = "";
+  document.getElementById("newClassPdf").value = "";
+  document.getElementById("newClassActivity").value = "";
+  document.getElementById("questionsContainer").innerHTML = "";
+  questionCount = 0;
+  document.getElementById("newClassModal").style.display = "flex";
+};
+
+window.closeNewClassModal = function() {
+  document.getElementById("newClassModal").style.display = "none";
+};
+
+window.addQuestionField = function() {
+  questionCount++;
+  const container = document.getElementById("questionsContainer");
+  const qDiv = document.createElement("div");
+  qDiv.style.cssText = "background: #f1f5f9; padding: 10px; border-radius: 10px; margin-bottom: 10px;";
+  qDiv.innerHTML = `
+    <label style="font-size:12px; font-weight:600; color:var(--muted);">Q${questionCount} - Question</label>
+    <input type="text" id="q_${questionCount}_text" placeholder="E.g., What is Phase 1?" required style="margin-bottom:8px;">
+    
+    <label style="font-size:12px; font-weight:600; color:var(--muted);">Options (Comma separated. E.g., Option 1, Option 2, Option 3)</label>
+    <input type="text" id="q_${questionCount}_options" placeholder="Foundational Study, Final Review, Exam Prep" required style="margin-bottom:8px;">
+    
+    <label style="font-size:12px; font-weight:600; color:var(--muted);">Correct Option Index (0 for 1st option, 1 for 2nd, etc.)</label>
+    <input type="number" id="q_${questionCount}_ans" placeholder="0" required style="margin-bottom:0;">
+  `;
+  container.appendChild(qDiv);
+};
+
+window.saveNewClass = async function() {
+  const idVal = document.getElementById("newClassId").value;
+  const titleVal = document.getElementById("newClassTitle").value;
+  if(!idVal || !titleVal) {
+    showToast("Class ID and Title are required!", "error");
+    return;
+  }
+
+  // ചോദ്യങ്ങൾ എടുക്കുന്നു
+  let questionsArray = [];
+  for(let i=1; i<=questionCount; i++) {
+    const qText = document.getElementById(`q_${i}_text`)?.value;
+    const qOptRaw = document.getElementById(`q_${i}_options`)?.value;
+    const qAns = document.getElementById(`q_${i}_ans`)?.value;
+    
+    if(qText && qOptRaw && qAns !== "") {
+      const optionsArray = qOptRaw.split(",").map(item => item.trim());
+      questionsArray.push({
+        q: qText,
+        options: optionsArray,
+        ans: parseInt(qAns)
+      });
+    }
+  }
+
+  const payload = {
+    id: parseInt(idVal),
+    title: titleVal,
+    videoUrl: document.getElementById("newClassVideo").value,
+    pdfUrl: document.getElementById("newClassPdf").value,
+    activity: document.getElementById("newClassActivity").value,
+    questions: questionsArray
+  };
+
+  try {
+    // Save to Firebase collection "classes" with an auto-generated docId or use the 'id' as doc name
+    await setDoc(doc(db, "classes", "class_" + idVal), payload);
+    showToast("Class saved successfully!");
+    closeNewClassModal();
+    await fetchAllClasses(); // reload classes from DB
+    loadAdminClassesList();
+  } catch (err) {
+    showToast("Error saving class: " + err.message, "error");
   }
 };
 
-/* Keyboard Accessibility */
+window.deleteClass = async function(docId) {
+  if(confirm("Are you sure you want to delete this class?")) {
+    try {
+      await deleteDoc(doc(db, "classes", docId));
+      showToast("Class deleted!");
+      await fetchAllClasses();
+      loadAdminClassesList();
+    } catch(err) {
+      showToast("Error deleting: " + err.message, "error");
+    }
+  }
+};
+
 function setupKeyboardNavigation() {
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
@@ -465,3 +569,41 @@ function setupKeyboardNavigation() {
     }
   });
 }
+
+/* =========================================
+   PWA / INSTALL APP LOGIC
+   ========================================= */
+let deferredPrompt;
+const installBtn = document.getElementById('installAppBtn');
+
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed', err));
+  });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (!isStandalone && installBtn) {
+    installBtn.style.display = 'flex';
+  }
+});
+
+if (installBtn) {
+  installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      installBtn.style.display = 'none';
+    }
+    deferredPrompt = null;
+  });
+}
+
+window.addEventListener('appinstalled', (evt) => {
+  if(installBtn) installBtn.style.display = 'none';
+});
