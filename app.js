@@ -348,7 +348,7 @@ window.switchAdminTab = function(tab, event) {
   if (tab === 'attendance') { 
     titleText = "Attendance Management";
     document.getElementById("programDate").valueAsDate = new Date();
-    document.getElementById("adminAttendanceList").innerHTML = '<tr><td colspan="3" style="text-align:center;">Select date and click "Load Students".</td></tr>';
+    document.getElementById("adminAttendanceList").innerHTML = '<tr><td colspan="4" style="text-align:center;">Select date and click "Load Students".</td></tr>';
     const selectAllChk = document.getElementById("selectAllAtt");
     if(selectAllChk) selectAllChk.checked = false;
   }
@@ -365,44 +365,66 @@ window.switchAdminTab = function(tab, event) {
 /* 1. Pending Approvals Tab */
 async function loadPendingStudents() {
   const tb = document.getElementById("adminPendingList");
-  tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
+  tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
   try {
     const q = query(collection(db, "students"), where("status", "==", "Pending Approval"));
     const snap = await getDocs(q);
     tb.innerHTML = "";
     if (snap.empty) {
-      tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">No pending applications.</td></tr>';
+      tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">No pending applications.</td></tr>';
       return;
     }
+    let index = 1;
     snap.forEach(d => {
       const s = d.data();
       const dName = s.fullName ? s.fullName.toUpperCase() : '-';
+      const mobile = s.mobileNumber || d.id;
       tb.innerHTML += `
         <tr>
+          <td><strong>${index++}</strong></td>
           <td><strong>${dName}</strong></td>
-          <td>${s.mobileNumber || d.id}</td>
+          <td>${mobile}</td>
           <td>${s.place || '-'}</td>
-          <td><button class="btn-approve" onclick="openApprovalModal('${d.id}', '${dName}')"><i class="fa-solid fa-check"></i> Approve</button></td>
+          <td><button class="btn-approve" onclick="openApprovalModal('${d.id}', '${dName}', '${mobile}')"><i class="fa-solid fa-check"></i> Approve</button></td>
         </tr>`;
     });
-  } catch (err) { tb.innerHTML = `<tr><td colspan="4" style="color:red;">Error: ${err.message}</td></tr>`; }
+  } catch (err) { tb.innerHTML = `<tr><td colspan="5" style="color:red;">Error: ${err.message}</td></tr>`; }
 }
 
 let studentToApprove = null;
-window.openApprovalModal = function(id, name) {
+let studentToApproveMobile = null;
+
+window.openApprovalModal = function(id, name, mobile) {
   studentToApprove = id;
+  studentToApproveMobile = mobile;
   document.getElementById("approveStudentName").innerText = name;
   document.getElementById("approvalModal").style.display = "flex";
 };
+
 window.closeApprovalModal = function() {
   studentToApprove = null;
+  studentToApproveMobile = null;
   document.getElementById("approvalModal").style.display = "none";
 };
+
 window.confirmApproval = async function() {
   const phase = document.getElementById("approvePhase").value;
   try {
     await updateDoc(doc(db, "students", studentToApprove), { status: "Active", phase: phase });
     showToast(`Student approved to ${phase}`);
+    
+    // Auto-open WhatsApp with login link and approval text
+    if (studentToApproveMobile) {
+      let cleanMobile = studentToApproveMobile.replace(/\D/g, '');
+      if (cleanMobile.length === 10) cleanMobile = "91" + cleanMobile;
+      
+      const appUrl = window.location.href;
+      const message = `Assalamu Alaikum,\n\nYour application for *SNEC Advanced Studies Program* (${phase}) has been approved!\n\nYou can now log in to the portal using your registered mobile number:\n${appUrl}`;
+      const waUrl = `https://wa.me/${cleanMobile}?text=${encodeURIComponent(message)}`;
+      
+      window.open(waUrl, '_blank');
+    }
+
     closeApprovalModal();
     loadPendingStudents();
   } catch(err) { showToast("Error: " + err.message, "error"); }
@@ -411,19 +433,20 @@ window.confirmApproval = async function() {
 /* 2. Approved Students */
 async function loadApprovedStudents() {
   const tb = document.getElementById("adminApprovedList");
-  tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
+  tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
   try {
     const q = query(collection(db, "students"), where("status", "==", "Active"));
     const snap = await getDocs(q);
     tb.innerHTML = "";
-    if (snap.empty) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">No approved students.</td></tr>'; return; }
+    if (snap.empty) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">No approved students.</td></tr>'; return; }
+    let index = 1;
     snap.forEach(d => {
       const s = d.data();
       const dName = s.fullName ? s.fullName.toUpperCase() : '-';
       tb.innerHTML += `
-        <tr><td><strong>${dName}</strong></td><td>${s.mobileNumber || d.id}</td><td>${s.place || '-'}</td><td><span class="status-badge badge-done">${s.phase || 'Phase 1'}</span></td></tr>`;
+        <tr><td><strong>${index++}</strong></td><td><strong>${dName}</strong></td><td>${s.mobileNumber || d.id}</td><td>${s.place || '-'}</td><td><span class="status-badge badge-done">${s.phase || 'Phase 1'}</span></td></tr>`;
     });
-  } catch (err) { tb.innerHTML = `<tr><td colspan="4" style="color:red;">Error: ${err.message}</td></tr>`; }
+  } catch (err) { tb.innerHTML = `<tr><td colspan="5" style="color:red;">Error: ${err.message}</td></tr>`; }
 }
 
 /* 3. Attendance */
@@ -432,7 +455,7 @@ window.fetchAttendanceList = async function() {
   const dateStr = document.getElementById("programDate").value;
   if(!dateStr) return showToast("Select a valid date", "error");
   const tb = document.getElementById("adminAttendanceList");
-  tb.innerHTML = '<tr><td colspan="3" style="text-align:center;">Loading students...</td></tr>';
+  tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading students...</td></tr>';
   currentAttendanceList = [];
   const selectAllChk = document.getElementById("selectAllAtt");
   if(selectAllChk) selectAllChk.checked = false;
@@ -440,17 +463,18 @@ window.fetchAttendanceList = async function() {
     const q = query(collection(db, "students"), where("status", "==", "Active"));
     const snap = await getDocs(q);
     tb.innerHTML = "";
-    if (snap.empty) { tb.innerHTML = '<tr><td colspan="3" style="text-align:center;">No approved students found.</td></tr>'; return; }
+    if (snap.empty) { tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">No approved students found.</td></tr>'; return; }
+    let index = 1;
     snap.forEach(d => {
       const s = d.data();
       const isPresent = s.attendance && s.attendance[dateStr] === "Present";
       currentAttendanceList.push(d.id);
       const dName = s.fullName ? s.fullName.toUpperCase() : '-';
       tb.innerHTML += `
-        <tr><td><strong>${dName}</strong></td><td><span class="status-badge badge-done" style="background:#f1f5f9; color:var(--muted);">${s.phase || 'Phase 1'}</span></td>
+        <tr><td><strong>${index++}</strong></td><td><strong>${dName}</strong></td><td><span class="status-badge badge-done" style="background:#f1f5f9; color:var(--muted);">${s.phase || 'Phase 1'}</span></td>
         <td><input type="checkbox" id="att_${d.id}" class="att-student-chk" style="width:20px; height:20px; margin:0;" ${isPresent ? 'checked' : ''}></td></tr>`;
     });
-  } catch (err) { tb.innerHTML = `<tr><td colspan="3" style="color:red;">Error: ${err.message}</td></tr>`; }
+  } catch (err) { tb.innerHTML = `<tr><td colspan="4" style="color:red;">Error: ${err.message}</td></tr>`; }
 };
 
 window.toggleAllAttendance = function() {
