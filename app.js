@@ -620,7 +620,21 @@ if (installBtn) {
     deferredPrompt = null;
   });
 }
+// Mobile Sidebar Toggle and Auto-Close
+window.toggleMobileMenu = function() {
+  const sb = document.getElementById("appSidebar");
+  if (sb) {
+    sb.classList.toggle("active");
+  }
+};
 
+// മൊബൈലിൽ ഏതെങ്കിലും മെനു ഐറ്റം ക്ലിക്ക് ചെയ്യുമ്പോൾ സൈഡ്‌ബാർ ഓട്ടോമാറ്റിക് ആയി ക്ലോസ് ആകാൻ
+function autoCloseMobileMenu() {
+  const sb = document.getElementById("appSidebar");
+  if (sb && sb.classList.contains("active")) {
+    sb.classList.remove("active");
+  }
+}
 window.addEventListener('appinstalled', (evt) => {
   if(installBtn) installBtn.style.display = 'none';
 });
