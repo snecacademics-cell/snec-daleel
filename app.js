@@ -16,8 +16,6 @@ const db = getFirestore(app);
 const ADMIN_PIN = "9999";
 let activeStudent = null;
 let currentClassIdx = 0;
-
-// ഇനി മുതൽ ക്ലാസുകൾ ഡാറ്റാബേസിൽ നിന്നാണ് വരുന്നത്
 let globalClasses = [];
 
 function showToast(text, type = 'success') {
@@ -37,25 +35,18 @@ window.switchAuthTab = function(t) {
   document.getElementById("formSignUp").style.display = t === 'signup' ? 'block' : 'none';
 };
 
-// ഡാറ്റാബേസിൽ നിന്ന് എല്ലാ ക്ലാസുകളും വലിച്ചെടുക്കാനുള്ള ഫംഗ്ഷൻ
 async function fetchAllClasses() {
   try {
     const snap = await getDocs(collection(db, "classes"));
     let tempClasses = [];
-    snap.forEach(doc => {
-      tempClasses.push({ docId: doc.id, ...doc.data() });
-    });
-    // ID വെച്ച് ഓർഡർ ആക്കുന്നു
+    snap.forEach(doc => { tempClasses.push({ docId: doc.id, ...doc.data() }); });
     tempClasses.sort((a, b) => parseInt(a.id) - parseInt(b.id));
     globalClasses = tempClasses;
-  } catch (err) {
-    console.error("Error loading classes: ", err);
-  }
+  } catch (err) { console.error("Error loading classes: ", err); }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
   setupKeyboardNavigation();
-  // ആദ്യം ക്ലാസുകൾ ലോഡ് ചെയ്യുക
   await fetchAllClasses();
 
   const session = sessionStorage.getItem("snec_user");
@@ -153,9 +144,16 @@ function showStudentDashboard() {
   document.getElementById("pendingSection").style.display = "none";
   document.getElementById("appSidebar").style.display = "flex";
   document.getElementById("appMain").style.display = "flex";
-  document.getElementById("adminMenuTab").style.display = "none";
   document.getElementById("userRoleDisplay").innerText = "Student Portal";
   
+  // Sidebar config for Student
+  document.getElementById("navStudentDashboard").style.display = "flex";
+  document.getElementById("navStudentClasses").style.display = "flex";
+  document.getElementById("navAdminPending").style.display = "none";
+  document.getElementById("navAdminApproved").style.display = "none";
+  document.getElementById("navAdminAttendance").style.display = "none";
+  document.getElementById("navAdminManage").style.display = "none";
+
   const dName = activeStudent.fullName ? activeStudent.fullName.toUpperCase() : "Student";
   document.getElementById("welcomeStudent").innerText = "Welcome, " + dName;
 
@@ -230,7 +228,6 @@ window.openClass = function(idx) {
 window.submitAssessment = async function() {
   const cls = globalClasses[currentClassIdx];
   if(!cls.questions || cls.questions.length === 0) {
-    // If no questions, simply pass them
     showToast(`Class marked as completed! Next class unlocked!`);
     await passStudent();
     return;
@@ -275,11 +272,18 @@ function showPendingScreen() {
   document.getElementById("pendingSection").style.display = "flex";
 }
 
+/* Navigation System */
 window.switchNavTab = function(tabName, event) {
   if (event) {
     document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
     event.currentTarget.classList.add("active");
+  } else {
+    // default setup when loaded via JS
+    document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
+    if(tabName === 'dashboard') document.getElementById('navStudentDashboard').classList.add("active");
+    if(tabName === 'classes') document.getElementById('navStudentClasses').classList.add("active");
   }
+  
   document.getElementById("viewDashboard").style.display = tabName === 'dashboard' ? 'block' : 'none';
   document.getElementById("viewClasses").style.display = tabName === 'classes' ? 'block' : 'none';
   document.getElementById("viewClassroom").style.display = 'none';
@@ -287,7 +291,7 @@ window.switchNavTab = function(tabName, event) {
 };
 
 /* =========================================
-   ADMIN PORTAL & MULTI-TAB LOGIC
+   ADMIN PORTAL & SIDEBAR TAB LOGIC
    ========================================= */
 
 function showAdminDashboard() {
@@ -296,39 +300,59 @@ function showAdminDashboard() {
   document.getElementById("pendingSection").style.display = "none";
   document.getElementById("appSidebar").style.display = "flex";
   document.getElementById("appMain").style.display = "flex";
-  document.getElementById("adminMenuTab").style.display = "flex";
   document.getElementById("userRoleDisplay").innerText = "SUPER ADMIN PORTAL";
   
-  switchNavTab('admin');
+  // Sidebar config for Admin
+  document.getElementById("navStudentDashboard").style.display = "none";
+  document.getElementById("navStudentClasses").style.display = "none";
+  document.getElementById("navAdminPending").style.display = "flex";
+  document.getElementById("navAdminApproved").style.display = "flex";
+  document.getElementById("navAdminAttendance").style.display = "flex";
+  document.getElementById("navAdminManage").style.display = "flex";
+
+  // Always show Admin View container for Admin role
+  document.getElementById("viewDashboard").style.display = "none";
+  document.getElementById("viewClasses").style.display = "none";
+  document.getElementById("viewClassroom").style.display = "none";
+  document.getElementById("viewAdmin").style.display = "block";
+
+  // Default to pending tab
   switchAdminTab('pending'); 
 }
 
-window.switchAdminTab = function(tab) {
-  document.getElementById('tabPending').classList.toggle('active', tab === 'pending');
-  document.getElementById('tabApproved').classList.toggle('active', tab === 'approved');
-  document.getElementById('tabAttendance').classList.toggle('active', tab === 'attendance');
-  document.getElementById('tabManageClasses').classList.toggle('active', tab === 'manageClasses');
+window.switchAdminTab = function(tab, event) {
+  if(event) {
+    document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
+    event.currentTarget.classList.add("active");
+  } else {
+    document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
+    if(tab==='pending') document.getElementById('navAdminPending').classList.add('active');
+  }
 
   document.getElementById('adminTabPending').style.display = tab === 'pending' ? 'block' : 'none';
   document.getElementById('adminTabApproved').style.display = tab === 'approved' ? 'block' : 'none';
   document.getElementById('adminTabAttendance').style.display = tab === 'attendance' ? 'block' : 'none';
   document.getElementById('adminTabManageClasses').style.display = tab === 'manageClasses' ? 'block' : 'none';
 
-  if (tab === 'pending') loadPendingStudents();
-  if (tab === 'approved') loadApprovedStudents();
-  if (tab === 'attendance') {
+  let titleText = "";
+  if (tab === 'pending') { titleText = "Pending Approvals"; loadPendingStudents(); }
+  if (tab === 'approved') { titleText = "Approved Students"; loadApprovedStudents(); }
+  if (tab === 'attendance') { 
+    titleText = "Attendance Management";
     document.getElementById("programDate").valueAsDate = new Date();
     document.getElementById("adminAttendanceList").innerHTML = '<tr><td colspan="3" style="text-align:center;">Select date and click "Load Students".</td></tr>';
     const selectAllChk = document.getElementById("selectAllAtt");
     if(selectAllChk) selectAllChk.checked = false;
   }
-  if (tab === 'manageClasses') {
-    loadAdminClassesList();
+  if (tab === 'manageClasses') { 
+    titleText = "Manage Classes"; 
+    loadAdminClassesList(); 
   }
+  
+  document.getElementById('adminTitleHeader').innerHTML = `<i class="fa-solid fa-users-gear"></i> ${titleText}`;
 };
 
-/* --- Pending & Approved & Attendance Tabs (unchanged logic) --- */
-
+/* 1. Pending Approvals Tab */
 async function loadPendingStudents() {
   const tb = document.getElementById("adminPendingList");
   tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
@@ -374,6 +398,7 @@ window.confirmApproval = async function() {
   } catch(err) { showToast("Error: " + err.message, "error"); }
 };
 
+/* 2. Approved Students */
 async function loadApprovedStudents() {
   const tb = document.getElementById("adminApprovedList");
   tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading...</td></tr>';
@@ -391,6 +416,7 @@ async function loadApprovedStudents() {
   } catch (err) { tb.innerHTML = `<tr><td colspan="4" style="color:red;">Error: ${err.message}</td></tr>`; }
 }
 
+/* 3. Attendance */
 let currentAttendanceList = [];
 window.fetchAttendanceList = async function() {
   const dateStr = document.getElementById("programDate").value;
@@ -440,10 +466,7 @@ window.saveProgramAttendance = async function() {
   } catch(err) { showToast("Error saving attendance: " + err.message, "error"); }
 };
 
-/* =========================================
-   MANAGE CLASSES (DYNAMIC ADD/EDIT)
-   ========================================= */
-
+/* 4. Manage Classes */
 function loadAdminClassesList() {
   const tb = document.getElementById("adminClassesList");
   tb.innerHTML = "";
@@ -506,7 +529,6 @@ window.saveNewClass = async function() {
     return;
   }
 
-  // ചോദ്യങ്ങൾ എടുക്കുന്നു
   let questionsArray = [];
   for(let i=1; i<=questionCount; i++) {
     const qText = document.getElementById(`q_${i}_text`)?.value;
@@ -533,11 +555,10 @@ window.saveNewClass = async function() {
   };
 
   try {
-    // Save to Firebase collection "classes" with an auto-generated docId or use the 'id' as doc name
     await setDoc(doc(db, "classes", "class_" + idVal), payload);
     showToast("Class saved successfully!");
     closeNewClassModal();
-    await fetchAllClasses(); // reload classes from DB
+    await fetchAllClasses(); 
     loadAdminClassesList();
   } catch (err) {
     showToast("Error saving class: " + err.message, "error");
