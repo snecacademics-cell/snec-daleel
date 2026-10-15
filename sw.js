@@ -1,2 +1,26 @@
-// PWA ഇൻസ്റ്റാൾ ചെയ്യാൻ ആവശ്യമായ ഒരു ബേസിക് സർവീസ് വർക്കർ
-self.addEventListener('fetch', function(event) {});
+const CACHE_NAME = 'daleel-v2';
+
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    fetch(event.request).catch(() => caches.match(event.request))
+  );
+});
