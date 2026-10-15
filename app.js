@@ -117,7 +117,6 @@ window.submitAdmission = async function(e) {
   e.preventDefault();
   const mobile = document.getElementById("admMobile").value.trim();
   const payload = {
-    // പേര് ക്യാപിറ്റൽ ലെറ്ററിലേക്ക് മാറ്റി സേവ് ചെയ്യുന്നു
     fullName: document.getElementById("admFullName").value.trim().toUpperCase(),
     mobileNumber: mobile,
     email: document.getElementById("admEmail").value.trim(),
@@ -133,12 +132,6 @@ window.submitAdmission = async function(e) {
     attendance: {}
   };
 
-  await setDoc(doc(db, "students", mobile), payload);
-  activeStudent = payload;
-  sessionStorage.setItem("snec_user", JSON.stringify(activeStudent));
-  showToast("Application submitted successfully!");
-  showPendingScreen();
-};
   await setDoc(doc(db, "students", mobile), payload);
   activeStudent = payload;
   sessionStorage.setItem("snec_user", JSON.stringify(activeStudent));
@@ -164,7 +157,9 @@ function showStudentDashboard() {
   document.getElementById("appMain").style.display = "flex";
   document.getElementById("adminMenuTab").style.display = "none";
   document.getElementById("userRoleDisplay").innerText = "Student Portal";
-  document.getElementById("welcomeStudent").innerText = "Welcome, " + activeStudent.fullName;
+  
+  const dName = activeStudent.fullName ? activeStudent.fullName.toUpperCase() : "Student";
+  document.getElementById("welcomeStudent").innerText = "Welcome, " + dName;
 
   renderClassList();
   switchNavTab('dashboard');
@@ -304,6 +299,8 @@ window.switchAdminTab = function(tab) {
   if (tab === 'attendance') {
     document.getElementById("programDate").valueAsDate = new Date();
     document.getElementById("adminAttendanceList").innerHTML = '<tr><td colspan="3" style="text-align:center;">Select date and click "Load Students".</td></tr>';
+    const selectAllChk = document.getElementById("selectAllAtt");
+    if(selectAllChk) selectAllChk.checked = false;
   }
 };
 
@@ -321,12 +318,13 @@ async function loadPendingStudents() {
     }
     snap.forEach(d => {
       const s = d.data();
+      const dName = s.fullName ? s.fullName.toUpperCase() : '-';
       tb.innerHTML += `
         <tr>
-          <td><strong>${s.fullName || '-'}</strong></td>
+          <td><strong>${dName}</strong></td>
           <td>${s.mobileNumber || d.id}</td>
           <td>${s.place || '-'}</td>
-          <td><button class="btn-approve" onclick="openApprovalModal('${d.id}', '${s.fullName}')"><i class="fa-solid fa-check"></i> Approve</button></td>
+          <td><button class="btn-approve" onclick="openApprovalModal('${d.id}', '${dName}')"><i class="fa-solid fa-check"></i> Approve</button></td>
         </tr>`;
     });
   } catch (err) { tb.innerHTML = `<tr><td colspan="4" style="color:red;">Error: ${err.message}</td></tr>`; }
@@ -372,9 +370,10 @@ async function loadApprovedStudents() {
     }
     snap.forEach(d => {
       const s = d.data();
+      const dName = s.fullName ? s.fullName.toUpperCase() : '-';
       tb.innerHTML += `
         <tr>
-          <td><strong>${s.fullName || '-'}</strong></td>
+          <td><strong>${dName}</strong></td>
           <td>${s.mobileNumber || d.id}</td>
           <td>${s.place || '-'}</td>
           <td><span class="status-badge badge-done">${s.phase || 'Phase 1'}</span></td>
@@ -394,7 +393,6 @@ window.fetchAttendanceList = async function() {
   tb.innerHTML = '<tr><td colspan="3" style="text-align:center;">Loading students...</td></tr>';
   currentAttendanceList = [];
   
-  // Reset Select All Checkbox
   const selectAllChk = document.getElementById("selectAllAtt");
   if(selectAllChk) selectAllChk.checked = false;
 
@@ -412,7 +410,6 @@ window.fetchAttendanceList = async function() {
       const isPresent = s.attendance && s.attendance[dateStr] === "Present";
       currentAttendanceList.push(d.id);
       
-      // ഡാറ്റാബേസിലെ പേര് ക്യാപിറ്റൽ ലെറ്ററിൽ ആക്കി കാണിക്കുന്നു
       const dName = s.fullName ? s.fullName.toUpperCase() : '-';
       
       tb.innerHTML += `
@@ -427,33 +424,10 @@ window.fetchAttendanceList = async function() {
   } catch (err) { tb.innerHTML = `<tr><td colspan="3" style="color:red;">Error: ${err.message}</td></tr>`; }
 };
 
-// പുതിയ Select All ഫംഗ്ഷൻ
 window.toggleAllAttendance = function() {
   const isChecked = document.getElementById("selectAllAtt").checked;
   const checkboxes = document.querySelectorAll(".att-student-chk");
   checkboxes.forEach(chk => chk.checked = isChecked);
-};
-
-window.saveProgramAttendance = async function() {
-  const dateStr = document.getElementById("programDate").value;
-  if(!dateStr || currentAttendanceList.length === 0) return showToast("No list loaded", "error");
-
-  try {
-    for (let id of currentAttendanceList) {
-      const checkbox = document.getElementById(`att_${id}`);
-      const status = checkbox.checked ? "Present" : "Absent";
-      
-      const studentRef = doc(db, "students", id);
-      const docSnap = await getDoc(studentRef);
-      let attData = docSnap.exists() && docSnap.data().attendance ? docSnap.data().attendance : {};
-      attData[dateStr] = status;
-      
-      await updateDoc(studentRef, { attendance: attData });
-    }
-    showToast(`Attendance saved for ${dateStr}!`);
-  } catch(err) {
-    showToast("Error saving attendance: " + err.message, "error");
-  }
 };
 
 window.saveProgramAttendance = async function() {
