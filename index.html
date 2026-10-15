@@ -19,6 +19,8 @@
       <div style="font-size: 32px; color: #2a5298; margin-bottom: 10px;"><i class="fa-solid fa-graduation-cap"></i></div>
       <h2 style="margin: 0 0 5px 0; color: #1e3c72; font-weight: 700;">DALEEL</h2>
       <p style="color: var(--muted); font-size: 13px; margin-bottom: 20px;">SNEC Advanced Studies Program</p>
+
+      <!-- INSTALL APP BUTTON -->
       <button id="installAppBtn" class="btn-pill-secondary" style="display: none; width: 100%; justify-content: center; margin-bottom: 20px; background: #dcfce7; color: #05c46b; border-color: #05c46b;">
         <i class="fa-solid fa-download"></i> Install DALEEL App
       </button>
@@ -100,7 +102,9 @@
       <!-- Classes View -->
       <div id="viewClasses" class="card" style="display:none;">
         <h3 style="margin-top:0; color:#1e3c72;"><i class="fa-solid fa-list-check"></i> Classes & Assessments</h3>
-        <div id="classListContainer" style="margin-top: 20px;"></div>
+        <div id="classListContainer" style="margin-top: 20px;">
+          <!-- Classes will load here dynamically -->
+        </div>
       </div>
 
       <!-- Classroom View -->
@@ -130,10 +134,11 @@
         <h3 style="margin-top:0; color:#1e3c72;"><i class="fa-solid fa-users-gear"></i> Admin Management Portal</h3>
         
         <!-- Admin Sub Tabs -->
-        <div class="tab-btn-group" style="margin-top: 20px; max-width: 600px;">
+        <div class="tab-btn-group" style="margin-top: 20px; max-width: 800px; flex-wrap: wrap;">
           <button class="tab-btn active" id="tabPending" onclick="switchAdminTab('pending')">Pending Approvals</button>
           <button class="tab-btn" id="tabApproved" onclick="switchAdminTab('approved')">Approved Students</button>
           <button class="tab-btn" id="tabAttendance" onclick="switchAdminTab('attendance')">Attendance</button>
+          <button class="tab-btn" id="tabManageClasses" onclick="switchAdminTab('manageClasses')">Manage Classes</button>
         </div>
 
         <!-- Pending Tab Content -->
@@ -178,6 +183,17 @@
           <button class="btn-main" style="margin-top: 20px; max-width: 300px;" onclick="saveProgramAttendance()"><i class="fa-solid fa-floppy-disk"></i> Save Attendance</button>
         </div>
 
+        <!-- Manage Classes Tab Content -->
+        <div id="adminTabManageClasses" style="display: none;">
+          <button class="btn-main" style="margin-bottom: 20px; max-width: 200px;" onclick="openNewClassModal()"><i class="fa-solid fa-plus"></i> Add New Class</button>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead><tr><th>Class ID</th><th>Class Title</th><th>Action</th></tr></thead>
+              <tbody id="adminClassesList"></tbody>
+            </table>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -198,6 +214,37 @@
       <div style="display: flex; gap: 10px; margin-top: 15px;">
         <button class="btn-approve" onclick="confirmApproval()" style="padding: 12px; font-size: 14px; width: 100%;"><i class="fa-solid fa-check"></i> Confirm</button>
         <button class="btn-pill-secondary" onclick="closeApprovalModal()" style="width: 100%; justify-content: center;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD NEW CLASS MODAL -->
+  <div id="newClassModal" class="auth-wrapper" style="display: none; background: rgba(30, 60, 114, 0.8);">
+    <div class="auth-card" style="max-width: 650px; text-align: left; max-height: 90vh; overflow-y: auto;">
+      <h3 style="margin-top: 0; color: #1e3c72;"><i class="fa-solid fa-video"></i> Add / Edit Class</h3>
+      
+      <label style="font-size:12px; font-weight:600; color:var(--muted);">Class ID (Number - Used for ordering)</label>
+      <input type="number" id="newClassId" placeholder="E.g., 1 or 2" required>
+      
+      <label style="font-size:12px; font-weight:600; color:var(--muted);">Class Title</label>
+      <input type="text" id="newClassTitle" placeholder="Class 01: Introduction..." required>
+      
+      <label style="font-size:12px; font-weight:600; color:var(--muted);">Video Embedded URL (YouTube or Drive Embed)</label>
+      <input type="url" id="newClassVideo" placeholder="https://www.youtube.com/embed/..." required>
+      
+      <label style="font-size:12px; font-weight:600; color:var(--muted);">PDF Study Material Link</label>
+      <input type="url" id="newClassPdf" placeholder="https://link-to-pdf..." required>
+      
+      <label style="font-size:12px; font-weight:600; color:var(--muted);">Practical Activity Instructions</label>
+      <textarea id="newClassActivity" placeholder="Write activity instructions here..." rows="3"></textarea>
+      
+      <h4 style="margin-top: 10px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">MCQ Questions</h4>
+      <div id="questionsContainer"></div>
+      <button class="btn-pill-secondary" style="margin-bottom: 15px;" onclick="addQuestionField()">+ Add Question</button>
+
+      <div style="display: flex; gap: 10px; margin-top: 20px;">
+        <button class="btn-main" onclick="saveNewClass()"><i class="fa-solid fa-floppy-disk"></i> Save Class</button>
+        <button class="btn-pill-secondary" onclick="closeNewClassModal()" style="width: 100%; justify-content: center;">Cancel</button>
       </div>
     </div>
   </div>
