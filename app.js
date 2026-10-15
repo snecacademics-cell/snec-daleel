@@ -18,7 +18,27 @@ let activeStudent = null;
 let currentClassIdx = 0;
 
 const PHASE1_CLASSES = [
-  { id: 1, title: "Class 01: Introduction", videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", pdfUrl: "#", activity: "Notes", questions: [{ q: "Objective?", options: ["Study", "Review"], ans: 0 }] }
+  {
+    id: 1,
+    title: "Class 01: Introduction to Fundamentals",
+    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    activity: "Write a brief summary of the foundational concepts discussed in the lecture.",
+    questions: [
+      { q: "What is the primary objective of Phase 1?", options: ["Foundational Study", "Final Review", "Exam Prep"], ans: 0 },
+      { q: "Classes are scheduled on which days?", options: ["Sat & Tue", "Sun & Wed", "Daily"], ans: 0 }
+    ]
+  },
+  {
+    id: 2,
+    title: "Class 02: Core Principles & Methodology",
+    videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    pdfUrl: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+    activity: "Analyze the 3 core principles mentioned in this class.",
+    questions: [
+      { q: "How many core principles were outlined?", options: ["3", "5", "7"], ans: 0 }
+    ]
+  }
 ];
 
 function showToast(text, type = 'success') {
@@ -42,10 +62,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const session = sessionStorage.getItem("snec_user");
   if (session) {
     activeStudent = JSON.parse(session);
-    if (activeStudent.role === 'admin') showAdminDashboard();
-    else if (activeStudent.status === "Active" || activeStudent.status === "Approved") showStudentDashboard();
-    else showPendingScreen();
+    if (activeStudent.role === 'admin') {
+      showAdminDashboard();
+    } else if (activeStudent.status === "Active" || activeStudent.status === "Approved") {
+      showStudentDashboard();
+    } else {
+      showPendingScreen();
+    }
   }
+  setupKeyboardNavigation();
 });
 
 window.handleSignIn = async function(e) {
@@ -120,6 +145,10 @@ window.logout = function() {
   location.reload();
 };
 
+/* =========================================
+   STUDENT PORTAL
+   ========================================= */
+
 function showStudentDashboard() {
   document.getElementById("authSection").style.display = "none";
   document.getElementById("admissionSection").style.display = "none";
@@ -129,8 +158,94 @@ function showStudentDashboard() {
   document.getElementById("adminMenuTab").style.display = "none";
   document.getElementById("userRoleDisplay").innerText = "Student Portal";
   document.getElementById("welcomeStudent").innerText = "Welcome, " + activeStudent.fullName;
+
+  renderClassList();
   switchNavTab('dashboard');
 }
+
+function renderClassList() {
+  const completedCount = activeStudent.completedClasses || 0;
+  const container = document.getElementById("classListContainer");
+  container.innerHTML = "";
+
+  PHASE1_CLASSES.forEach((cls, index) => {
+    const isCompleted = index < completedCount;
+    const isUnlocked = index <= completedCount;
+
+    container.innerHTML += `
+      <div class="class-item ${!isUnlocked ? 'locked' : ''}" onclick="openClass(${index})">
+        <div>
+          <strong>${cls.title}</strong>
+          <div style="font-size: 12px; color: var(--muted); margin-top: 4px;"><i class="fa-solid fa-video"></i> Video Lecture &bull; Study Material &bull; MCQ Test</div>
+        </div>
+        <span class="status-badge ${isCompleted ? 'badge-done' : (isUnlocked ? 'badge-pending' : 'badge-lock')}">
+          ${isCompleted ? 'Completed' : (isUnlocked ? 'Start Class' : 'Locked')}
+        </span>
+      </div>
+    `;
+  });
+}
+
+window.openClass = function(idx) {
+  currentClassIdx = idx;
+  const cls = PHASE1_CLASSES[idx];
+
+  document.getElementById("viewDashboard").style.display = "none";
+  document.getElementById("viewClasses").style.display = "none";
+  document.getElementById("viewAdmin").style.display = "none";
+  document.getElementById("viewClassroom").style.display = "block";
+
+  document.getElementById("crTitle").innerText = cls.title;
+  document.getElementById("crVideo").src = cls.videoUrl;
+  document.getElementById("crPdf").href = cls.pdfUrl;
+  document.getElementById("crActivityText").innerText = cls.activity;
+  document.getElementById("activityAnswer").value = "";
+
+  const mcqDiv = document.getElementById("mcqContainer");
+  mcqDiv.innerHTML = "";
+  cls.questions.forEach((q, qIdx) => {
+    mcqDiv.innerHTML += `
+      <div style="margin-bottom: 15px;">
+        <p style="font-weight: 600; font-size: 13px; margin: 0 0 8px 0;">${qIdx + 1}. ${q.q}</p>
+        ${q.options.map((opt, optIdx) => `
+          <label class="mcq-option">
+            <input type="radio" name="mcq_${qIdx}" value="${optIdx}" required> ${opt}
+          </label>
+        `).join('')}
+      </div>
+    `;
+  });
+};
+
+window.submitAssessment = async function() {
+  const cls = PHASE1_CLASSES[currentClassIdx];
+  let correct = 0;
+
+  for (let i = 0; i < cls.questions.length; i++) {
+    const selected = document.querySelector(`input[name="mcq_${i}"]:checked`);
+    if (!selected) {
+      showToast("Please answer all questions before submitting!", "error");
+      return;
+    }
+    if (parseInt(selected.value) === cls.questions[i].ans) {
+      correct++;
+    }
+  }
+
+  const scorePercent = Math.round((correct / cls.questions.length) * 100);
+
+  if (scorePercent >= 60) {
+    showToast(`Congratulations! Passed with ${scorePercent}%. Next class unlocked!`);
+    const newProgress = Math.max(activeStudent.completedClasses || 0, currentClassIdx + 1);
+    await updateDoc(doc(db, "students", activeStudent.mobileNumber || activeStudent.id), { completedClasses: newProgress });
+    activeStudent.completedClasses = newProgress;
+    sessionStorage.setItem("snec_user", JSON.stringify(activeStudent));
+    renderClassList();
+    switchNavTab('classes');
+  } else {
+    showToast(`Score: ${scorePercent}%. Minimum 60% required to pass. Please retry!`, "error");
+  }
+};
 
 function showPendingScreen() {
   document.getElementById("authSection").style.display = "none";
@@ -155,7 +270,7 @@ window.switchNavTab = function(tabName, event) {
    ADMIN PORTAL & MULTI-TAB LOGIC
    ========================================= */
 
-async function showAdminDashboard() {
+function showAdminDashboard() {
   document.getElementById("authSection").style.display = "none";
   document.getElementById("admissionSection").style.display = "none";
   document.getElementById("pendingSection").style.display = "none";
@@ -163,8 +278,9 @@ async function showAdminDashboard() {
   document.getElementById("appMain").style.display = "flex";
   document.getElementById("adminMenuTab").style.display = "flex";
   document.getElementById("userRoleDisplay").innerText = "SUPER ADMIN PORTAL";
+  
   switchNavTab('admin');
-  switchAdminTab('pending'); // Default tab
+  switchAdminTab('pending'); 
 }
 
 window.switchAdminTab = function(tab) {
@@ -211,15 +327,18 @@ async function loadPendingStudents() {
 
 /* Approval Modal Logic */
 let studentToApprove = null;
+
 window.openApprovalModal = function(id, name) {
   studentToApprove = id;
   document.getElementById("approveStudentName").innerText = name;
   document.getElementById("approvalModal").style.display = "flex";
 };
+
 window.closeApprovalModal = function() {
   studentToApprove = null;
   document.getElementById("approvalModal").style.display = "none";
 };
+
 window.confirmApproval = async function() {
   const phase = document.getElementById("approvePhase").value;
   try {
@@ -315,3 +434,17 @@ window.saveProgramAttendance = async function() {
     showToast("Error saving attendance: " + err.message, "error");
   }
 };
+
+/* Keyboard Accessibility */
+function setupKeyboardNavigation() {
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+      const focusable = Array.from(document.querySelectorAll('input, select, button'));
+      const index = focusable.indexOf(e.target);
+      if (index > -1 && index + 1 < focusable.length) {
+        e.preventDefault();
+        focusable[index + 1].focus();
+      }
+    }
+  });
+}
