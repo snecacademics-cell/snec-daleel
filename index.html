@@ -6,6 +6,8 @@
   <title>DALEEL - SNEC Advanced Studies Program</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e3c72">
 </head>
 <body>
 
@@ -17,6 +19,9 @@
       <div style="font-size: 32px; color: #2a5298; margin-bottom: 10px;"><i class="fa-solid fa-graduation-cap"></i></div>
       <h2 style="margin: 0 0 5px 0; color: #1e3c72; font-weight: 700;">DALEEL</h2>
       <p style="color: var(--muted); font-size: 13px; margin-bottom: 20px;">SNEC Advanced Studies Program</p>
+      <button id="installAppBtn" class="btn-pill-secondary" style="display: none; width: 100%; justify-content: center; margin-bottom: 20px; background: #dcfce7; color: #05c46b; border-color: #05c46b;">
+        <i class="fa-solid fa-download"></i> Install DALEEL App
+      </button>
 
       <div class="tab-btn-group">
         <button class="tab-btn active" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
