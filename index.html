@@ -144,7 +144,7 @@
         <div id="adminTabPending">
           <div style="overflow-x: auto;">
             <table>
-              <thead><tr><th>Name</th><th>Mobile</th><th>Place</th><th>Action</th></tr></thead>
+              <thead><tr><th>#</th><th>Name</th><th>Mobile</th><th>Place</th><th>Action</th></tr></thead>
               <tbody id="adminPendingList"></tbody>
             </table>
           </div>
@@ -154,7 +154,7 @@
         <div id="adminTabApproved" style="display: none;">
           <div style="overflow-x: auto;">
             <table>
-              <thead><tr><th>Name</th><th>Mobile</th><th>Place</th><th>Phase</th></tr></thead>
+              <thead><tr><th>#</th><th>Name</th><th>Mobile</th><th>Place</th><th>Phase</th></tr></thead>
               <tbody id="adminApprovedList"></tbody>
             </table>
           </div>
@@ -171,6 +171,7 @@
             <table>
               <thead>
                 <tr>
+                  <th>#</th>
                   <th>Name</th>
                   <th>Phase</th>
                   <th><input type="checkbox" id="selectAllAtt" style="width:16px; height:16px; margin:0;" onclick="toggleAllAttendance()"> All</th>
@@ -211,7 +212,7 @@
       </select>
       
       <div style="display: flex; gap: 10px; margin-top: 15px;">
-        <button class="btn-approve" onclick="confirmApproval()" style="padding: 12px; font-size: 14px; width: 100%;"><i class="fa-solid fa-check"></i> Confirm</button>
+        <button class="btn-approve" onclick="confirmApproval()" style="padding: 12px; font-size: 14px; width: 100%;"><i class="fa-solid fa-check"></i> Confirm & Send WhatsApp</button>
         <button class="btn-pill-secondary" onclick="closeApprovalModal()" style="width: 100%; justify-content: center;">Cancel</button>
       </div>
     </div>
