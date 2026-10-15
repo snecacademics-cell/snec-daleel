@@ -29,7 +29,8 @@
       </form>
 
       <form id="formSignUp" style="display: none;" onsubmit="handleSignUp(event)">
-        <input type="text" id="regName" placeholder="Full Name" required>
+        <!-- ഈ ഇൻപുട്ടിൽ style="text-transform: uppercase;" ചേർത്തു -->
+        <input type="text" id="regName" placeholder="Full Name" required style="text-transform: uppercase;">
         <input type="text" id="regMobile" placeholder="Mobile Number" required>
         <input type="email" id="regEmail" placeholder="Email Address" required>
         <button type="submit" class="btn-main"><i class="fa-solid fa-user-plus"></i> Continue to Application</button>
@@ -160,7 +161,14 @@
           </div>
           <div style="overflow-x: auto;">
             <table>
-              <thead><tr><th>Name</th><th>Phase</th><th>Present?</th></tr></thead>
+              <!-- ഇവിടെ Select All ചെക്ക്ബോക്സ് ചേർത്തു -->
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Phase</th>
+                  <th><input type="checkbox" id="selectAllAtt" style="width:16px; height:16px; margin:0;" onclick="toggleAllAttendance()"> All</th>
+                </tr>
+              </thead>
               <tbody id="adminAttendanceList"></tbody>
             </table>
           </div>
