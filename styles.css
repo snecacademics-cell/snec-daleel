@@ -105,3 +105,12 @@ td { padding: 12px; border-bottom: 1px solid #e2e8f0; }
     white-space: nowrap;
   }
 }
+
+.disabled-btn {
+  opacity: 0.5;
+  pointer-events: auto;
+  cursor: not-allowed !important;
+  background: #e2e8f0 !important;
+  color: var(--muted) !important;
+  border-color: #cbd5e1 !important;
+}
