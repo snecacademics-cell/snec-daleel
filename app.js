@@ -632,12 +632,12 @@ window.fetchFeeList = async function() {
           <td><input type="number" id="feeAmt_${d.id}" value="${mData.amount || 500}" style="width: 90px; padding: 6px; margin: 0; border-radius: 8px;"></td>
           <td><span class="status-badge ${isPaid ? 'badge-done' : 'badge-pending'}">${mData.status}</span></td>
           <td>
-            <div style="display:flex; gap:6px;">
+            <div style="display:flex; gap:6px; align-items:center;">
               <button class="btn-approve" onclick="toggleFeeStatus('${d.id}', '${monthVal}', '${isPaid ? 'Pending' : 'Paid'}')" style="background: ${isPaid ? '#f59e0b' : '#05c46b'}; padding: 6px 10px; font-size: 11px;">
                 ${isPaid ? 'Mark Pending' : 'Mark Paid'}
               </button>
               ${!isPaid ? `
-                <button class="btn-pill-secondary" onclick="sendFeeWhatsAppReminder('${mobile}', '${dName}', '${monthVal}', '${mData.amount || 500}')" style="background:#dcfce7; color:#15803d; border-color:#86efac; padding:6px 10px; font-size:11px;">
+                <button class="btn-pill-secondary" onclick="sendFeeWhatsAppReminder('${mobile}', '${dName}', '${monthVal}', '${mData.amount || 500}')" style="background:#dcfce7; color:#15803d; border-color:#86efac; padding:6px 10px; font-size:11px; cursor:pointer;">
                   <i class="fa-brands fa-whatsapp"></i> Remind
                 </button>
               ` : ''}
