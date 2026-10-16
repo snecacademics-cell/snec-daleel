@@ -18,6 +18,10 @@ let activeStudent = null;
 let currentClassIdx = 0;
 let globalClasses = [];
 
+// Video tracking state
+let videoCompleted = false;
+let pdfDownloaded = false;
+
 function showToast(text, type = 'success') {
   const container = document.getElementById("toastContainer");
   const toast = document.createElement("div");
@@ -46,6 +50,18 @@ window.switchAuthTab = function(t) {
   document.getElementById("formSignIn").style.display = t === 'signin' ? 'block' : 'none';
   document.getElementById("formSignUp").style.display = t === 'signup' ? 'block' : 'none';
 };
+
+function formatYoutubeUrl(url) {
+  if (!url) return '';
+  if (url.includes('embed/')) return url;
+  let videoId = '';
+  if (url.includes('youtu.be/')) {
+    videoId = url.split('youtu.be/')[1].split('?')[0];
+  } else if (url.includes('watch?v=')) {
+    videoId = url.split('watch?v=')[1].split('&')[0];
+  }
+  return videoId ? `https://www.youtube.com/embed/${videoId}?enablejsapi=1` : url;
+}
 
 async function fetchAllClasses() {
   try {
@@ -200,24 +216,13 @@ function renderClassList() {
   });
 }
 
-// Helper function to convert any YouTube URL to Embed URL
-function formatYoutubeUrl(url) {
-  if (!url) return '';
-  if (url.includes('embed/')) return url;
-  
-  let videoId = '';
-  if (url.includes('youtu.be/')) {
-    videoId = url.split('youtu.be/')[1].split('?')[0];
-  } else if (url.includes('watch?v=')) {
-    videoId = url.split('watch?v=')[1].split('&')[0];
-  }
-  
-  return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
-}
-
 window.openClass = function(idx) {
   currentClassIdx = idx;
   const cls = globalClasses[idx];
+
+  // Reset steps
+  videoCompleted = false;
+  pdfDownloaded = false;
 
   document.getElementById("viewDashboard").style.display = "none";
   document.getElementById("viewClasses").style.display = "none";
@@ -225,13 +230,20 @@ window.openClass = function(idx) {
   document.getElementById("viewClassroom").style.display = "block";
 
   document.getElementById("crTitle").innerText = cls.title;
-  
-  // YouTube link format convert cheythu video player-il set cheyyunnu
   document.getElementById("crVideo").src = formatYoutubeUrl(cls.videoUrl);
-  
-  document.getElementById("crPdf").href = cls.pdfUrl || '#';
+
+  // Lock PDF and Assessment initially
+  const pdfBtn = document.getElementById("crPdf");
+  pdfBtn.href = cls.pdfUrl || '#';
+  pdfBtn.classList.add("disabled-btn");
+  pdfBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Step 2: Download Material (Watch Video First)`;
+
+  document.getElementById("assessmentSection").style.display = "none";
   document.getElementById("crActivityText").innerText = cls.activity || "No specific activity notes.";
   document.getElementById("activityAnswer").value = "";
+
+  // Show Mark Video Watched button
+  document.getElementById("videoStatusBox").style.display = "block";
 
   const mcqDiv = document.getElementById("mcqContainer");
   mcqDiv.innerHTML = "";
@@ -239,8 +251,8 @@ window.openClass = function(idx) {
   if (cls.questions && cls.questions.length > 0) {
     cls.questions.forEach((q, qIdx) => {
       mcqDiv.innerHTML += `
-        <div style="margin-bottom: 15px;">
-          <p style="font-weight: 600; font-size: 13px; margin: 0 0 8px 0;">${qIdx + 1}. ${q.q}</p>
+        <div style="margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <p style="font-weight: 600; font-size: 14px; margin: 0 0 12px 0;">${qIdx + 1}. ${q.q}</p>
           ${q.options.map((opt, optIdx) => `
             <label class="mcq-option">
               <input type="radio" name="mcq_${qIdx}" value="${optIdx}" required> ${opt.trim()}
@@ -253,10 +265,36 @@ window.openClass = function(idx) {
     mcqDiv.innerHTML = "<p style='color:var(--muted); font-size:13px;'>No questions available for this class.</p>";
   }
 };
+
+window.markVideoAsWatched = function() {
+  videoCompleted = true;
+  document.getElementById("videoStatusBox").style.display = "none";
+  
+  const pdfBtn = document.getElementById("crPdf");
+  pdfBtn.classList.remove("disabled-btn");
+  pdfBtn.innerHTML = `<i class="fa-solid fa-file-pdf"></i> Step 2: Download Study Material`;
+  showToast("Video completed! Now download the Study Material.");
+};
+
+window.handlePdfDownload = function() {
+  if (!videoCompleted) {
+    showToast("Please complete watching the video lecture first!", "error");
+    return;
+  }
+  pdfDownloaded = true;
+  document.getElementById("assessmentSection").style.display = "block";
+  showToast("Material unlocked! Please complete the MCQ assessment below.");
+};
+
 window.submitAssessment = async function() {
+  if (!videoCompleted || !pdfDownloaded) {
+    showToast("Please complete both video and PDF download first!", "error");
+    return;
+  }
+
   const cls = globalClasses[currentClassIdx];
-  if(!cls.questions || cls.questions.length === 0) {
-    showToast(`Class marked as completed! Next class unlocked!`);
+  if (!cls.questions || cls.questions.length === 0) {
+    showToast(`Class marked as completed! Attendance recorded.`);
     await passStudent();
     return;
   }
@@ -276,18 +314,32 @@ window.submitAssessment = async function() {
   const scorePercent = Math.round((correct / cls.questions.length) * 100);
 
   if (scorePercent >= 60) {
-    showToast(`Congratulations! Passed with ${scorePercent}%. Next class unlocked!`);
+    showToast(`Passed with ${scorePercent}%! Attendance marked.`);
     await passStudent();
   } else {
-    showToast(`Score: ${scorePercent}%. Minimum 60% required to pass. Please retry!`, "error");
+    showToast(`Score: ${scorePercent}%. Minimum 60% required. Retry!`, "error");
   }
 };
 
 async function passStudent() {
+  const todayStr = new Date().toISOString().split('T')[0];
+  const studentRef = doc(db, "students", activeStudent.mobileNumber || activeStudent.id);
+  
+  const docSnap = await getDoc(studentRef);
+  let attData = docSnap.exists() && docSnap.data().attendance ? docSnap.data().attendance : {};
+  attData[todayStr] = "Present";
+
   const newProgress = Math.max(activeStudent.completedClasses || 0, currentClassIdx + 1);
-  await updateDoc(doc(db, "students", activeStudent.mobileNumber || activeStudent.id), { completedClasses: newProgress });
+  
+  await updateDoc(studentRef, { 
+    completedClasses: newProgress,
+    attendance: attData 
+  });
+
   activeStudent.completedClasses = newProgress;
+  activeStudent.attendance = attData;
   sessionStorage.setItem("snec_user", JSON.stringify(activeStudent));
+  
   renderClassList();
   switchNavTab('classes');
 }
@@ -430,7 +482,6 @@ window.confirmApproval = async function() {
     await updateDoc(doc(db, "students", studentToApprove), { status: "Active", phase: phase });
     showToast(`Student approved to ${phase}`);
     
-    // Auto-open WhatsApp with login link and approval text
     if (studentToApproveMobile) {
       let cleanMobile = studentToApproveMobile.replace(/\D/g, '');
       if (cleanMobile.length === 10) cleanMobile = "91" + cleanMobile;
@@ -547,6 +598,12 @@ window.openNewClassModal = function() {
   document.getElementById("newClassActivity").value = "";
   document.getElementById("questionsContainer").innerHTML = "";
   questionCount = 0;
+  
+  // Default 4 questions setup for ease
+  for(let i=0; i<2; i++) {
+    addQuestionField();
+  }
+  
   document.getElementById("newClassModal").style.display = "flex";
 };
 
@@ -558,16 +615,16 @@ window.addQuestionField = function() {
   questionCount++;
   const container = document.getElementById("questionsContainer");
   const qDiv = document.createElement("div");
-  qDiv.style.cssText = "background: #f1f5f9; padding: 10px; border-radius: 10px; margin-bottom: 10px;";
+  qDiv.style.cssText = "background: #f1f5f9; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #cbd5e1;";
   qDiv.innerHTML = `
-    <label style="font-size:12px; font-weight:600; color:var(--muted);">Q${questionCount} - Question</label>
-    <input type="text" id="q_${questionCount}_text" placeholder="E.g., What is Phase 1?" required style="margin-bottom:8px;">
+    <label style="font-size:12px; font-weight:700; color:#1e3c72;">Question ${questionCount}</label>
+    <input type="text" id="q_${questionCount}_text" placeholder="Type question here..." required style="margin-bottom:10px;">
     
-    <label style="font-size:12px; font-weight:600; color:var(--muted);">Options (Comma separated. E.g., Option 1, Option 2, Option 3)</label>
-    <input type="text" id="q_${questionCount}_options" placeholder="Foundational Study, Final Review, Exam Prep" required style="margin-bottom:8px;">
+    <label style="font-size:11px; font-weight:600; color:var(--muted);">4 Options (Comma separated. E.g., Option A, Option B, Option C, Option D)</label>
+    <input type="text" id="q_${questionCount}_options" placeholder="Option A, Option B, Option C, Option D" required style="margin-bottom:10px;">
     
-    <label style="font-size:12px; font-weight:600; color:var(--muted);">Correct Option Index (0 for 1st option, 1 for 2nd, etc.)</label>
-    <input type="number" id="q_${questionCount}_ans" placeholder="0" required style="margin-bottom:0;">
+    <label style="font-size:11px; font-weight:600; color:var(--muted);">Correct Option Index (0 for 1st, 1 for 2nd, 2 for 3rd, 3 for 4th)</label>
+    <input type="number" id="q_${questionCount}_ans" placeholder="0" min="0" max="3" required style="margin-bottom:0;">
   `;
   container.appendChild(qDiv);
 };
@@ -641,51 +698,3 @@ function setupKeyboardNavigation() {
     }
   });
 }
-
-/* =========================================
-   PWA / INSTALL APP LOGIC
-   ========================================= */
-let deferredPrompt;
-const installBtn = document.getElementById('installAppBtn');
-const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed', err));
-  });
-}
-
-// ബ്രൗസർ ഇൻസ്റ്റാൾ പ്രോംപ്റ്റ് തയ്യാറാകുമ്പോൾ ബട്ടൺ കാണിക്കുന്നു
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  if (!isStandalone && installBtn) {
-    installBtn.style.display = 'flex';
-  }
-});
-
-if (installBtn) {
-  installBtn.addEventListener('click', async () => {
-    if (deferredPrompt) {
-      // നേരിട്ട് ഇൻസ്റ്റാൾ ചെയ്യാനുള്ള പോപ്പ്അപ്പ് കാണിക്കുന്നു
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        installBtn.style.display = 'none';
-      }
-      deferredPrompt = null;
-    } else {
-      // പ്രോംപ്റ്റ് ലഭ്യമല്ലെങ്കിൽ ബ്രൗസറിന്റെ ഇൻസ്റ്റാളേഷൻ ഫീച്ചർ പ്രവർത്തിപ്പിക്കാൻ ശ്രമിക്കുന്നു
-      showToast("Preparing installation... Please wait a moment.", "info");
-    }
-  });
-}
-
-// ഇൻസ്റ്റാൾ ചെയ്തു കഴിഞ്ഞാൽ ബട്ടൺ മറയ്ക്കുന്നു
-window.addEventListener('appinstalled', (evt) => {
-  if (installBtn) installBtn.style.display = 'none';
-  showToast("DALEEL App installed successfully!");
-});
-window.addEventListener('appinstalled', (evt) => {
-  if(installBtn) installBtn.style.display = 'none';
-});
