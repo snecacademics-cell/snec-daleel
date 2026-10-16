@@ -216,13 +216,38 @@ function renderClassList() {
   });
 }
 
+// YouTube API Player variables
+let ytPlayer = null;
+let lastWatchedTime = 0;
+
+// Load YouTube IFrame API dynamically
+if (!window.YT) {
+  const tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  const firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
+
+function extractYoutubeId(url) {
+  if (!url) return '';
+  let videoId = '';
+  if (url.includes('embed/')) {
+    videoId = url.split('embed/')[1].split('?')[0];
+  } else if (url.includes('youtu.be/')) {
+    videoId = url.split('youtu.be/')[1].split('?')[0];
+  } else if (url.includes('watch?v=')) {
+    videoId = url.split('watch?v=')[1].split('&')[0];
+  }
+  return videoId;
+}
+
 window.openClass = function(idx) {
   currentClassIdx = idx;
   const cls = globalClasses[idx];
 
-  // Reset steps
   videoCompleted = false;
   pdfDownloaded = false;
+  lastWatchedTime = 0;
 
   document.getElementById("viewDashboard").style.display = "none";
   document.getElementById("viewClasses").style.display = "none";
@@ -230,20 +255,42 @@ window.openClass = function(idx) {
   document.getElementById("viewClassroom").style.display = "block";
 
   document.getElementById("crTitle").innerText = cls.title;
-  document.getElementById("crVideo").src = formatYoutubeUrl(cls.videoUrl);
 
-  // Lock PDF and Assessment initially
+  // Lock PDF and Assessment
   const pdfBtn = document.getElementById("crPdf");
   pdfBtn.href = cls.pdfUrl || '#';
   pdfBtn.classList.add("disabled-btn");
-  pdfBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Step 2: Download Material (Watch Video First)`;
+  pdfBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Step 2: Download Material (Watch Complete Video First)`;
 
   document.getElementById("assessmentSection").style.display = "none";
   document.getElementById("crActivityText").innerText = cls.activity || "No specific activity notes.";
   document.getElementById("activityAnswer").value = "";
 
-  // Show Mark Video Watched button
-  document.getElementById("videoStatusBox").style.display = "block";
+  const vId = extractYoutubeId(cls.videoUrl);
+
+  // Re-initialize YouTube Player
+  if (ytPlayer && typeof ytPlayer.destroy === 'function') {
+    ytPlayer.destroy();
+  }
+
+  // Create iframe container dynamically for YouTube API
+  const videoContainer = document.querySelector('.video-container');
+  videoContainer.innerHTML = `<div id="ytPlayerElement"></div>`;
+
+  ytPlayer = new YT.Player('ytPlayerElement', {
+    height: '100%',
+    width: '100%',
+    videoId: vId,
+    playerVars: {
+      'controls': 1,
+      'rel': 0,
+      'modestbranding': 1,
+      'disablekb': 1
+    },
+    events: {
+      'onStateChange': onPlayerStateChange
+    }
+  });
 
   const mcqDiv = document.getElementById("mcqContainer");
   mcqDiv.innerHTML = "";
@@ -266,15 +313,31 @@ window.openClass = function(idx) {
   }
 };
 
-window.markVideoAsWatched = function() {
-  videoCompleted = true;
-  document.getElementById("videoStatusBox").style.display = "none";
-  
-  const pdfBtn = document.getElementById("crPdf");
-  pdfBtn.classList.remove("disabled-btn");
-  pdfBtn.innerHTML = `<i class="fa-solid fa-file-pdf"></i> Step 2: Download Study Material`;
-  showToast("Video completed! Now download the Study Material.");
-};
+// Monitor Video progress and prevent forward skipping
+setInterval(() => {
+  if (window.YT && ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+    const currentTime = ytPlayer.getCurrentTime();
+    
+    // Prevent seeking forward
+    if (currentTime > lastWatchedTime + 2) {
+      ytPlayer.seekTo(lastWatchedTime, true);
+      showToast("Fast forwarding is disabled. Please watch the complete video!", "error");
+    } else {
+      lastWatchedTime = currentTime;
+    }
+  }
+}, 1000);
+
+function onPlayerStateChange(event) {
+  // Video Ended event (YT.PlayerState.ENDED = 0)
+  if (event.data === YT.PlayerState.ENDED) {
+    videoCompleted = true;
+    const pdfBtn = document.getElementById("crPdf");
+    pdfBtn.classList.remove("disabled-btn");
+    pdfBtn.innerHTML = `<i class="fa-solid fa-file-pdf"></i> Step 2: Download Study Material`;
+    showToast("Video completed successfully! Step 2 Material is now unlocked.");
+  }
+}
 
 window.handlePdfDownload = function() {
   if (!videoCompleted) {
