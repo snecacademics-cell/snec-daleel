@@ -67,12 +67,15 @@ async function fetchAllClasses() {
   try {
     const snap = await getDocs(collection(db, "classes"));
     let tempClasses = [];
-    snap.forEach(doc => { tempClasses.push({ docId: doc.id, ...doc.data() }); });
+    snap.forEach(doc => { 
+      tempClasses.push({ docId: doc.id, ...doc.data() }); 
+    });
     tempClasses.sort((a, b) => parseInt(a.id) - parseInt(b.id));
     globalClasses = tempClasses;
-  } catch (err) { console.error("Error loading classes: ", err); }
+  } catch (err) { 
+    console.error("Error loading classes: ", err); 
+  }
 }
-
 document.addEventListener("DOMContentLoaded", async () => {
   setupKeyboardNavigation();
   await fetchAllClasses();
