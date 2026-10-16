@@ -111,7 +111,32 @@
         <!-- Student Monthly Fee Status Card -->
         <div id="studentFeeCard" style="margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
           <h4 style="margin: 0 0 8px 0; color: #1e3c72;"><i class="fa-solid fa-receipt"></i> Monthly Fee Status</h4>
-          <p id="studentFeeStatusText" style="font-size: 14px; font-weight: 600; margin: 0; color: var(--muted);">Loading fee status...</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <p id="studentFeeStatusText" style="font-size: 14px; font-weight: 600; margin: 0; color: var(--muted);">Loading fee status...</p>
+            <div id="receiptDownloadBox" style="display:none;">
+              <button class="btn-pill-secondary" onclick="printFeeReceipt()" style="background:#05c46b; color:#fff; border:none; padding:8px 14px; font-size:12px;">
+                <i class="fa-solid fa-file-arrow-down"></i> Download Receipt
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student Attendance Summary Card -->
+        <div id="studentAttendanceCard" style="margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <h4 style="margin: 0 0 10px 0; color: #1e3c72;"><i class="fa-solid fa-calendar-check"></i> Attendance Summary</h4>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="studentAttendanceList">
+                <tr><td colspan="2" style="text-align:center;">Loading attendance...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
