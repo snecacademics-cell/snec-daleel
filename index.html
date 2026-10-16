@@ -107,6 +107,12 @@
       <div id="viewDashboard" class="card">
         <h3 style="margin-top:0; color:#1e3c72;" id="welcomeStudent">Welcome!</h3>
         <span class="status-badge badge-done">Enrolled • Active</span>
+
+        <!-- Student Monthly Fee Status Card -->
+        <div id="studentFeeCard" style="margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+          <h4 style="margin: 0 0 8px 0; color: #1e3c72;"><i class="fa-solid fa-receipt"></i> Monthly Fee Status</h4>
+          <p id="studentFeeStatusText" style="font-size: 14px; font-weight: 600; margin: 0; color: var(--muted);">Loading fee status...</p>
+        </div>
       </div>
 
       <!-- Classes View -->
@@ -122,12 +128,11 @@
         
         <!-- STEP 1: VIDEO -->
         <div class="video-container">
-          <iframe id="crVideo" src="" allowfullscreen></iframe>
+          <div id="ytPlayerElement"></div>
         </div>
 
         <div id="videoStatusBox" style="margin-bottom: 20px; background: #e0f2fe; padding: 15px; border-radius: 12px; border: 1px solid #bae6fd;">
-          <p style="margin: 0 0 10px 0; font-size: 13px; color: #0369a1; font-weight: 600;"><i class="fa-solid fa-circle-info"></i> Step 1: Watch the complete video lecture, then click below to unlock study material.</p>
-          <button class="btn-main" style="width: auto; padding: 8px 18px; font-size: 13px;" onclick="markVideoAsWatched()"><i class="fa-solid fa-check"></i> Mark Video as Watched</button>
+          <p style="margin: 0; font-size: 13px; color: #0369a1; font-weight: 600;"><i class="fa-solid fa-circle-info"></i> Step 1: Watch the complete video lecture without fast-forwarding to unlock study material.</p>
         </div>
 
         <!-- STEP 2: PDF -->
@@ -135,7 +140,7 @@
           <a id="crPdf" href="#" target="_blank" onclick="handlePdfDownload()" class="btn-pill-secondary disabled-btn" style="text-decoration: none; width: 100%; justify-content: center; padding: 12px;"><i class="fa-solid fa-lock"></i> Step 2: Download Study Material (Watch Video First)</a>
         </div>
 
-        <!-- STEP 3: ACTIVITY & MCQ (HIDDEN UNTIL UNLOCKED) -->
+        <!-- STEP 3: ACTIVITY & MCQ -->
         <div id="assessmentSection" style="display: none;">
           <div style="margin-top: 20px; background: #f8fafc; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0; margin-bottom: 25px;">
             <h4 style="margin: 0 0 8px 0;"><i class="fa-solid fa-pen-to-square"></i> Practical Activity</h4>
@@ -198,60 +203,44 @@
           <button class="btn-main" style="margin-top: 20px; max-width: 300px;" onclick="saveProgramAttendance()"><i class="fa-solid fa-floppy-disk"></i> Save Attendance</button>
         </div>
 
+        <!-- Manage Classes Tab Content -->
+        <div id="adminTabManageClasses" style="display: none;">
+          <button class="btn-main" style="margin-bottom: 20px; max-width: 200px;" onclick="openNewClassModal()"><i class="fa-solid fa-plus"></i> Add New Class</button>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead><tr><th>Class ID</th><th>Class Title</th><th>Action</th></tr></thead>
+              <tbody id="adminClassesList"></tbody>
+            </table>
+          </div>
+        </div>
+
         <!-- Fee Collection Tab Content -->
-<div id="adminTabFee" style="display: none;">
-  <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center; background: #f8fafc; padding: 15px; border-radius: 15px; flex-wrap: wrap;">
-    <label style="font-weight: 600; color: var(--text-color);">Select Month:</label>
-    <input type="month" id="feeMonth" style="max-width: 200px; margin-bottom: 0;">
-    <button class="btn-main" style="width: auto; padding: 10px 20px;" onclick="fetchFeeList()"><i class="fa-solid fa-magnifying-glass"></i> Load Fee Details</button>
-  </div>
-  <div style="overflow-x: auto;">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Name</th>
-          <th>Mobile</th>
-          <th>Fee Amount (₹)</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="adminFeeList"></tbody>
-    </table>
-  </div>
-</div>
+        <div id="adminTabFee" style="display: none;">
+          <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center; background: #f8fafc; padding: 15px; border-radius: 15px; flex-wrap: wrap;">
+            <label style="font-weight: 600; color: var(--text-color);">Select Month:</label>
+            <input type="month" id="feeMonth" style="max-width: 200px; margin-bottom: 0;">
+            <button class="btn-main" style="width: auto; padding: 10px 20px;" onclick="fetchFeeList()"><i class="fa-solid fa-magnifying-glass"></i> Load Fee Details</button>
+          </div>
+          <div style="overflow-x: auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Mobile</th>
+                  <th>Fee Amount (₹)</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminFeeList"></tbody>
+            </table>
+          </div>
+        </div>
 
       </div>
     </div>
   </div>
-  <!-- Fee Collection Tab Content -->
-<div id="adminTabFee" style="display: none;">
-  <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center; background: #f8fafc; padding: 15px; border-radius: 15px; flex-wrap: wrap;">
-    <label style="font-weight: 600; color: var(--text-color);">Select Month:</label>
-    <input type="month" id="feeMonth" style="max-width: 200px; margin-bottom: 0;">
-    <button class="btn-main" style="width: auto; padding: 10px 20px;" onclick="fetchFeeList()"><i class="fa-solid fa-magnifying-glass"></i> Load Fee Details</button>
-  </div>
-  <div id="studentFeeCard" style="margin-top: 15px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
-  <h4 style="margin: 0 0 8px 0; color: #1e3c72;"><i class="fa-solid fa-receipt"></i> Monthly Fee Status</h4>
-  <p id="studentFeeStatusText" style="font-size: 14px; font-weight: 600; margin: 0;">Loading fee status...</p>
-</div>
-  <div style="overflow-x: auto;">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Name</th>
-          <th>Mobile</th>
-          <th>Fee Amount (₹)</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="adminFeeList"></tbody>
-    </table>
-  </div>
-</div>
 
   <!-- APPROVAL MODAL -->
   <div id="approvalModal" class="auth-wrapper" style="display: none; background: rgba(30, 60, 114, 0.8);">
