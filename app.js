@@ -376,6 +376,7 @@ function showAdminDashboard() {
   if(document.getElementById("navAdminApproved")) document.getElementById("navAdminApproved").style.display = "flex";
   if(document.getElementById("navAdminAttendance")) document.getElementById("navAdminAttendance").style.display = "flex";
   if(document.getElementById("navAdminManage")) document.getElementById("navAdminManage").style.display = "flex";
+  if(document.getElementById("navAdminFee")) document.getElementById("navAdminFee").style.display = "flex";
 
   document.getElementById("viewDashboard").style.display = "none";
   document.getElementById("viewClasses").style.display = "none";
@@ -395,10 +396,11 @@ window.switchAdminTab = async function(tab, event) {
     if(tab==='pending' && document.getElementById('navAdminPending')) document.getElementById('navAdminPending').classList.add('active');
   }
 
-  document.getElementById('adminTabPending').style.display = tab === 'pending' ? 'block' : 'none';
-  document.getElementById('adminTabApproved').style.display = tab === 'approved' ? 'block' : 'none';
-  document.getElementById('adminTabAttendance').style.display = tab === 'attendance' ? 'block' : 'none';
-  document.getElementById('adminTabManageClasses').style.display = tab === 'manageClasses' ? 'block' : 'none';
+  if (document.getElementById('adminTabPending')) document.getElementById('adminTabPending').style.display = tab === 'pending' ? 'block' : 'none';
+  if (document.getElementById('adminTabApproved')) document.getElementById('adminTabApproved').style.display = tab === 'approved' ? 'block' : 'none';
+  if (document.getElementById('adminTabAttendance')) document.getElementById('adminTabAttendance').style.display = tab === 'attendance' ? 'block' : 'none';
+  if (document.getElementById('adminTabManageClasses')) document.getElementById('adminTabManageClasses').style.display = tab === 'manageClasses' ? 'block' : 'none';
+  if (document.getElementById('adminTabFee')) document.getElementById('adminTabFee').style.display = tab === 'fee' ? 'block' : 'none';
 
   let titleText = "";
   if (tab === 'pending') { titleText = "Pending Approvals"; loadPendingStudents(); }
@@ -413,15 +415,78 @@ window.switchAdminTab = async function(tab, event) {
     await fetchAllClasses();
     loadAdminClassesList(); 
   }
+  if (tab === 'fee') {
+    titleText = "Fee Collection";
+    if (document.getElementById("feeMonth")) document.getElementById("feeMonth").value = new Date().toISOString().slice(0, 7);
+    fetchFeeList();
+  }
   
   if(document.getElementById('adminTitleHeader')) {
     document.getElementById('adminTitleHeader').innerHTML = `<i class="fa-solid fa-users-gear"></i> ${titleText}`;
   }
-  if (tab === 'fee') {
-  titleText = "Fee Collection";
-  document.getElementById("feeMonth").value = new Date().toISOString().slice(0, 7);
-  fetchFeeList();
-}
+};
+
+/* Fee Fetching Logic */
+window.fetchFeeList = async function() {
+  const monthVal = document.getElementById("feeMonth").value;
+  if (!monthVal) return showToast("Please select a month!", "error");
+
+  const tb = document.getElementById("adminFeeList");
+  tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
+
+  try {
+    const q = query(collection(db, "students"), where("status", "==", "Active"));
+    const snap = await getDocs(q);
+    tb.innerHTML = "";
+
+    if (snap.empty) {
+      tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">No active students found.</td></tr>';
+      return;
+    }
+
+    let index = 1;
+    snap.forEach(d => {
+      const s = d.data();
+      const fees = s.fees || {};
+      const mData = fees[monthVal] || { status: "Pending", amount: 500 };
+
+      const isPaid = mData.status === "Paid";
+      const dName = s.fullName ? s.fullName.toUpperCase() : '-';
+
+      tb.innerHTML += `
+        <tr>
+          <td><strong>${index++}</strong></td>
+          <td><strong>${dName}</strong></td>
+          <td>${s.mobileNumber || d.id}</td>
+          <td><input type="number" id="feeAmt_${d.id}" value="${mData.amount || 500}" style="width: 100px; padding: 6px; margin: 0; border-radius: 8px;"></td>
+          <td><span class="status-badge ${isPaid ? 'badge-done' : 'badge-pending'}">${mData.status}</span></td>
+          <td>
+            <button class="btn-approve" onclick="toggleFeeStatus('${d.id}', '${monthVal}', '${isPaid ? 'Pending' : 'Paid'}')" style="background: ${isPaid ? '#f59e0b' : '#05c46b'}; padding: 6px 12px; font-size: 11px;">
+              ${isPaid ? 'Mark Pending' : 'Mark Paid'}
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+  } catch (err) { tb.innerHTML = `<tr><td colspan="6" style="color:red;">Error: ${err.message}</td></tr>`; }
+};
+
+window.toggleFeeStatus = async function(studentId, monthStr, newStatus) {
+  const amtInput = document.getElementById(`feeAmt_${studentId}`);
+  const feeAmount = amtInput ? parseInt(amtInput.value) || 0 : 0;
+
+  try {
+    const studentRef = doc(db, "students", studentId);
+    const snap = await getDoc(studentRef);
+    if (snap.exists()) {
+      let fees = snap.data().fees || {};
+      fees[monthStr] = { status: newStatus, amount: feeAmount, updatedAt: new Date().toISOString() };
+      
+      await updateDoc(studentRef, { fees: fees });
+      showToast(`Fee status updated to ${newStatus}`);
+      fetchFeeList();
+    }
+  } catch (err) { showToast("Error: " + err.message, "error"); }
 };
 
 /* 1. Pending Approvals Tab */
