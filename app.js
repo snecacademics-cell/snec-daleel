@@ -417,6 +417,11 @@ window.switchAdminTab = async function(tab, event) {
   if(document.getElementById('adminTitleHeader')) {
     document.getElementById('adminTitleHeader').innerHTML = `<i class="fa-solid fa-users-gear"></i> ${titleText}`;
   }
+  if (tab === 'fee') {
+  titleText = "Fee Collection";
+  document.getElementById("feeMonth").value = new Date().toISOString().slice(0, 7);
+  fetchFeeList();
+}
 };
 
 /* 1. Pending Approvals Tab */
@@ -709,3 +714,96 @@ function setupKeyboardNavigation() {
     }
   });
 }
+/* =========================================
+   FEE MANAGEMENT LOGIC
+   ========================================= */
+
+// Student Dashboard-ൽ ഫീസ് കാണിക്കാൻ
+async function checkStudentFeeStatus() {
+  const currentMonth = new Date().toISOString().slice(0, 7); // e.g., "2026-10"
+  const studentRef = doc(db, "students", activeStudent.mobileNumber || activeStudent.id);
+  
+  try {
+    const snap = await getDoc(studentRef);
+    if (snap.exists()) {
+      const data = snap.data();
+      const fees = data.fees || {};
+      const monthFee = fees[currentMonth];
+
+      const statusEl = document.getElementById("studentFeeStatusText");
+      if (statusEl) {
+        if (monthFee && monthFee.status === "Paid") {
+          statusEl.innerHTML = `<span style="color: #05c46b;"><i class="fa-solid fa-circle-check"></i> Fee Paid for ${currentMonth} (₹${monthFee.amount || 0})</span>`;
+        } else if (monthFee && monthFee.status === "Pending") {
+          statusEl.innerHTML = `<span style="color: #d97706;"><i class="fa-solid fa-clock"></i> Fee Pending for ${currentMonth}: ₹${monthFee.amount || 0}</span>`;
+        } else {
+          statusEl.innerHTML = `<span style="color: var(--muted);"><i class="fa-solid fa-circle-info"></i> No fee generated for ${currentMonth}.</span>`;
+        }
+      }
+    }
+  } catch (err) { console.error("Error checking fee:", err); }
+}
+
+// Admin Panel-ൽ ഫീസ് പട്ടിക ലോഡ് ചെയ്യാൻ
+window.fetchFeeList = async function() {
+  const monthVal = document.getElementById("feeMonth").value;
+  if (!monthVal) return showToast("Please select a month!", "error");
+
+  const tb = document.getElementById("adminFeeList");
+  tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
+
+  try {
+    const q = query(collection(db, "students"), where("status", "==", "Active"));
+    const snap = await getDocs(q);
+    tb.innerHTML = "";
+
+    if (snap.empty) {
+      tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">No active students found.</td></tr>';
+      return;
+    }
+
+    let index = 1;
+    snap.forEach(d => {
+      const s = d.data();
+      const fees = s.fees || {};
+      const mData = fees[monthVal] || { status: "Pending", amount: 500 }; // Default fee amount set to 500
+
+      const isPaid = mData.status === "Paid";
+      const dName = s.fullName ? s.fullName.toUpperCase() : '-';
+
+      tb.innerHTML += `
+        <tr>
+          <td><strong>${index++}</strong></td>
+          <td><strong>${dName}</strong></td>
+          <td>${s.mobileNumber || d.id}</td>
+          <td><input type="number" id="feeAmt_${d.id}" value="${mData.amount || 500}" style="width: 100px; padding: 6px; margin: 0; border-radius: 8px;"></td>
+          <td><span class="status-badge ${isPaid ? 'badge-done' : 'badge-pending'}">${mData.status}</span></td>
+          <td>
+            <button class="btn-approve" onclick="toggleFeeStatus('${d.id}', '${monthVal}', '${isPaid ? 'Pending' : 'Paid'}')" style="background: ${isPaid ? '#f59e0b' : '#05c46b'}; padding: 6px 12px; font-size: 11px;">
+              ${isPaid ? 'Mark Pending' : 'Mark Paid'}
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+  } catch (err) { tb.innerHTML = `<tr><td colspan="6" style="color:red;">Error: ${err.message}</td></tr>`; }
+};
+
+// Admin ഫീസ് അപ്‌ഡേറ്റ് ചെയ്യുമ്പോൾ
+window.toggleFeeStatus = async function(studentId, monthStr, newStatus) {
+  const amtInput = document.getElementById(`feeAmt_${studentId}`);
+  const feeAmount = amtInput ? parseInt(amtInput.value) || 0 : 0;
+
+  try {
+    const studentRef = doc(db, "students", studentId);
+    const snap = await getDoc(studentRef);
+    if (snap.exists()) {
+      let fees = snap.data().fees || {};
+      fees[monthStr] = { status: newStatus, amount: feeAmount, updatedAt: new Date().toISOString() };
+      
+      await updateDoc(studentRef, { fees: fees });
+      showToast(`Fee status updated to ${newStatus}`);
+      fetchFeeList();
+    }
+  } catch (err) { showToast("Error: " + err.message, "error"); }
+};
