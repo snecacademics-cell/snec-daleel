@@ -459,7 +459,7 @@ function showAdminDashboard() {
   switchAdminTab('pending'); 
 }
 
-window.switchAdminTab = function(tab, event) {
+window.switchAdminTab = async function(tab, event) {
   autoCloseMobileMenu();
   if(event) {
     document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
@@ -481,11 +481,10 @@ window.switchAdminTab = function(tab, event) {
     titleText = "Attendance Management";
     document.getElementById("programDate").valueAsDate = new Date();
     document.getElementById("adminAttendanceList").innerHTML = '<tr><td colspan="4" style="text-align:center;">Select date and click "Load Students".</td></tr>';
-    const selectAllChk = document.getElementById("selectAllAtt");
-    if(selectAllChk) selectAllChk.checked = false;
   }
   if (tab === 'manageClasses') { 
     titleText = "Manage Classes"; 
+    await fetchAllClasses(); // Fetch latest classes from Firebase
     loadAdminClassesList(); 
   }
   
