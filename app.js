@@ -23,6 +23,14 @@ let pdfDownloaded = false;
 let ytPlayer = null;
 let lastWatchedTime = 0;
 
+// Dynamic load for YouTube API
+if (!window.YT) {
+  const tag = document.createElement('script');
+  tag.src = "https://www.youtube.com/iframe_api";
+  const firstScriptTag = document.getElementsByTagName('script')[0];
+  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+}
+
 function showToast(text, type = 'success') {
   const container = document.getElementById("toastContainer");
   const toast = document.createElement("div");
@@ -169,10 +177,12 @@ async function showStudentDashboard() {
   if(document.getElementById("navAdminApproved")) document.getElementById("navAdminApproved").style.display = "none";
   if(document.getElementById("navAdminAttendance")) document.getElementById("navAdminAttendance").style.display = "none";
   if(document.getElementById("navAdminManage")) document.getElementById("navAdminManage").style.display = "none";
+  if(document.getElementById("navAdminFee")) document.getElementById("navAdminFee").style.display = "none";
 
   const dName = activeStudent.fullName ? activeStudent.fullName.toUpperCase() : "Student";
   document.getElementById("welcomeStudent").innerText = "Welcome, " + dName;
 
+  await checkStudentFeeStatus();
   await fetchAllClasses();
   renderClassList();
   switchNavTab('dashboard');
@@ -245,8 +255,27 @@ window.openClass = function(idx) {
 
   const vId = extractYoutubeId(cls.videoUrl);
 
+  if (ytPlayer && typeof ytPlayer.destroy === 'function') {
+    ytPlayer.destroy();
+  }
+
   const videoContainer = document.querySelector('.video-container');
-  videoContainer.innerHTML = `<iframe id="crVideo" src="https://www.youtube.com/embed/${vId}" allowfullscreen></iframe>`;
+  videoContainer.innerHTML = `<div id="ytPlayerElement"></div>`;
+
+  ytPlayer = new YT.Player('ytPlayerElement', {
+    height: '100%',
+    width: '100%',
+    videoId: vId,
+    playerVars: {
+      'controls': 1,
+      'rel': 0,
+      'modestbranding': 1,
+      'disablekb': 1
+    },
+    events: {
+      'onStateChange': onPlayerStateChange
+    }
+  });
 
   const mcqDiv = document.getElementById("mcqContainer");
   mcqDiv.innerHTML = "";
@@ -269,7 +298,33 @@ window.openClass = function(idx) {
   }
 };
 
+setInterval(() => {
+  if (window.YT && ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+    const currentTime = ytPlayer.getCurrentTime();
+    if (currentTime > lastWatchedTime + 2) {
+      ytPlayer.seekTo(lastWatchedTime, true);
+      showToast("Fast forwarding is disabled. Please watch the complete video!", "error");
+    } else {
+      lastWatchedTime = currentTime;
+    }
+  }
+}, 1000);
+
+function onPlayerStateChange(event) {
+  if (event.data === YT.PlayerState.ENDED) {
+    videoCompleted = true;
+    const pdfBtn = document.getElementById("crPdf");
+    pdfBtn.classList.remove("disabled-btn");
+    pdfBtn.innerHTML = `<i class="fa-solid fa-file-pdf"></i> Step 2: Download Study Material`;
+    showToast("Video completed successfully! Step 2 Material is now unlocked.");
+  }
+}
+
 window.handlePdfDownload = function() {
+  if (!videoCompleted) {
+    showToast("Please watch the complete video first!", "error");
+    return;
+  }
   pdfDownloaded = true;
   document.getElementById("assessmentSection").style.display = "block";
   showToast("Material unlocked! Please complete the MCQ assessment below.");
@@ -426,7 +481,32 @@ window.switchAdminTab = async function(tab, event) {
   }
 };
 
-/* Fee Fetching Logic */
+/* 1. Fee Management */
+async function checkStudentFeeStatus() {
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const studentRef = doc(db, "students", activeStudent.mobileNumber || activeStudent.id);
+  
+  try {
+    const snap = await getDoc(studentRef);
+    if (snap.exists()) {
+      const data = snap.data();
+      const fees = data.fees || {};
+      const monthFee = fees[currentMonth];
+
+      const statusEl = document.getElementById("studentFeeStatusText");
+      if (statusEl) {
+        if (monthFee && monthFee.status === "Paid") {
+          statusEl.innerHTML = `<span style="color: #05c46b;"><i class="fa-solid fa-circle-check"></i> Fee Paid for ${currentMonth} (₹${monthFee.amount || 0})</span>`;
+        } else if (monthFee && monthFee.status === "Pending") {
+          statusEl.innerHTML = `<span style="color: #d97706;"><i class="fa-solid fa-clock"></i> Fee Pending for ${currentMonth}: ₹${monthFee.amount || 0}</span>`;
+        } else {
+          statusEl.innerHTML = `<span style="color: var(--muted);"><i class="fa-solid fa-circle-info"></i> No fee generated for ${currentMonth}.</span>`;
+        }
+      }
+    }
+  } catch (err) { console.error("Error checking fee:", err); }
+}
+
 window.fetchFeeList = async function() {
   const monthVal = document.getElementById("feeMonth").value;
   if (!monthVal) return showToast("Please select a month!", "error");
@@ -489,7 +569,7 @@ window.toggleFeeStatus = async function(studentId, monthStr, newStatus) {
   } catch (err) { showToast("Error: " + err.message, "error"); }
 };
 
-/* 1. Pending Approvals Tab */
+/* 2. Pending Approvals Tab */
 async function loadPendingStudents() {
   const tb = document.getElementById("adminPendingList");
   tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
@@ -556,7 +636,7 @@ window.confirmApproval = async function() {
   } catch(err) { showToast("Error: " + err.message, "error"); }
 };
 
-/* 2. Approved Students */
+/* 3. Approved Students */
 async function loadApprovedStudents() {
   const tb = document.getElementById("adminApprovedList");
   tb.innerHTML = '<tr><td colspan="5" style="text-align:center;">Loading...</td></tr>';
@@ -575,7 +655,7 @@ async function loadApprovedStudents() {
   } catch (err) { tb.innerHTML = `<tr><td colspan="5" style="color:red;">Error: ${err.message}</td></tr>`; }
 }
 
-/* 3. Attendance */
+/* 4. Attendance */
 let currentAttendanceList = [];
 window.fetchAttendanceList = async function() {
   const dateStr = document.getElementById("programDate").value;
@@ -601,7 +681,7 @@ window.fetchAttendanceList = async function() {
   } catch (err) { tb.innerHTML = `<tr><td colspan="4" style="color:red;">Error: ${err.message}</td></tr>`; }
 };
 
-/* 4. Manage Classes */
+/* 5. Manage Classes */
 function loadAdminClassesList() {
   const tb = document.getElementById("adminClassesList");
   tb.innerHTML = "";
@@ -779,96 +859,3 @@ function setupKeyboardNavigation() {
     }
   });
 }
-/* =========================================
-   FEE MANAGEMENT LOGIC
-   ========================================= */
-
-// Student Dashboard-ൽ ഫീസ് കാണിക്കാൻ
-async function checkStudentFeeStatus() {
-  const currentMonth = new Date().toISOString().slice(0, 7); // e.g., "2026-10"
-  const studentRef = doc(db, "students", activeStudent.mobileNumber || activeStudent.id);
-  
-  try {
-    const snap = await getDoc(studentRef);
-    if (snap.exists()) {
-      const data = snap.data();
-      const fees = data.fees || {};
-      const monthFee = fees[currentMonth];
-
-      const statusEl = document.getElementById("studentFeeStatusText");
-      if (statusEl) {
-        if (monthFee && monthFee.status === "Paid") {
-          statusEl.innerHTML = `<span style="color: #05c46b;"><i class="fa-solid fa-circle-check"></i> Fee Paid for ${currentMonth} (₹${monthFee.amount || 0})</span>`;
-        } else if (monthFee && monthFee.status === "Pending") {
-          statusEl.innerHTML = `<span style="color: #d97706;"><i class="fa-solid fa-clock"></i> Fee Pending for ${currentMonth}: ₹${monthFee.amount || 0}</span>`;
-        } else {
-          statusEl.innerHTML = `<span style="color: var(--muted);"><i class="fa-solid fa-circle-info"></i> No fee generated for ${currentMonth}.</span>`;
-        }
-      }
-    }
-  } catch (err) { console.error("Error checking fee:", err); }
-}
-
-// Admin Panel-ൽ ഫീസ് പട്ടിക ലോഡ് ചെയ്യാൻ
-window.fetchFeeList = async function() {
-  const monthVal = document.getElementById("feeMonth").value;
-  if (!monthVal) return showToast("Please select a month!", "error");
-
-  const tb = document.getElementById("adminFeeList");
-  tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">Loading...</td></tr>';
-
-  try {
-    const q = query(collection(db, "students"), where("status", "==", "Active"));
-    const snap = await getDocs(q);
-    tb.innerHTML = "";
-
-    if (snap.empty) {
-      tb.innerHTML = '<tr><td colspan="6" style="text-align:center;">No active students found.</td></tr>';
-      return;
-    }
-
-    let index = 1;
-    snap.forEach(d => {
-      const s = d.data();
-      const fees = s.fees || {};
-      const mData = fees[monthVal] || { status: "Pending", amount: 500 }; // Default fee amount set to 500
-
-      const isPaid = mData.status === "Paid";
-      const dName = s.fullName ? s.fullName.toUpperCase() : '-';
-
-      tb.innerHTML += `
-        <tr>
-          <td><strong>${index++}</strong></td>
-          <td><strong>${dName}</strong></td>
-          <td>${s.mobileNumber || d.id}</td>
-          <td><input type="number" id="feeAmt_${d.id}" value="${mData.amount || 500}" style="width: 100px; padding: 6px; margin: 0; border-radius: 8px;"></td>
-          <td><span class="status-badge ${isPaid ? 'badge-done' : 'badge-pending'}">${mData.status}</span></td>
-          <td>
-            <button class="btn-approve" onclick="toggleFeeStatus('${d.id}', '${monthVal}', '${isPaid ? 'Pending' : 'Paid'}')" style="background: ${isPaid ? '#f59e0b' : '#05c46b'}; padding: 6px 12px; font-size: 11px;">
-              ${isPaid ? 'Mark Pending' : 'Mark Paid'}
-            </button>
-          </td>
-        </tr>
-      `;
-    });
-  } catch (err) { tb.innerHTML = `<tr><td colspan="6" style="color:red;">Error: ${err.message}</td></tr>`; }
-};
-
-// Admin ഫീസ് അപ്‌ഡേറ്റ് ചെയ്യുമ്പോൾ
-window.toggleFeeStatus = async function(studentId, monthStr, newStatus) {
-  const amtInput = document.getElementById(`feeAmt_${studentId}`);
-  const feeAmount = amtInput ? parseInt(amtInput.value) || 0 : 0;
-
-  try {
-    const studentRef = doc(db, "students", studentId);
-    const snap = await getDoc(studentRef);
-    if (snap.exists()) {
-      let fees = snap.data().fees || {};
-      fees[monthStr] = { status: newStatus, amount: feeAmount, updatedAt: new Date().toISOString() };
-      
-      await updateDoc(studentRef, { fees: fees });
-      showToast(`Fee status updated to ${newStatus}`);
-      fetchFeeList();
-    }
-  } catch (err) { showToast("Error: " + err.message, "error"); }
-};
