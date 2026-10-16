@@ -200,6 +200,21 @@ function renderClassList() {
   });
 }
 
+// Helper function to convert any YouTube URL to Embed URL
+function formatYoutubeUrl(url) {
+  if (!url) return '';
+  if (url.includes('embed/')) return url;
+  
+  let videoId = '';
+  if (url.includes('youtu.be/')) {
+    videoId = url.split('youtu.be/')[1].split('?')[0];
+  } else if (url.includes('watch?v=')) {
+    videoId = url.split('watch?v=')[1].split('&')[0];
+  }
+  
+  return videoId ? `https://www.youtube.com/embed/${videoId}` : url;
+}
+
 window.openClass = function(idx) {
   currentClassIdx = idx;
   const cls = globalClasses[idx];
@@ -210,8 +225,11 @@ window.openClass = function(idx) {
   document.getElementById("viewClassroom").style.display = "block";
 
   document.getElementById("crTitle").innerText = cls.title;
-  document.getElementById("crVideo").src = cls.videoUrl;
-  document.getElementById("crPdf").href = cls.pdfUrl;
+  
+  // YouTube link format convert cheythu video player-il set cheyyunnu
+  document.getElementById("crVideo").src = formatYoutubeUrl(cls.videoUrl);
+  
+  document.getElementById("crPdf").href = cls.pdfUrl || '#';
   document.getElementById("crActivityText").innerText = cls.activity || "No specific activity notes.";
   document.getElementById("activityAnswer").value = "";
 
@@ -235,7 +253,6 @@ window.openClass = function(idx) {
     mcqDiv.innerHTML = "<p style='color:var(--muted); font-size:13px;'>No questions available for this class.</p>";
   }
 };
-
 window.submitAssessment = async function() {
   const cls = globalClasses[currentClassIdx];
   if(!cls.questions || cls.questions.length === 0) {
