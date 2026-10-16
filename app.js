@@ -18,9 +18,10 @@ let activeStudent = null;
 let currentClassIdx = 0;
 let globalClasses = [];
 
-// Video tracking state
 let videoCompleted = false;
 let pdfDownloaded = false;
+let ytPlayer = null;
+let lastWatchedTime = 0;
 
 function showToast(text, type = 'success') {
   const container = document.getElementById("toastContainer");
@@ -51,31 +52,16 @@ window.switchAuthTab = function(t) {
   document.getElementById("formSignUp").style.display = t === 'signup' ? 'block' : 'none';
 };
 
-function formatYoutubeUrl(url) {
-  if (!url) return '';
-  if (url.includes('embed/')) return url;
-  let videoId = '';
-  if (url.includes('youtu.be/')) {
-    videoId = url.split('youtu.be/')[1].split('?')[0];
-  } else if (url.includes('watch?v=')) {
-    videoId = url.split('watch?v=')[1].split('&')[0];
-  }
-  return videoId ? `https://www.youtube.com/embed/${videoId}?enablejsapi=1` : url;
-}
-
 async function fetchAllClasses() {
   try {
     const snap = await getDocs(collection(db, "classes"));
     let tempClasses = [];
-    snap.forEach(doc => { 
-      tempClasses.push({ docId: doc.id, ...doc.data() }); 
-    });
+    snap.forEach(doc => { tempClasses.push({ docId: doc.id, ...doc.data() }); });
     tempClasses.sort((a, b) => parseInt(a.id) - parseInt(b.id));
     globalClasses = tempClasses;
-  } catch (err) { 
-    console.error("Error loading classes: ", err); 
-  }
+  } catch (err) { console.error("Error loading classes: ", err); }
 }
+
 document.addEventListener("DOMContentLoaded", async () => {
   setupKeyboardNavigation();
   await fetchAllClasses();
@@ -169,7 +155,7 @@ window.logout = function() {
    STUDENT PORTAL
    ========================================= */
 
-function showStudentDashboard() {
+async function showStudentDashboard() {
   document.getElementById("authSection").style.display = "none";
   document.getElementById("admissionSection").style.display = "none";
   document.getElementById("pendingSection").style.display = "none";
@@ -187,6 +173,7 @@ function showStudentDashboard() {
   const dName = activeStudent.fullName ? activeStudent.fullName.toUpperCase() : "Student";
   document.getElementById("welcomeStudent").innerText = "Welcome, " + dName;
 
+  await fetchAllClasses();
   renderClassList();
   switchNavTab('dashboard');
 }
@@ -219,18 +206,6 @@ function renderClassList() {
   });
 }
 
-// YouTube API Player variables
-let ytPlayer = null;
-let lastWatchedTime = 0;
-
-// Load YouTube IFrame API dynamically
-if (!window.YT) {
-  const tag = document.createElement('script');
-  tag.src = "https://www.youtube.com/iframe_api";
-  const firstScriptTag = document.getElementsByTagName('script')[0];
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-}
-
 function extractYoutubeId(url) {
   if (!url) return '';
   let videoId = '';
@@ -259,7 +234,6 @@ window.openClass = function(idx) {
 
   document.getElementById("crTitle").innerText = cls.title;
 
-  // Lock PDF and Assessment
   const pdfBtn = document.getElementById("crPdf");
   pdfBtn.href = cls.pdfUrl || '#';
   pdfBtn.classList.add("disabled-btn");
@@ -271,29 +245,8 @@ window.openClass = function(idx) {
 
   const vId = extractYoutubeId(cls.videoUrl);
 
-  // Re-initialize YouTube Player
-  if (ytPlayer && typeof ytPlayer.destroy === 'function') {
-    ytPlayer.destroy();
-  }
-
-  // Create iframe container dynamically for YouTube API
   const videoContainer = document.querySelector('.video-container');
-  videoContainer.innerHTML = `<div id="ytPlayerElement"></div>`;
-
-  ytPlayer = new YT.Player('ytPlayerElement', {
-    height: '100%',
-    width: '100%',
-    videoId: vId,
-    playerVars: {
-      'controls': 1,
-      'rel': 0,
-      'modestbranding': 1,
-      'disablekb': 1
-    },
-    events: {
-      'onStateChange': onPlayerStateChange
-    }
-  });
+  videoContainer.innerHTML = `<iframe id="crVideo" src="https://www.youtube.com/embed/${vId}" allowfullscreen></iframe>`;
 
   const mcqDiv = document.getElementById("mcqContainer");
   mcqDiv.innerHTML = "";
@@ -316,48 +269,13 @@ window.openClass = function(idx) {
   }
 };
 
-// Monitor Video progress and prevent forward skipping
-setInterval(() => {
-  if (window.YT && ytPlayer && typeof ytPlayer.getCurrentTime === 'function' && ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
-    const currentTime = ytPlayer.getCurrentTime();
-    
-    // Prevent seeking forward
-    if (currentTime > lastWatchedTime + 2) {
-      ytPlayer.seekTo(lastWatchedTime, true);
-      showToast("Fast forwarding is disabled. Please watch the complete video!", "error");
-    } else {
-      lastWatchedTime = currentTime;
-    }
-  }
-}, 1000);
-
-function onPlayerStateChange(event) {
-  // Video Ended event (YT.PlayerState.ENDED = 0)
-  if (event.data === YT.PlayerState.ENDED) {
-    videoCompleted = true;
-    const pdfBtn = document.getElementById("crPdf");
-    pdfBtn.classList.remove("disabled-btn");
-    pdfBtn.innerHTML = `<i class="fa-solid fa-file-pdf"></i> Step 2: Download Study Material`;
-    showToast("Video completed successfully! Step 2 Material is now unlocked.");
-  }
-}
-
 window.handlePdfDownload = function() {
-  if (!videoCompleted) {
-    showToast("Please complete watching the video lecture first!", "error");
-    return;
-  }
   pdfDownloaded = true;
   document.getElementById("assessmentSection").style.display = "block";
   showToast("Material unlocked! Please complete the MCQ assessment below.");
 };
 
 window.submitAssessment = async function() {
-  if (!videoCompleted || !pdfDownloaded) {
-    showToast("Please complete both video and PDF download first!", "error");
-    return;
-  }
-
   const cls = globalClasses[currentClassIdx];
   if (!cls.questions || cls.questions.length === 0) {
     showToast(`Class marked as completed! Attendance recorded.`);
@@ -418,7 +336,7 @@ function showPendingScreen() {
   document.getElementById("pendingSection").style.display = "flex";
 }
 
-window.switchNavTab = function(tabName, event) {
+window.switchNavTab = async function(tabName, event) {
   autoCloseMobileMenu();
   if (event) {
     document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
@@ -427,6 +345,11 @@ window.switchNavTab = function(tabName, event) {
     document.querySelectorAll(".sidebar-menu li").forEach(el => el.classList.remove("active"));
     if(tabName === 'dashboard' && document.getElementById('navStudentDashboard')) document.getElementById('navStudentDashboard').classList.add("active");
     if(tabName === 'classes' && document.getElementById('navStudentClasses')) document.getElementById('navStudentClasses').classList.add("active");
+  }
+
+  if (tabName === 'classes') {
+    await fetchAllClasses();
+    renderClassList();
   }
   
   document.getElementById("viewDashboard").style.display = tabName === 'dashboard' ? 'block' : 'none';
@@ -487,7 +410,7 @@ window.switchAdminTab = async function(tab, event) {
   }
   if (tab === 'manageClasses') { 
     titleText = "Manage Classes"; 
-    await fetchAllClasses(); // Fetch latest classes from Firebase
+    await fetchAllClasses();
     loadAdminClassesList(); 
   }
   
@@ -590,8 +513,6 @@ window.fetchAttendanceList = async function() {
   const tb = document.getElementById("adminAttendanceList");
   tb.innerHTML = '<tr><td colspan="4" style="text-align:center;">Loading students...</td></tr>';
   currentAttendanceList = [];
-  const selectAllChk = document.getElementById("selectAllAtt");
-  if(selectAllChk) selectAllChk.checked = false;
   try {
     const q = query(collection(db, "students"), where("status", "==", "Active"));
     const snap = await getDocs(q);
@@ -610,33 +531,7 @@ window.fetchAttendanceList = async function() {
   } catch (err) { tb.innerHTML = `<tr><td colspan="4" style="color:red;">Error: ${err.message}</td></tr>`; }
 };
 
-window.toggleAllAttendance = function() {
-  const isChecked = document.getElementById("selectAllAtt").checked;
-  const checkboxes = document.querySelectorAll(".att-student-chk");
-  checkboxes.forEach(chk => chk.checked = isChecked);
-};
-
-window.saveProgramAttendance = async function() {
-  const dateStr = document.getElementById("programDate").value;
-  if(!dateStr || currentAttendanceList.length === 0) return showToast("No list loaded", "error");
-  try {
-    for (let id of currentAttendanceList) {
-      const checkbox = document.getElementById(`att_${id}`);
-      const status = checkbox.checked ? "Present" : "Absent";
-      const studentRef = doc(db, "students", id);
-      const docSnap = await getDoc(studentRef);
-      let attData = docSnap.exists() && docSnap.data().attendance ? docSnap.data().attendance : {};
-      attData[dateStr] = status;
-      await updateDoc(studentRef, { attendance: attData });
-    }
-    showToast(`Attendance saved for ${dateStr}!`);
-  } catch(err) { showToast("Error saving attendance: " + err.message, "error"); }
-};
-
-/* =========================================
-   MANAGE CLASSES (ADD, EDIT, DELETE & CANCEL)
-   ========================================= */
-
+/* 4. Manage Classes */
 function loadAdminClassesList() {
   const tb = document.getElementById("adminClassesList");
   tb.innerHTML = "";
@@ -801,3 +696,16 @@ window.deleteClass = async function(docId) {
     }
   }
 };
+
+function setupKeyboardNavigation() {
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+      const focusable = Array.from(document.querySelectorAll('input, select, button'));
+      const index = focusable.indexOf(e.target);
+      if (index > -1 && index + 1 < focusable.length) {
+        e.preventDefault();
+        focusable[index + 1].focus();
+      }
+    }
+  });
+}
