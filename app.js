@@ -631,7 +631,10 @@ window.saveProgramAttendance = async function() {
   } catch(err) { showToast("Error saving attendance: " + err.message, "error"); }
 };
 
-/* 4. Manage Classes */
+/* =========================================
+   MANAGE CLASSES (ADD, EDIT, DELETE & CANCEL)
+   ========================================= */
+
 function loadAdminClassesList() {
   const tb = document.getElementById("adminClassesList");
   tb.innerHTML = "";
@@ -639,13 +642,20 @@ function loadAdminClassesList() {
     tb.innerHTML = "<tr><td colspan='3' style='text-align:center;'>No classes found. Add a new class!</td></tr>";
     return;
   }
-  globalClasses.forEach(c => {
+  globalClasses.forEach((c, index) => {
     tb.innerHTML += `
       <tr>
         <td>${c.id}</td>
         <td><strong>${c.title}</strong></td>
         <td>
-          <button class="btn-approve" onclick="deleteClass('${c.docId}')" style="background: var(--error);"><i class="fa-solid fa-trash"></i> Delete</button>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn-pill-secondary" onclick="editClass(${index})" style="padding: 6px 14px; font-size: 12px; background: #e0f2fe; color: #0369a1; border-color: #bae6fd;">
+              <i class="fa-solid fa-pen-to-square"></i> Edit
+            </button>
+            <button class="btn-approve" onclick="deleteClass('${c.docId}')" style="background: var(--error); padding: 6px 14px; font-size: 12px;">
+              <i class="fa-solid fa-trash"></i> Delete
+            </button>
+          </div>
         </td>
       </tr>
     `;
@@ -653,7 +663,10 @@ function loadAdminClassesList() {
 }
 
 let questionCount = 0;
+let editingDocId = null;
+
 window.openNewClassModal = function() {
+  editingDocId = null;
   document.getElementById("newClassId").value = "";
   document.getElementById("newClassTitle").value = "";
   document.getElementById("newClassVideo").value = "";
@@ -662,16 +675,53 @@ window.openNewClassModal = function() {
   document.getElementById("questionsContainer").innerHTML = "";
   questionCount = 0;
   
-  // Default 4 questions setup for ease
-  for(let i=0; i<2; i++) {
-    addQuestionField();
-  }
+  addQuestionField();
+  addQuestionField();
   
   document.getElementById("newClassModal").style.display = "flex";
 };
 
 window.closeNewClassModal = function() {
+  editingDocId = null;
   document.getElementById("newClassModal").style.display = "none";
+};
+
+window.editClass = function(index) {
+  const cls = globalClasses[index];
+  editingDocId = cls.docId;
+
+  document.getElementById("newClassId").value = cls.id;
+  document.getElementById("newClassTitle").value = cls.title;
+  document.getElementById("newClassVideo").value = cls.videoUrl || "";
+  document.getElementById("newClassPdf").value = cls.pdfUrl || "";
+  document.getElementById("newClassActivity").value = cls.activity || "";
+  
+  const container = document.getElementById("questionsContainer");
+  container.innerHTML = "";
+  questionCount = 0;
+
+  if (cls.questions && cls.questions.length > 0) {
+    cls.questions.forEach((q) => {
+      questionCount++;
+      const qDiv = document.createElement("div");
+      qDiv.style.cssText = "background: #f1f5f9; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #cbd5e1;";
+      qDiv.innerHTML = `
+        <label style="font-size:12px; font-weight:700; color:#1e3c72;">Question ${questionCount}</label>
+        <input type="text" id="q_${questionCount}_text" value="${q.q}" placeholder="Type question here..." required style="margin-bottom:10px;">
+        
+        <label style="font-size:11px; font-weight:600; color:var(--muted);">4 Options (Comma separated)</label>
+        <input type="text" id="q_${questionCount}_options" value="${q.options ? q.options.join(', ') : ''}" placeholder="Option A, Option B, Option C, Option D" required style="margin-bottom:10px;">
+        
+        <label style="font-size:11px; font-weight:600; color:var(--muted);">Correct Option Index (0 for 1st, 1 for 2nd, 2 for 3rd, 3 for 4th)</label>
+        <input type="number" id="q_${questionCount}_ans" value="${q.ans}" placeholder="0" min="0" max="3" required style="margin-bottom:0;">
+      `;
+      container.appendChild(qDiv);
+    });
+  } else {
+    addQuestionField();
+  }
+
+  document.getElementById("newClassModal").style.display = "flex";
 };
 
 window.addQuestionField = function() {
@@ -726,8 +776,9 @@ window.saveNewClass = async function() {
   };
 
   try {
-    await setDoc(doc(db, "classes", "class_" + idVal), payload);
-    showToast("Class saved successfully!");
+    const targetDocId = editingDocId || ("class_" + idVal);
+    await setDoc(doc(db, "classes", targetDocId), payload);
+    showToast(editingDocId ? "Class updated successfully!" : "Class added successfully!");
     closeNewClassModal();
     await fetchAllClasses(); 
     loadAdminClassesList();
@@ -740,24 +791,11 @@ window.deleteClass = async function(docId) {
   if(confirm("Are you sure you want to delete this class?")) {
     try {
       await deleteDoc(doc(db, "classes", docId));
-      showToast("Class deleted!");
+      showToast("Class deleted successfully!");
       await fetchAllClasses();
       loadAdminClassesList();
     } catch(err) {
-      showToast("Error deleting: " + err.message, "error");
+      showToast("Error deleting class: " + err.message, "error");
     }
   }
 };
-
-function setupKeyboardNavigation() {
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
-      const focusable = Array.from(document.querySelectorAll('input, select, button'));
-      const index = focusable.indexOf(e.target);
-      if (index > -1 && index + 1 < focusable.length) {
-        e.preventDefault();
-        focusable[index + 1].focus();
-      }
-    }
-  });
-}
