@@ -198,16 +198,29 @@
           <button class="btn-main" style="margin-top: 20px; max-width: 300px;" onclick="saveProgramAttendance()"><i class="fa-solid fa-floppy-disk"></i> Save Attendance</button>
         </div>
 
-        <!-- Manage Classes Tab Content -->
-        <div id="adminTabManageClasses" style="display: none;">
-          <button class="btn-main" style="margin-bottom: 20px; max-width: 200px;" onclick="openNewClassModal()"><i class="fa-solid fa-plus"></i> Add New Class</button>
-          <div style="overflow-x: auto;">
-            <table>
-              <thead><tr><th>Class ID</th><th>Class Title</th><th>Action</th></tr></thead>
-              <tbody id="adminClassesList"></tbody>
-            </table>
-          </div>
-        </div>
+        <!-- Fee Collection Tab Content -->
+<div id="adminTabFee" style="display: none;">
+  <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center; background: #f8fafc; padding: 15px; border-radius: 15px; flex-wrap: wrap;">
+    <label style="font-weight: 600; color: var(--text-color);">Select Month:</label>
+    <input type="month" id="feeMonth" style="max-width: 200px; margin-bottom: 0;">
+    <button class="btn-main" style="width: auto; padding: 10px 20px;" onclick="fetchFeeList()"><i class="fa-solid fa-magnifying-glass"></i> Load Fee Details</button>
+  </div>
+  <div style="overflow-x: auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Mobile</th>
+          <th>Fee Amount (₹)</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="adminFeeList"></tbody>
+    </table>
+  </div>
+</div>
 
       </div>
     </div>
