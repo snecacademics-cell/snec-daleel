@@ -89,6 +89,7 @@
       <li id="navAdminApproved" style="display:none;" onclick="switchAdminTab('approved', event)"><i class="fa-solid fa-user-check"></i> Approved Students</li>
       <li id="navAdminAttendance" style="display:none;" onclick="switchAdminTab('attendance', event)"><i class="fa-solid fa-calendar-check"></i> Attendance</li>
       <li id="navAdminManage" style="display:none;" onclick="switchAdminTab('manageClasses', event)"><i class="fa-solid fa-video"></i> Manage Classes</li>
+      <li id="navAdminFee" style="display:none;" onclick="switchAdminTab('fee', event)"><i class="fa-solid fa-indian-rupee-sign"></i> Fee Collection</li>   
     </ul>
   </div>
 
@@ -211,6 +212,33 @@
       </div>
     </div>
   </div>
+  <!-- Fee Collection Tab Content -->
+<div id="adminTabFee" style="display: none;">
+  <div style="margin-bottom: 20px; display: flex; gap: 15px; align-items: center; background: #f8fafc; padding: 15px; border-radius: 15px; flex-wrap: wrap;">
+    <label style="font-weight: 600; color: var(--text-color);">Select Month:</label>
+    <input type="month" id="feeMonth" style="max-width: 200px; margin-bottom: 0;">
+    <button class="btn-main" style="width: auto; padding: 10px 20px;" onclick="fetchFeeList()"><i class="fa-solid fa-magnifying-glass"></i> Load Fee Details</button>
+  </div>
+  <div id="studentFeeCard" style="margin-top: 15px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+  <h4 style="margin: 0 0 8px 0; color: #1e3c72;"><i class="fa-solid fa-receipt"></i> Monthly Fee Status</h4>
+  <p id="studentFeeStatusText" style="font-size: 14px; font-weight: 600; margin: 0;">Loading fee status...</p>
+</div>
+  <div style="overflow-x: auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Mobile</th>
+          <th>Fee Amount (₹)</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="adminFeeList"></tbody>
+    </table>
+  </div>
+</div>
 
   <!-- APPROVAL MODAL -->
   <div id="approvalModal" class="auth-wrapper" style="display: none; background: rgba(30, 60, 114, 0.8);">
