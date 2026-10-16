@@ -625,14 +625,12 @@ function setupKeyboardNavigation() {
   });
 }
 
-/* PWA / INSTALL APP LOGIC */
+/* =========================================
+   PWA / INSTALL APP LOGIC
+   ========================================= */
 let deferredPrompt;
 const installBtn = document.getElementById('installAppBtn');
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
-if (!isStandalone && installBtn) {
-  installBtn.style.display = 'flex';
-}
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -640,6 +638,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// ബ്രൗസർ ഇൻസ്റ്റാൾ പ്രോംപ്റ്റ് തയ്യാറാകുമ്പോൾ ബട്ടൺ കാണിക്കുന്നു
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
@@ -651,6 +650,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
 if (installBtn) {
   installBtn.addEventListener('click', async () => {
     if (deferredPrompt) {
+      // നേരിട്ട് ഇൻസ്റ്റാൾ ചെയ്യാനുള്ള പോപ്പ്അപ്പ് കാണിക്കുന്നു
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
@@ -658,11 +658,17 @@ if (installBtn) {
       }
       deferredPrompt = null;
     } else {
-      showToast("To install, click the 3 dots on your browser and select 'Add to Home Screen'.", "info");
+      // പ്രോംപ്റ്റ് ലഭ്യമല്ലെങ്കിൽ ബ്രൗസറിന്റെ ഇൻസ്റ്റാളേഷൻ ഫീച്ചർ പ്രവർത്തിപ്പിക്കാൻ ശ്രമിക്കുന്നു
+      showToast("Preparing installation... Please wait a moment.", "info");
     }
   });
 }
 
+// ഇൻസ്റ്റാൾ ചെയ്തു കഴിഞ്ഞാൽ ബട്ടൺ മറയ്ക്കുന്നു
+window.addEventListener('appinstalled', (evt) => {
+  if (installBtn) installBtn.style.display = 'none';
+  showToast("DALEEL App installed successfully!");
+});
 window.addEventListener('appinstalled', (evt) => {
   if(installBtn) installBtn.style.display = 'none';
 });
