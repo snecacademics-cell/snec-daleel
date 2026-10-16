@@ -23,7 +23,6 @@ let pdfDownloaded = false;
 let ytPlayer = null;
 let lastWatchedTime = 0;
 
-// Dynamic load for YouTube API
 if (!window.YT) {
   const tag = document.createElement('script');
   tag.src = "https://www.youtube.com/iframe_api";
@@ -183,6 +182,7 @@ async function showStudentDashboard() {
   document.getElementById("welcomeStudent").innerText = "Welcome, " + dName;
 
   await checkStudentFeeStatus();
+  await checkStudentAttendanceSummary();
   await fetchAllClasses();
   renderClassList();
   switchNavTab('dashboard');
@@ -481,7 +481,9 @@ window.switchAdminTab = async function(tab, event) {
   }
 };
 
-/* 1. Fee Management */
+/* 1. Fee Management & Receipt Print */
+let currentPaidFeeDetails = null;
+
 async function checkStudentFeeStatus() {
   const currentMonth = new Date().toISOString().slice(0, 7);
   const studentRef = doc(db, "students", activeStudent.mobileNumber || activeStudent.id);
@@ -494,19 +496,107 @@ async function checkStudentFeeStatus() {
       const monthFee = fees[currentMonth];
 
       const statusEl = document.getElementById("studentFeeStatusText");
+      const rcptBox = document.getElementById("receiptDownloadBox");
+
       if (statusEl) {
         if (monthFee && monthFee.status === "Paid") {
+          currentPaidFeeDetails = { month: currentMonth, amount: monthFee.amount || 500, date: monthFee.updatedAt || new Date().toLocaleDateString() };
           statusEl.innerHTML = `<span style="color: #05c46b;"><i class="fa-solid fa-circle-check"></i> Fee Paid for ${currentMonth} (₹${monthFee.amount || 0})</span>`;
+          if (rcptBox) rcptBox.style.display = "block";
         } else if (monthFee && monthFee.status === "Pending") {
+          currentPaidFeeDetails = null;
           statusEl.innerHTML = `<span style="color: #d97706;"><i class="fa-solid fa-clock"></i> Fee Pending for ${currentMonth}: ₹${monthFee.amount || 0}</span>`;
+          if (rcptBox) rcptBox.style.display = "none";
         } else {
+          currentPaidFeeDetails = null;
           statusEl.innerHTML = `<span style="color: var(--muted);"><i class="fa-solid fa-circle-info"></i> No fee generated for ${currentMonth}.</span>`;
+          if (rcptBox) rcptBox.style.display = "none";
         }
       }
     }
   } catch (err) { console.error("Error checking fee:", err); }
 }
 
+window.printFeeReceipt = function() {
+  if (!currentPaidFeeDetails) return showToast("No paid fee receipt available", "error");
+  
+  const printWindow = window.open('', '_blank');
+  const htmlContent = `
+    <html>
+    <head>
+      <title>Fee Receipt - DALEEL LMS</title>
+      <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; background: #fff; color: #333; }
+        .receipt-card { border: 2px solid #1e3c72; border-radius: 12px; padding: 30px; max-width: 500px; margin: 0 auto; }
+        .header { text-align: center; border-bottom: 2px dashed #cbd5e1; padding-bottom: 15px; margin-bottom: 20px; }
+        .header h2 { color: #1e3c72; margin: 0; }
+        .header p { color: #64748b; font-size: 13px; margin: 5px 0 0 0; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; }
+        .row strong { color: #1e3c72; }
+        .paid-badge { background: #dcfce7; color: #15803d; padding: 4px 12px; border-radius: 20px; font-weight: bold; display: inline-block; }
+        .footer { text-align: center; margin-top: 30px; font-size: 12px; color: #94a3b8; }
+      </style>
+    </head>
+    <body>
+      <div class="receipt-card">
+        <div class="header">
+          <h2>DALEEL LMS</h2>
+          <p>SNEC Advanced Studies Program</p>
+          <h4 style="margin: 10px 0 0 0; color: #05c46b;">OFFICIAL FEE RECEIPT</h4>
+        </div>
+        <div class="row"><span>Student Name:</span> <strong>${activeStudent.fullName ? activeStudent.fullName.toUpperCase() : '-'}</strong></div>
+        <div class="row"><span>Mobile Number:</span> <strong>${activeStudent.mobileNumber || activeStudent.id}</strong></div>
+        <div class="row"><span>Fee Period:</span> <strong>${currentPaidFeeDetails.month}</strong></div>
+        <div class="row"><span>Amount Paid:</span> <strong>₹${currentPaidFeeDetails.amount}</strong></div>
+        <div class="row"><span>Payment Status:</span> <span class="paid-badge">PAID</span></div>
+        <div class="footer">
+          <p>Thank you for your payment!</p>
+          <p>Generated on ${new Date().toLocaleDateString()}</p>
+        </div>
+      </div>
+      <script>
+        window.onload = function() { window.print(); }
+      </script>
+    </body>
+    </html>
+  `;
+  printWindow.document.write(htmlContent);
+  printWindow.document.close();
+};
+
+async function checkStudentAttendanceSummary() {
+  const listEl = document.getElementById("studentAttendanceList");
+  if (!listEl) return;
+  
+  try {
+    const studentRef = doc(db, "students", activeStudent.mobileNumber || activeStudent.id);
+    const snap = await getDoc(studentRef);
+    if (snap.exists() && snap.data().attendance) {
+      const att = snap.data().attendance;
+      const dates = Object.keys(att).sort().reverse();
+      
+      if (dates.length === 0) {
+        listEl.innerHTML = '<tr><td colspan="2" style="text-align:center; color:var(--muted);">No attendance records found yet.</td></tr>';
+        return;
+      }
+
+      listEl.innerHTML = "";
+      dates.forEach(d => {
+        const isPresent = att[d] === "Present";
+        listEl.innerHTML += `
+          <tr>
+            <td><strong>${d}</strong></td>
+            <td><span class="status-badge ${isPresent ? 'badge-done' : 'badge-pending'}">${att[d]}</span></td>
+          </tr>
+        `;
+      });
+    } else {
+      listEl.innerHTML = '<tr><td colspan="2" style="text-align:center; color:var(--muted);">No attendance records found yet.</td></tr>';
+    }
+  } catch (err) { console.error("Error fetching attendance summary:", err); }
+}
+
+/* Admin Fee List & WhatsApp Pending Reminder */
 window.fetchFeeList = async function() {
   const monthVal = document.getElementById("feeMonth").value;
   if (!monthVal) return showToast("Please select a month!", "error");
@@ -532,23 +622,42 @@ window.fetchFeeList = async function() {
 
       const isPaid = mData.status === "Paid";
       const dName = s.fullName ? s.fullName.toUpperCase() : '-';
+      const mobile = s.mobileNumber || d.id;
 
       tb.innerHTML += `
         <tr>
           <td><strong>${index++}</strong></td>
           <td><strong>${dName}</strong></td>
-          <td>${s.mobileNumber || d.id}</td>
-          <td><input type="number" id="feeAmt_${d.id}" value="${mData.amount || 500}" style="width: 100px; padding: 6px; margin: 0; border-radius: 8px;"></td>
+          <td>${mobile}</td>
+          <td><input type="number" id="feeAmt_${d.id}" value="${mData.amount || 500}" style="width: 90px; padding: 6px; margin: 0; border-radius: 8px;"></td>
           <td><span class="status-badge ${isPaid ? 'badge-done' : 'badge-pending'}">${mData.status}</span></td>
           <td>
-            <button class="btn-approve" onclick="toggleFeeStatus('${d.id}', '${monthVal}', '${isPaid ? 'Pending' : 'Paid'}')" style="background: ${isPaid ? '#f59e0b' : '#05c46b'}; padding: 6px 12px; font-size: 11px;">
-              ${isPaid ? 'Mark Pending' : 'Mark Paid'}
-            </button>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-approve" onclick="toggleFeeStatus('${d.id}', '${monthVal}', '${isPaid ? 'Pending' : 'Paid'}')" style="background: ${isPaid ? '#f59e0b' : '#05c46b'}; padding: 6px 10px; font-size: 11px;">
+                ${isPaid ? 'Mark Pending' : 'Mark Paid'}
+              </button>
+              ${!isPaid ? `
+                <button class="btn-pill-secondary" onclick="sendFeeWhatsAppReminder('${mobile}', '${dName}', '${monthVal}', '${mData.amount || 500}')" style="background:#dcfce7; color:#15803d; border-color:#86efac; padding:6px 10px; font-size:11px;">
+                  <i class="fa-brands fa-whatsapp"></i> Remind
+                </button>
+              ` : ''}
+            </div>
           </td>
         </tr>
       `;
     });
   } catch (err) { tb.innerHTML = `<tr><td colspan="6" style="color:red;">Error: ${err.message}</td></tr>`; }
+};
+
+window.sendFeeWhatsAppReminder = function(mobile, name, month, amount) {
+  let cleanMobile = mobile.replace(/\D/g, '');
+  if (cleanMobile.length === 10) cleanMobile = "91" + cleanMobile;
+
+  const appUrl = window.location.href;
+  const message = `Assalamu Alaikum ${name},\n\nThis is a friendly reminder regarding your monthly course fee for *SNEC Advanced Studies Program*.\n\n*Fee Period:* ${month}\n*Pending Amount:* ₹${amount}\n\nPlease complete the payment at the earliest.\nPortal Link: ${appUrl}`;
+  const waUrl = `https://wa.me/${cleanMobile}?text=${encodeURIComponent(message)}`;
+  
+  window.open(waUrl, '_blank');
 };
 
 window.toggleFeeStatus = async function(studentId, monthStr, newStatus) {
@@ -560,7 +669,7 @@ window.toggleFeeStatus = async function(studentId, monthStr, newStatus) {
     const snap = await getDoc(studentRef);
     if (snap.exists()) {
       let fees = snap.data().fees || {};
-      fees[monthStr] = { status: newStatus, amount: feeAmount, updatedAt: new Date().toISOString() };
+      fees[monthStr] = { status: newStatus, amount: feeAmount, updatedAt: new Date().toLocaleDateString() };
       
       await updateDoc(studentRef, { fees: fees });
       showToast(`Fee status updated to ${newStatus}`);
@@ -759,8 +868,8 @@ window.editClass = function(index) {
         <label style="font-size:11px; font-weight:600; color:var(--muted);">4 Options (Comma separated)</label>
         <input type="text" id="q_${questionCount}_options" value="${q.options ? q.options.join(', ') : ''}" placeholder="Option A, Option B, Option C, Option D" required style="margin-bottom:10px;">
         
-        <label style="font-size:11px; font-weight:600; color:var(--muted);">Correct Option Index (0 for 1st, 1 for 2nd, 2 for 3rd, 3 for 4th)</label>
-        <input type="number" id="q_${questionCount}_ans" value="${q.ans}" placeholder="0" min="0" max="3" required style="margin-bottom:0;">
+        <label style="font-size:11px; font-weight:600; color:var(--muted);">Correct Option Number (1 for 1st, 2 for 2nd, 3 for 3rd, 4 for 4th)</label>
+        <input type="number" id="q_${questionCount}_ans" value="${(q.ans !== undefined ? q.ans + 1 : 1)}" placeholder="1" min="1" max="4" required style="margin-bottom:0;">
       `;
       container.appendChild(qDiv);
     });
@@ -783,8 +892,8 @@ window.addQuestionField = function() {
     <label style="font-size:11px; font-weight:600; color:var(--muted);">4 Options (Comma separated. E.g., Option A, Option B, Option C, Option D)</label>
     <input type="text" id="q_${questionCount}_options" placeholder="Option A, Option B, Option C, Option D" required style="margin-bottom:10px;">
     
-    <label style="font-size:11px; font-weight:600; color:var(--muted);">Correct Option Index (0 for 1st, 1 for 2nd, 2 for 3rd, 3 for 4th)</label>
-    <input type="number" id="q_${questionCount}_ans" placeholder="0" min="0" max="3" required style="margin-bottom:0;">
+    <label style="font-size:11px; font-weight:600; color:var(--muted);">Correct Option Number (1 for 1st, 2 for 2nd, 3 for 3rd, 4 for 4th)</label>
+    <input type="number" id="q_${questionCount}_ans" placeholder="1" min="1" max="4" required style="margin-bottom:0;">
   `;
   container.appendChild(qDiv);
 };
@@ -805,10 +914,12 @@ window.saveNewClass = async function() {
     
     if(qText && qOptRaw && qAns !== "") {
       const optionsArray = qOptRaw.split(",").map(item => item.trim());
+      // Convert 1-4 based user input to 0-3 internal index
+      const internalIdx = Math.max(0, parseInt(qAns) - 1);
       questionsArray.push({
         q: qText,
         options: optionsArray,
-        ans: parseInt(qAns)
+        ans: internalIdx
       });
     }
   }
